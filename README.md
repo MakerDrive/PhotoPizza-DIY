@@ -8,6 +8,8 @@ You can self-assemble the device from the available components,
 using the detailed instructions, and you do not need deep knowledge in electronics.
 
 http://makerdrive.org/project/item/photopizza - RUS
+
 http://makerdrive.com/project/item/photopizza - ENG
+
 
 photopizza@makerdrive.com

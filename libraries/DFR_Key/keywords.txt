@@ -1,0 +1,28 @@
+#######################################
+# Syntax Coloring Map for DFR_Key
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+DFR_Key	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+getKey	        KEYWORD2
+setRate         KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+ 
+SAMPLE_WAIT LITERAL1
+NO_KEY LITERAL1
+UP_KEY LITERAL1
+DOWN_KEY LITERAL1
+LEFT_KEY LITERAL1
+RIGHT_KEY LITERAL1
+SELECT_KEY LITERAL1

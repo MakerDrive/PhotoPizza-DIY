@@ -1,5 +1,5 @@
 # PhotoPizza-DIY
-PhotoPizza DIY 360° PRODUCT PHOTOGRAPHY TURNTABLE
+# 360° PRODUCT PHOTOGRAPHY TURNTABLE
 
 PhotoPizza - is an open source project of the turntable for taking pictures of objects from all directions
 (3D-photo-360 spin-photo).

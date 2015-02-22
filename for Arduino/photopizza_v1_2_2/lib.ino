@@ -1,5 +1,7 @@
 ///////// Execute preset
 
+#include "defines.h"
+
 void execute_preset(){
   lcd.setCursor(0,1);
   lcd.print("Program started ");

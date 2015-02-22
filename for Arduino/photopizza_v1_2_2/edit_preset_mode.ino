@@ -1,5 +1,7 @@
+#include "defines.h"
+
 void edit_preset_mode(){
-long _val;
+long _val; 
 
   switch(key){
   case 0:

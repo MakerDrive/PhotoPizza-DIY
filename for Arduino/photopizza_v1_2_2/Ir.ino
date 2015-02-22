@@ -1,5 +1,7 @@
 // From IRrecvDemo
 
+#include "defines.h"
+
 ///////////  IR RECEIVER
 int get_key() 
 {

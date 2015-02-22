@@ -1,3 +1,4 @@
+#include "defines.h"
 
 void menu_mode(){
   switch(key){

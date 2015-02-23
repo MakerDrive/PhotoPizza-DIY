@@ -39,7 +39,6 @@ void setup(){
   cur_mode = MENU_MODE;
   e_flag=0;
 
-  pinMode(IR_PIN, INPUT_PULLUP); //TODO: magic numbers!!!
 
   Serial.begin(115200);
 
@@ -50,13 +49,11 @@ void setup(){
   lcd_flag = false;
   start_interrupt = false;
 
-  attachInterrupt(0, Ir_interrupt, CHANGE);
-  interrupts();
-
   // Show Logo
+  Ir_init();
   say_hello();
   Serial.println("Hello");
-  delay(2000);
+  delay(1000);
   ////////////////////  
 
   // show preset 0 
@@ -81,7 +78,7 @@ void loop(){
     edit_preset_mode();
     break;
   }*/
-  Ir_process();
+  Ir_getKey();
   //Serial.println(get_key());
   //delay(1000);
 }

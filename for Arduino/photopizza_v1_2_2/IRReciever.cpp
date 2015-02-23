@@ -4,7 +4,16 @@
 
 #include <Arduino.h>
 
-extern volatile boolean start_interrupt;
+///////////  IR
+#define IR_BIT_LENGTH 32    // number of bits sent by IR remote
+#define FirstLastBit 15     // divide 32 bits into two 15 bit chunks for integer variables. Ignore center two bits. they are all the same.
+#define BIT_1 1500          // Binary 1 threshold (Microseconds)
+#define BIT_0 450           // Binary 0 threshold (Microseconds)
+#define BIT_START 4000      // Start bit threshold (Microseconds)
+
+#define IR_PIN 2            // IR Sensor pin
+
+#define IR_TIMEO 100000L    //
 
 /*
   use pulseIn to receive IR pulses from the remote.
@@ -22,12 +31,6 @@ static void read_pulse(volatile int pulse[]);
 static bool pulse_to_bits(volatile int pulse[], volatile int bits[]);
 
 /*
-  check returns proper first 14 check bits
- */
-
-//static void RemoteVerify(int bits[]);
-
-/*
   convert an array of binary values to a single base-10 integer
  */
 
@@ -40,6 +43,8 @@ static volatile unsigned long lastPulseTime = 0;
 static volatile bool ready = false;
 static volatile bool reading = false;
 
+static void Ir_interrupt();
+
 ///////////  IR RECEIVER
 void IrDump(){
   for(char i = 0; i < IR_BIT_LENGTH; i++){
@@ -47,55 +52,33 @@ void IrDump(){
   }
 }
 
-int get_key()
-{
-
-  //lcd.setCursor(15,0);
-  //lcd.print("%");
-
-
-  int rez = btnNONE;
-  start_interrupt = false;
-  //do {
-
-    //rez = read_LCD_buttons(); //TODO: restore this!
-  //} //Wait for a start bit
-  if(pulseIn(IR_PIN, HIGH,100000) > BIT_START)
-    return btnNONE;
-
-  if(rez != btnNONE){
-    return rez;
-  }
-  read_pulse(pulse);
-  IrDump();
-  if(!pulse_to_bits(pulse, bits))
-    return btnNONE;
-  //RemoteVerify(bits);
-  rez = bits_to_int(bits);
-  return rez;
-}
-
-void Ir_process(){
-
-  cli(); //TODO: correctly set/reset IRQ
-
+int Ir_getKey(){
+  int key = 0;
   if(ready){
-    Serial.println("RDY");
+    //Serial.println("RDY");
     if(pulse_to_bits(pulse, bits)){
-      IrDump();
-      Serial.println((String) "ReadCode: " + bits_to_int(bits));
+      //IrDump();
+      key = bits_to_int(bits);
+      Serial.println((String) "IR ReadCode: " + key);
     }else
-      Serial.println("ReadCode: Parsing error");
+      Serial.println("IR ReadCode: Parsing error");
     arrPos = 0;
     ready = false;
   }
 
-  sei();
+  return key;
+}
+
+void Ir_init(){
+  pinMode(IR_PIN, INPUT_PULLUP);
+  attachInterrupt(0, Ir_interrupt, CHANGE);
+  interrupts();
 }
 
 void Ir_interrupt(){
-  if(ready){
-    Serial.println("BSY (IRQ)");
+  if(ready){ //skip all frames if current key is not read yet
+    //TODO: inc stat. frame overrun
+    //Serial.println("BSY (IRQ)");
     return;
   }
   unsigned long pulseTime = micros();
@@ -121,20 +104,22 @@ void Ir_interrupt(){
     return;
   }
 
-  if(pulseTime - lastPulseTime > 100000L){
-    //Serial.println("Timeo");
+  unsigned long timeo = pulseTime - lastPulseTime;
+  if(reading && ( timeo > IR_TIMEO)){
+    //Serial.println((String) "Timeo: " + timeo);
+    //TODO: stat timeo increase
     reading = false;
-    ready = false;
     arrPos = 0;
-    return;
-  }
-
-  if(arrPos == 0 && state){
     lastPulseTime = pulseTime;
     return;
   }
 
-  if(reading && state == 1){
+  if(arrPos == 0 && state){ //skip start bit
+    lastPulseTime = pulseTime;
+    return;
+  }
+
+  if(reading && state == 1){ //do not count time of low pulses
     lastPulseTime = pulseTime;
     return;
   }
@@ -148,7 +133,6 @@ void Ir_interrupt(){
     //Serial.println("LEN");
     ready = true;
     reading = false;
-    //reading = false;
     //TODO: inc stat frames recieved, process data
     arrPos = 0;
   }
@@ -182,6 +166,7 @@ bool pulse_to_bits(volatile int pulse[], volatile int bits[])
       return false;
     }
   }
+  return true;
 }
 
 int bits_to_int(volatile int bits[])

@@ -7,10 +7,10 @@
 #include <AccelStepper.h>
 #include "presets.h"
 
-extern LiquidCrystal lcd;
+LiquidCrystal lcd(8, 9, 4, 5, 6, 7);           // select the pins used on the LCD panel
 extern volatile boolean start_interrupt;
 extern volatile boolean exec_flag;
-extern AccelStepper stepper;
+AccelStepper stepper(AccelStepper::DRIVER,12,13);
 
 ///////////  Presets
 extern preset programs;
@@ -23,6 +23,15 @@ extern boolean lcd_flag;
 
 extern int key;                    // Button code
 extern byte e_flag;
+
+void say_hello(){
+  lcd.begin(16, 2);
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("PhotoPizza DIY");
+  lcd.setCursor(0,1);
+  lcd.print("V. 1.2.2");
+}
 
 void execute_preset(){
   lcd.setCursor(0,1);

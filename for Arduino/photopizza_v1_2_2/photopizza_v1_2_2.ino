@@ -3,19 +3,20 @@
 
 //#include "display_mgr.h"
 
-#include "IRReciever.h"
-
+/////////////
+//need to include libs here, because of compile error in other files.
 #include <AccelStepper.h>
 #include <LiquidCrystal.h>
-#include "lib.h"
+#include <Arduino.h>
 
-///////////  LED
-LiquidCrystal lcd(8, 9, 4, 5, 6, 7);           // select the pins used on the LCD panel
-////////////////////////////////////////////////////////////////////////////////////
+////////////
+
+#include "IRReciever.h"
+
+#include "lib.h"
 
 int key;                    // Button code
 ////////////////////////////////////////////////////////////////////////////////////
-
 
 ///////////  Presets
 preset programs;
@@ -29,21 +30,18 @@ volatile boolean exec_flag;
 volatile boolean start_interrupt;
 
 boolean lcd_flag;
-////////////////////////////////////////////////////////////////////////////////////
 
-////////    Stepper
-
-AccelStepper stepper(AccelStepper::DRIVER,12,13); 
 ////////////////////////////////////////////////////////////////////////////////////
 
 void setup(){
-  lcd.begin(16, 2);
-
-  //getLCD();
 
   key = 0; 
   cur_mode = MENU_MODE;
   e_flag=0;
+
+  pinMode(IR_PIN, INPUT_PULLUP); //TODO: magic numbers!!!
+
+  Serial.begin(115200);
 
   programs.init();
   cur_preset = programs.get_cur_preset();
@@ -52,15 +50,12 @@ void setup(){
   lcd_flag = false;
   start_interrupt = false;
 
-  attachInterrupt(0, Ir_interrupt, RISING);
+  attachInterrupt(0, Ir_interrupt, CHANGE);
   interrupts();
 
   // Show Logo
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("PhotoPizza DIY");
-  lcd.setCursor(0,1);
-  lcd.print("V. 1.2.2");  
+  say_hello();
+  Serial.println("Hello");
   delay(2000);
   ////////////////////  
 
@@ -70,31 +65,25 @@ void setup(){
 
 }
 
-void loop(){
-  start_interrupt = false;
-  key = get_key();
-  action();
-  delay(130);
+void yield(){
+  //TDOD: YIELD hook
 }
 
-void action(){
+void loop(){
+  //Serial.println((String) "l: " + millis());
+  /*start_interrupt = false;
+  key = get_key();
   switch(cur_mode){
   case MENU_MODE:
-    menu_mode(); 
+    menu_mode();
     break;
   case EDIT_MODE:
     edit_preset_mode();
     break;
-  }
-}
-
-void Ir_interrupt(){
-  if(start_interrupt){
-    exec_flag = false;
-    start_interrupt = false;
-//    cur_mode = MENU_MODE;
-//    key=0;
-  }
+  }*/
+  Ir_process();
+  //Serial.println(get_key());
+  //delay(1000);
 }
 
 

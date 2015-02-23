@@ -11,7 +11,7 @@ extern volatile boolean start_interrupt;
  Record the length of these pulses (in ms) in an array
  */
 
-static void read_pulse(int pulse[]);
+static void read_pulse(volatile int pulse[]);
 
 /*
   IR pulses encode binary "0" as a short pulse, and binary "1"
@@ -19,48 +19,141 @@ static void read_pulse(int pulse[]);
  convert this to an array containing binary values
  */
 
-static void pulse_to_bits(int pulse[], int bits[]);
+static void pulse_to_bits(volatile int pulse[], volatile int bits[]);
 
 /*
   check returns proper first 14 check bits
  */
 
-static void RemoteVerify(int bits[]);
+//static void RemoteVerify(int bits[]);
 
 /*
   convert an array of binary values to a single base-10 integer
  */
 
-static int bits_to_int(int bits[]);
+static int bits_to_int(volatile int bits[]);
+
+static volatile int pulse[IR_BIT_LENGTH];
+static volatile int bits[IR_BIT_LENGTH];
+static volatile char arrPos = 0;
+static volatile unsigned long lastPulseTime = 0;
+static volatile bool ready = false;
+static volatile bool reading = false;
 
 ///////////  IR RECEIVER
+void IrDump(){
+  for(char i = 0; i < IR_BIT_LENGTH; i++){
+    Serial.println((String)(int)i + ": " + pulse[i] );
+  }
+}
+
 int get_key() 
 {
 
   //lcd.setCursor(15,0);
   //lcd.print("%");
-  int pulse[IR_BIT_LENGTH];
-  int bits[IR_BIT_LENGTH];
+
+
   int rez = btnNONE;
   start_interrupt = false;
-  do {
+  //do {
 
     //rez = read_LCD_buttons(); //TODO: restore this!
-  } //Wait for a start bit
-  while(pulseIn(IR_PIN, HIGH,100000) < BIT_START && rez == btnNONE);
+  //} //Wait for a start bit
+  if(pulseIn(IR_PIN, HIGH,100000) > BIT_START)
+    return btnNONE;
+
   if(rez != btnNONE){
     return rez;
   }
   read_pulse(pulse);
+  IrDump();
   pulse_to_bits(pulse, bits);
-  RemoteVerify(bits);
+  //RemoteVerify(bits);
   rez = bits_to_int(bits);
   //lcd.setCursor(15,0);
   //lcd.print("*");
   return rez;
 }
 
-void read_pulse(int pulse[])
+void Ir_process(){
+  //Serial.println(digitalRead(IR_PIN));
+  //Serial.println("P");
+  cli(); //TODO: correctly set/reset IRQ
+  unsigned long pulseTime = micros();
+  /*if(pulseTime < lastPulseTime){
+    Serial.println("OVR (PR)");
+    arrPos = 0;
+    reading = false;
+    ready = false;
+    sei();
+    return;
+  }*/
+  if(!ready && reading && (pulseTime - lastPulseTime > 100000L)){
+    Serial.println("Timeo");
+    reading = false;
+    ready = false;
+    arrPos = 0;
+    sei();
+    return;
+  }
+  if(ready){
+    Serial.println("RDY");
+    IrDump();
+    pulse_to_bits(pulse, bits);
+    //RemoteVerify(bits);
+    Serial.println((String) "ReadCode: " + bits_to_int(bits));
+    arrPos = 0;
+    ready = false;
+  }
+
+  sei();
+}
+
+void Ir_interrupt(){
+  if(ready){
+    Serial.println("BSY (IRQ)");
+    return;
+  }
+  unsigned long pulseTime = micros();
+  int state = digitalRead(IR_PIN);
+  if(!reading){
+    if(arrPos == 0 && state){
+      Serial.println("FE");
+      //reading = false;
+      //TODO: inc Sat frame start error;
+      lastPulseTime = pulseTime;
+      return;
+    }
+    reading = true;
+    lastPulseTime = pulseTime;
+    return;
+  }
+
+  //Serial.println((int)arrPos);
+
+  if(lastPulseTime > pulseTime){
+    Serial.println("OVR (IRQ)");
+    //TODO: inc stat. TimeOverflow, reset frame or calc correct value
+    arrPos = 0;
+    lastPulseTime = pulseTime;
+    return;
+  }
+
+  pulse[arrPos] = pulseTime - lastPulseTime;
+  ++arrPos;
+
+  if(arrPos > IR_BIT_LENGTH){
+    Serial.println("LEN");
+    ready = true;
+    //reading = false;
+    //TODO: inc stat frames recieved, process data
+    arrPos = 0;
+  }
+  lastPulseTime = pulseTime;
+}
+
+void read_pulse(volatile int pulse[])
 {
   for (int i = 0; i < IR_BIT_LENGTH; i++)
   {
@@ -68,7 +161,7 @@ void read_pulse(int pulse[])
   }
 }
 
-void pulse_to_bits(int pulse[], int bits[])
+void pulse_to_bits(volatile int pulse[], volatile int bits[])
 {
 
   for(int i = 0; i < IR_BIT_LENGTH; i++) 
@@ -89,7 +182,7 @@ void pulse_to_bits(int pulse[], int bits[])
   }
 }
 
-void RemoteVerify(int bits[])
+/*void RemoteVerify(int bits[])
 {
   int result = 0;
   int seed = 1;
@@ -105,10 +198,10 @@ void RemoteVerify(int bits[])
     seed *= 2;
   }
 
-}
+}*/
 
 
-int bits_to_int(int bits[])
+int bits_to_int(volatile int bits[])
 {
   int result = 0;
   int seed = 1;

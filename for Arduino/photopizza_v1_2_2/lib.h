@@ -19,6 +19,8 @@ void run_lcd_no_acc();
 void run_no_lcd_acc();
 
 void run_no_lcd_no_acc();
+
+void say_hello();
 ///////////////////////////////////////
 
 ///////// edit preset

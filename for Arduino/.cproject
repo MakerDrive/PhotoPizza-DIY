@@ -21,8 +21,9 @@
 							<builder id="org.eclipse.cdt.build.core.settings.default.builder.2006558557" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
 							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.52251663" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
 							<tool id="org.eclipse.cdt.build.core.settings.holder.572201694" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
-								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.1492287799" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
+								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.1492287799" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="ARDUINO=100"/>
+									<listOptionValue builtIn="false" value="UBRRH"/>
 								</option>
 								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.923376352" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
 							</tool>
@@ -32,14 +33,16 @@
 									<listOptionValue builtIn="false" value="/Applications/Arduino.app/Contents/Java/hardware/arduino/avr/cores/arduino"/>
 									<listOptionValue builtIn="false" value="/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include"/>
 								</option>
-								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.880148873" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
+								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.880148873" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="ARDUINO=100"/>
+									<listOptionValue builtIn="false" value="UBRRH"/>
 								</option>
 								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.120592873" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
 							</tool>
 							<tool id="org.eclipse.cdt.build.core.settings.holder.832335374" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
-								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.721797415" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
+								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.721797415" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="ARDUINO=100"/>
+									<listOptionValue builtIn="false" value="UBRRH"/>
 								</option>
 								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.978198985" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
 							</tool>

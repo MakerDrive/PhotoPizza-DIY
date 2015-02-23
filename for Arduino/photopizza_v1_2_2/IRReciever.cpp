@@ -19,7 +19,7 @@ static void read_pulse(volatile int pulse[]);
  convert this to an array containing binary values
  */
 
-static void pulse_to_bits(volatile int pulse[], volatile int bits[]);
+static bool pulse_to_bits(volatile int pulse[], volatile int bits[]);
 
 /*
   check returns proper first 14 check bits
@@ -68,27 +68,18 @@ int get_key()
   }
   read_pulse(pulse);
   IrDump();
-  pulse_to_bits(pulse, bits);
+  if(!pulse_to_bits(pulse, bits))
+    return btnNONE;
   //RemoteVerify(bits);
   rez = bits_to_int(bits);
-  //lcd.setCursor(15,0);
-  //lcd.print("*");
   return rez;
 }
 
 void Ir_process(){
-  //Serial.println(digitalRead(IR_PIN));
-  //Serial.println("P");
+
   cli(); //TODO: correctly set/reset IRQ
   unsigned long pulseTime = micros();
-  /*if(pulseTime < lastPulseTime){
-    Serial.println("OVR (PR)");
-    arrPos = 0;
-    reading = false;
-    ready = false;
-    sei();
-    return;
-  }*/
+
   if(!ready && reading && (pulseTime - lastPulseTime > 100000L)){
     Serial.println("Timeo");
     reading = false;
@@ -99,10 +90,11 @@ void Ir_process(){
   }
   if(ready){
     Serial.println("RDY");
-    IrDump();
-    pulse_to_bits(pulse, bits);
-    //RemoteVerify(bits);
-    Serial.println((String) "ReadCode: " + bits_to_int(bits));
+    if(pulse_to_bits(pulse, bits)){
+      IrDump();
+      Serial.println((String) "ReadCode: " + bits_to_int(bits));
+    }else
+      Serial.println("ReadCode: Parsing error");
     arrPos = 0;
     ready = false;
   }
@@ -117,10 +109,10 @@ void Ir_interrupt(){
   }
   unsigned long pulseTime = micros();
   int state = digitalRead(IR_PIN);
-  if(!reading){
+
+  if(!reading){ //receiving new packet
     if(arrPos == 0 && state){
       Serial.println("FE");
-      //reading = false;
       //TODO: inc Sat frame start error;
       lastPulseTime = pulseTime;
       return;
@@ -130,7 +122,15 @@ void Ir_interrupt(){
     return;
   }
 
-  //Serial.println((int)arrPos);
+  if(arrPos == 0 && state){
+    lastPulseTime = pulseTime;
+    return;
+  }
+
+  if(reading && state == 1){
+    lastPulseTime = pulseTime;
+    return;
+  }
 
   if(lastPulseTime > pulseTime){
     Serial.println("OVR (IRQ)");
@@ -141,7 +141,9 @@ void Ir_interrupt(){
   }
 
   pulse[arrPos] = pulseTime - lastPulseTime;
-  ++arrPos;
+
+  if(pulse[arrPos] < BIT_START) //skip long impulses
+    ++arrPos;
 
   if(arrPos > IR_BIT_LENGTH){
     Serial.println("LEN");
@@ -161,7 +163,7 @@ void read_pulse(volatile int pulse[])
   }
 }
 
-void pulse_to_bits(volatile int pulse[], volatile int bits[])
+bool pulse_to_bits(volatile int pulse[], volatile int bits[])
 {
 
   for(int i = 0; i < IR_BIT_LENGTH; i++) 
@@ -177,29 +179,10 @@ void pulse_to_bits(volatile int pulse[], volatile int bits[])
     } 
     else //data is invalid...
     {
-      //  Serial.println("Error");
+      return false;
     }
   }
 }
-
-/*void RemoteVerify(int bits[])
-{
-  int result = 0;
-  int seed = 1;
-
-  //Convert bits to integer
-  for(int i = 0 ; i < (FirstLastBit) ; i++) 
-  {       
-    if(bits[i] == 1) 
-    {
-      result += seed;
-    }
-
-    seed *= 2;
-  }
-
-}*/
-
 
 int bits_to_int(volatile int bits[])
 {

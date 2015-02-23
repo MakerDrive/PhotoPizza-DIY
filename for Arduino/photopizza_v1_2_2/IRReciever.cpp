@@ -47,7 +47,7 @@ void IrDump(){
   }
 }
 
-int get_key() 
+int get_key()
 {
 
   //lcd.setCursor(15,0);
@@ -78,16 +78,7 @@ int get_key()
 void Ir_process(){
 
   cli(); //TODO: correctly set/reset IRQ
-  unsigned long pulseTime = micros();
 
-  if(!ready && reading && (pulseTime - lastPulseTime > 100000L)){
-    Serial.println("Timeo");
-    reading = false;
-    ready = false;
-    arrPos = 0;
-    sei();
-    return;
-  }
   if(ready){
     Serial.println("RDY");
     if(pulse_to_bits(pulse, bits)){
@@ -112,13 +103,29 @@ void Ir_interrupt(){
 
   if(!reading){ //receiving new packet
     if(arrPos == 0 && state){
-      Serial.println("FE");
+      //Serial.println("FE");
       //TODO: inc Sat frame start error;
       lastPulseTime = pulseTime;
       return;
     }
     reading = true;
     lastPulseTime = pulseTime;
+    return;
+  }
+
+  if(lastPulseTime > pulseTime){
+    //Serial.println("OVR (IRQ)");
+    //TODO: inc stat. TimeOverflow, reset frame or calc correct value
+    arrPos = 0;
+    lastPulseTime = pulseTime;
+    return;
+  }
+
+  if(pulseTime - lastPulseTime > 100000L){
+    //Serial.println("Timeo");
+    reading = false;
+    ready = false;
+    arrPos = 0;
     return;
   }
 
@@ -132,22 +139,15 @@ void Ir_interrupt(){
     return;
   }
 
-  if(lastPulseTime > pulseTime){
-    Serial.println("OVR (IRQ)");
-    //TODO: inc stat. TimeOverflow, reset frame or calc correct value
-    arrPos = 0;
-    lastPulseTime = pulseTime;
-    return;
-  }
-
   pulse[arrPos] = pulseTime - lastPulseTime;
 
   if(pulse[arrPos] < BIT_START) //skip long impulses
     ++arrPos;
 
   if(arrPos > IR_BIT_LENGTH){
-    Serial.println("LEN");
+    //Serial.println("LEN");
     ready = true;
+    reading = false;
     //reading = false;
     //TODO: inc stat frames recieved, process data
     arrPos = 0;

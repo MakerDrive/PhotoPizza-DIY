@@ -6,10 +6,18 @@
 #define BIT_START 4000      // Start bit threshold (Microseconds)
  
 #define IR_PIN 2            // IR Sensor pin
+
+int pulse[IR_BIT_LENGTH];
  
 void setup() {
   pinMode(IR_PIN, INPUT);
   Serial.begin(9600);
+}
+
+void IrDump(){
+  for(char i = 0; i < IR_BIT_LENGTH; i++){
+    Serial.println((String)(int)i + ": " + pulse[i] );
+  }
 }
  
 void loop() {
@@ -26,7 +34,7 @@ void loop() {
  
 int get_ir_key() 
 {
-  int pulse[IR_BIT_LENGTH];
+
   int bits[IR_BIT_LENGTH];
  
   do {} //Wait for a start bit
@@ -220,6 +228,7 @@ void do_response(int key)
       */
     default:
       {
+        IrDump();
         Serial.print("Key ");
         Serial.print(key);
         Serial.println("");

@@ -1,10 +1,13 @@
 #include <EEPROM.h>
 #include "presets.h"
 
-#include "display_mgr.h"
+//#include "display_mgr.h"
+
+#include "IRReciever.h"
 
 #include <AccelStepper.h>
 #include <LiquidCrystal.h>
+#include "lib.h"
 
 ///////////  LED
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);           // select the pins used on the LCD panel
@@ -36,7 +39,7 @@ AccelStepper stepper(AccelStepper::DRIVER,12,13);
 void setup(){
   lcd.begin(16, 2);
 
-  getLCD();
+  //getLCD();
 
   key = 0; 
   cur_mode = MENU_MODE;

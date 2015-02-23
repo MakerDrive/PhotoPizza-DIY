@@ -1,20 +1,51 @@
 // From IRrecvDemo
 
-#include "defines.h"
+#include "IRReciever.h"
+
+#include <Arduino.h>
+
+extern volatile boolean start_interrupt;
+
+/*
+  use pulseIn to receive IR pulses from the remote.
+ Record the length of these pulses (in ms) in an array
+ */
+
+static void read_pulse(int pulse[]);
+
+/*
+  IR pulses encode binary "0" as a short pulse, and binary "1"
+ as a long pulse.  Given an array containing pulse lengths,
+ convert this to an array containing binary values
+ */
+
+static void pulse_to_bits(int pulse[], int bits[]);
+
+/*
+  check returns proper first 14 check bits
+ */
+
+static void RemoteVerify(int bits[]);
+
+/*
+  convert an array of binary values to a single base-10 integer
+ */
+
+static int bits_to_int(int bits[]);
 
 ///////////  IR RECEIVER
 int get_key() 
 {
 
-  lcd.setCursor(15,0);
-  lcd.print("%");
+  //lcd.setCursor(15,0);
+  //lcd.print("%");
   int pulse[IR_BIT_LENGTH];
   int bits[IR_BIT_LENGTH];
   int rez = btnNONE;
   start_interrupt = false;
   do {
 
-    rez = read_LCD_buttons();     
+    //rez = read_LCD_buttons(); //TODO: restore this!
   } //Wait for a start bit
   while(pulseIn(IR_PIN, HIGH,100000) < BIT_START && rez == btnNONE);
   if(rez != btnNONE){
@@ -24,15 +55,10 @@ int get_key()
   pulse_to_bits(pulse, bits);
   RemoteVerify(bits);
   rez = bits_to_int(bits);
-  lcd.setCursor(15,0);
-  lcd.print("*");
+  //lcd.setCursor(15,0);
+  //lcd.print("*");
   return rez;
 }
-
-/*
-  use pulseIn to receive IR pulses from the remote.
- Record the length of these pulses (in ms) in an array
- */
 
 void read_pulse(int pulse[])
 {
@@ -41,12 +67,6 @@ void read_pulse(int pulse[])
     pulse[i] = pulseIn(IR_PIN, HIGH);
   }
 }
-
-/*
-  IR pulses encode binary "0" as a short pulse, and binary "1"
- as a long pulse.  Given an array containing pulse lengths,
- convert this to an array containing binary values
- */
 
 void pulse_to_bits(int pulse[], int bits[])
 {
@@ -69,10 +89,6 @@ void pulse_to_bits(int pulse[], int bits[])
   }
 }
 
-/*
-  check returns proper first 14 check bits
- */
-
 void RemoteVerify(int bits[])
 {
   int result = 0;
@@ -91,10 +107,6 @@ void RemoteVerify(int bits[])
 
 }
 
-
-/*
-  convert an array of binary values to a single base-10 integer
- */
 
 int bits_to_int(int bits[])
 {

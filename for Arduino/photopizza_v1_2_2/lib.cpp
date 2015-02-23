@@ -1,6 +1,28 @@
 ///////// Execute preset
 
 #include "defines.h"
+#include "lib.h"
+
+#include <LiquidCrystal.h>
+#include <AccelStepper.h>
+#include "presets.h"
+
+extern LiquidCrystal lcd;
+extern volatile boolean start_interrupt;
+extern volatile boolean exec_flag;
+extern AccelStepper stepper;
+
+///////////  Presets
+extern preset programs;
+extern Preset_st cur_preset;
+
+extern byte cur_mode;
+extern byte menu_param_pos;
+
+extern boolean lcd_flag;
+
+extern int key;                    // Button code
+extern byte e_flag;
 
 void execute_preset(){
   lcd.setCursor(0,1);
@@ -288,7 +310,7 @@ void update_preset(){  // read mem -> check for changes -> write if changed => E
 
 ///////// print info
 
-void show_curr_program(boolean _is_edit){
+void show_curr_program(bool _is_edit){
   lcd.clear();
   print_prog_num();
   print_dir_small(cur_preset.dir);
@@ -406,7 +428,237 @@ int read_LCD_buttons(){               // read the buttons
   return btnNONE;                // when all others fail, return this.
 }
 
+void edit_preset_mode(){
+long _val;
 
+  switch(key){
+  case 0:
+//    menu_param_pos = 0;
+    e_flag=0;
+    show_curr_program(true);
+    break;
 
+  case BTN_POWER:  //exit without writing to mem
+    menu_param_pos = 0;
+    key=0;
+    e_flag=0;
+    cur_mode = MENU_MODE;
+    show_curr_program(false);
+    break;
+
+  case BTN_FUNC: // write to mem and exit
+//    menu_param_pos = 0;
+    key=0;
+    e_flag=0;
+    cur_mode = MENU_MODE;
+    update_preset();
+    show_curr_program(false);
+    break;
+
+  case BTN_CH_U:
+  case btnUP:
+    e_flag=0;
+    menu_param_pos = (menu_param_pos+1)%4;
+    show_curr_program(true);
+    break;
+
+  case BTN_CH_D:
+  case btnDOWN:
+    e_flag=0;
+    menu_param_pos = (menu_param_pos+3)%4;
+    show_curr_program(true);
+    break;
+
+  case BTN_VOL_D:
+  case btnLEFT:
+    e_flag=0;
+    value_d();
+    show_curr_program(true);
+    break;
+
+  case BTN_VOL_U:
+  case btnRIGHT:
+    e_flag=0;
+    value_u();
+    show_curr_program(true);
+    break;
+
+  case BTN_0:
+    if(e_flag!=0){
+      _val = programs.get_val(menu_param_pos)*10;
+      programs.change_val(_val,menu_param_pos);
+      show_curr_program(true);
+    }
+    break;
+
+  case BTN_1:
+    if(e_flag!=0){
+      _val = programs.get_val(menu_param_pos)*10 + 1;
+      programs.change_val(_val,menu_param_pos);
+      show_curr_program(true);
+    }
+    break;
+
+  case BTN_2:
+    if(e_flag!=0){
+      _val = programs.get_val(menu_param_pos)*10 + 2;
+      programs.change_val(_val,menu_param_pos);
+      show_curr_program(true);
+    }
+    break;
+
+  case BTN_3:
+    if(e_flag!=0){
+      _val = programs.get_val(menu_param_pos)*10 + 3;
+      programs.change_val(_val,menu_param_pos);
+      show_curr_program(true);
+    }
+    break;
+
+  case BTN_4:
+    if(e_flag!=0){
+      _val = programs.get_val(menu_param_pos)*10 + 4;
+      programs.change_val(_val,menu_param_pos);
+      show_curr_program(true);
+    }
+    break;
+
+  case BTN_5:
+    if(e_flag!=0){
+      _val = programs.get_val(menu_param_pos)*10 + 5;
+      programs.change_val(_val,menu_param_pos);
+      show_curr_program(true);
+    }
+    break;
+
+  case BTN_6:
+    if(e_flag!=0){
+      _val = programs.get_val(menu_param_pos)*10 + 6;
+      programs.change_val(_val,menu_param_pos);
+      show_curr_program(true);
+    }
+    break;
+
+  case BTN_7:
+    if(e_flag!=0){
+      _val = programs.get_val(menu_param_pos)*10 + 7;
+      programs.change_val(_val,menu_param_pos);
+      show_curr_program(true);
+    }
+    break;
+
+  case BTN_8:
+    if(e_flag!=0){
+      _val = programs.get_val(menu_param_pos)*10 + 8;
+      programs.change_val(_val,menu_param_pos);
+      show_curr_program(true);
+    }
+    break;
+
+  case BTN_9:
+    if(e_flag!=0){
+      _val = programs.get_val(menu_param_pos)*10 + 9;
+      programs.change_val(_val,menu_param_pos);
+      show_curr_program(true);
+    }
+    break;
+
+  case BTN_EQ:
+    if(e_flag==0){
+      e_flag=1;
+      _val = 0;
+      programs.change_val(_val,menu_param_pos);
+    } else {
+      e_flag=0;
+    }
+    show_curr_program(true);
+    break;
+
+  case BTN_ST:
+    programs.change_val(0,menu_param_pos);
+    show_curr_program(true);
+    break;
+
+  case BTN_RW:
+    _val = programs.get_val(menu_param_pos) /10;
+    programs.change_val(_val,menu_param_pos);
+    show_curr_program(true);
+    break;
+
+  case BTN_FW:
+    _val = programs.get_val(menu_param_pos) * 10;
+    programs.change_val(_val,menu_param_pos);
+    show_curr_program(true);
+    break;
+
+  default:
+    print_ir_error('#');
+    break;
+  }
+
+}
+
+void menu_mode(){
+  switch(key){
+  case 0:   // first call, no key pressed yet
+    menu_param_pos = 0;
+    show_curr_program(false);
+    break;
+  case BTN_VOL_U:
+    menu_param_pos = (menu_param_pos+1)%4;
+    show_curr_program(false);
+    break;
+
+  case BTN_VOL_D:
+    menu_param_pos = (menu_param_pos+3)%4;
+    show_curr_program(false);
+    break;
+
+  case BTN_CH_U:
+  case btnRIGHT:
+    programs.next();
+    cur_preset = programs.get_cur_preset();
+    menu_param_pos = 0;
+    show_curr_program(false);
+    break;
+
+  case BTN_CH_D:
+  case btnLEFT:
+    programs.prev();
+    cur_preset = programs.get_cur_preset();
+    menu_param_pos = 0;
+    show_curr_program(false);
+    break;
+
+  case BTN_FW:
+    programs.change_direction(CW);
+    cur_preset = programs.get_cur_preset();
+    show_curr_program(false);
+    break;
+
+  case BTN_RW:
+    programs.change_direction(CCW);
+    cur_preset = programs.get_cur_preset();
+    show_curr_program(false);
+    break;
+
+  case BTN_FUNC:
+    cur_mode = EDIT_MODE;
+    key = 0;
+    edit_preset_mode();
+    break;
+
+  case BTN_PLAY:
+  case btnUP:
+    cur_mode = EXEC_MODE;
+    execute_preset();
+    break;
+
+  default:
+    print_ir_error('#');
+    break;
+  }
+
+}
 
 

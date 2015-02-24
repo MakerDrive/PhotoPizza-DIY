@@ -25,7 +25,7 @@ extern byte cur_mode;
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-void setup(){
+void setup() {
 
   Serial.begin(115200);
 
@@ -43,12 +43,12 @@ void setup(){
 
 }
 
-void yield(){
+void yield() {
   //TDOD: YIELD hook
 }
 
-void loop(){
-  switch(cur_mode){
+void loop() {
+  switch (cur_mode) {
   case MENU_MODE:
     menu_mode();
     break;
@@ -57,11 +57,4 @@ void loop(){
     break;
   }
 }
-
-
-
-
-
-
-
 

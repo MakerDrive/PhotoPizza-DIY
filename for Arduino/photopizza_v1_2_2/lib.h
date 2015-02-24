@@ -38,11 +38,11 @@ void show_curr_program(bool _is_edit);
 
 void print_prog_num();
 
-void print_ul(String _pref, long _value );
+void print_ul(String _pref, long _value);
 
-void print_dir(int _dir );
+void print_dir(int _dir);
 
-void print_dir_small(int _dir );
+void print_dir_small(int _dir);
 
 void print_ir_error(char _sym);
 ///////////////////////////////////////
@@ -53,6 +53,5 @@ int read_LCD_buttons();
 void edit_preset_mode();
 
 void menu_mode();
-
 
 #endif /* PHOTOPIZZA_V1_2_2_LIB_H_ */

@@ -13,7 +13,6 @@
 
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7); // select the pins used on the LCD panel
 volatile boolean exec_flag = true;
-volatile boolean start_interrupt;
 AccelStepper stepper(AccelStepper::DRIVER, 12, 13);
 
 ///////////  Presets
@@ -45,7 +44,6 @@ void execute_preset() {
   lcd.print("P "); // P  - perform
   delay(500); // IR sensetive
   exec_flag = true;
-  start_interrupt = false;
 
   stepper.setCurrentPosition(0L);
   stepper.setAcceleration(cur_preset.acc);
@@ -60,7 +58,6 @@ void execute_preset() {
     run_no_lcd_acc();
   }
 
-  start_interrupt = false;
   lcd.setCursor(0, 1);
   lcd.print("Program finished");
   delay(1000);
@@ -102,7 +99,6 @@ void run_lcd_acc() {
   lcd.setCursor(14, 0);
   lcd.print("R");
   if (tmprot == 0) {
-    start_interrupt = true;
     while (true && exec_flag) {
       lcd.setCursor(0, 1);
       lcd.print(stepper.currentPosition() - tmpstart);
@@ -153,7 +149,6 @@ void run_lcd_no_acc() {
   lcd.print("R");
 
   if (tmprot == 0) { // infinite
-    start_interrupt = true;
     stepper.moveTo(10 * tmpsp);
     stepper.setSpeed(tmpsp);
     while (true && exec_flag) {
@@ -200,7 +195,6 @@ void run_no_lcd_acc() {
   lcd.setCursor(14, 0);
   lcd.print("R");
   if (tmprot == 0) {
-    start_interrupt = true;
     while (true && exec_flag) {
       stepper.runSpeed();
     }
@@ -238,7 +232,6 @@ void run_no_lcd_no_acc() {
   stepper.setMaxSpeed(tmpsp);
 
   if (tmprot == 0) { // infinite
-    start_interrupt = true;
     stepper.moveTo(10 * tmpsp);
     stepper.setSpeed(tmpsp);
     while (true && exec_flag) {
@@ -440,7 +433,7 @@ int read_LCD_buttons() { // read the buttons
 
 void edit_preset_mode() {
   long _val;
-
+  key = Ir_getKey();
   switch (key) {
   case 0:
 //    menu_param_pos = 0;

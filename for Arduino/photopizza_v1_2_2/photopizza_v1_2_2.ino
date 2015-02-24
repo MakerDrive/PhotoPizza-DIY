@@ -14,6 +14,7 @@
 #include "IRReciever.h"
 
 #include "lib.h"
+#include <float.h>
 
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +22,10 @@
 preset programs;
 Preset_st cur_preset;
 
-extern byte cur_mode;
+extern AccelStepper stepper;
+extern LiquidCrystal lcd;
+
+bool bRun = false;
 
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -48,13 +52,34 @@ void yield() {
 }
 
 void loop() {
-  switch (cur_mode) {
+  int key = Ir_getKey();
+  if( key == BTN_POWER && !bRun){
+    bRun = true;
+    Serial.println("Run");
+    Serial.println((String)"Accel" + cur_preset.acc);
+    stepper.setCurrentPosition(0L);
+    //stepper.setAcceleration(10000000); //no acc.//cur_preset.acc);
+    stepper.setAcceleration(1000);
+
+    stepper.setMaxSpeed(1000);///cur_preset.sp);
+    stepper.moveTo(3200);
+  }else if( key == BTN_POWER && bRun){
+    Serial.println("stopping");
+    stepper.stop();
+  }
+
+  if(!stepper.run() && bRun){
+    Serial.println("stop");
+    bRun = false;
+  }
+
+  /*switch (cur_mode) {
   case MENU_MODE:
     menu_mode();
     break;
   case EDIT_MODE:
     edit_preset_mode();
     break;
-  }
+  }*/
 }
 

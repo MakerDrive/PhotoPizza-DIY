@@ -43,6 +43,7 @@
 #define BTN_VOL_D      29452         // pos 2 1
 #define BTN_CH_U       24097         // pos 2 2
 
+
 #define BTN_0          29835         // pos 3 0
 #define BTN_EQ         30982         // pos 3 1
 #define BTN_ST         30855         // pos 3 2

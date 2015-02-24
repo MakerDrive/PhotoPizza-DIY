@@ -7,30 +7,35 @@
 #include <AccelStepper.h>
 #include "presets.h"
 
+#include "IRReciever.h"
+
+#define VER "V. 1.2.2"
+
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);           // select the pins used on the LCD panel
-extern volatile boolean start_interrupt;
-extern volatile boolean exec_flag;
+volatile boolean exec_flag = true;
+volatile boolean start_interrupt;
 AccelStepper stepper(AccelStepper::DRIVER,12,13);
 
 ///////////  Presets
 extern preset programs;
 extern Preset_st cur_preset;
 
-extern byte cur_mode;
-extern byte menu_param_pos;
+byte cur_mode = MENU_MODE;
+byte menu_param_pos;
 
-extern boolean lcd_flag;
+boolean lcd_flag;
 
-extern int key;                    // Button code
-extern byte e_flag;
+int key = 0;                    // Button code
+byte e_flag = 0;
 
 void say_hello(){
   lcd.begin(16, 2);
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("PhotoPizza DIY");
+  Serial.println("PhotoPizza DIY " VER);
   lcd.setCursor(0,1);
-  lcd.print("V. 1.2.2");
+  lcd.print(VER);
 }
 
 void execute_preset(){
@@ -608,6 +613,7 @@ long _val;
 }
 
 void menu_mode(){
+  key = Ir_getKey();
   switch(key){
   case 0:   // first call, no key pressed yet
     menu_param_pos = 0;

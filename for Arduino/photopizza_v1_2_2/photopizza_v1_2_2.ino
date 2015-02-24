@@ -15,49 +15,30 @@
 
 #include "lib.h"
 
-int key;                    // Button code
 ////////////////////////////////////////////////////////////////////////////////////
 
 ///////////  Presets
 preset programs;
 Preset_st cur_preset;
 
-byte cur_mode;
-byte menu_param_pos;
-byte e_flag;
-
-volatile boolean exec_flag;
-volatile boolean start_interrupt;
-
-boolean lcd_flag;
+extern byte cur_mode;
 
 ////////////////////////////////////////////////////////////////////////////////////
 
 void setup(){
-
-  key = 0; 
-  cur_mode = MENU_MODE;
-  e_flag=0;
-
 
   Serial.begin(115200);
 
   programs.init();
   cur_preset = programs.get_cur_preset();
 
-  exec_flag = true;
-  lcd_flag = false;
-  start_interrupt = false;
-
   // Show Logo
   Ir_init();
   say_hello();
-  Serial.println("Hello");
-  delay(1000);
+
+  delay(2000);
   ////////////////////  
 
-  // show preset 0 
-  menu_param_pos = 0;
   show_curr_program(false);
 
 }
@@ -67,9 +48,6 @@ void yield(){
 }
 
 void loop(){
-  //Serial.println((String) "l: " + millis());
-  /*start_interrupt = false;
-  key = get_key();
   switch(cur_mode){
   case MENU_MODE:
     menu_mode();
@@ -77,10 +55,7 @@ void loop(){
   case EDIT_MODE:
     edit_preset_mode();
     break;
-  }*/
-  Ir_getKey();
-  //Serial.println(get_key());
-  //delay(1000);
+  }
 }
 
 

@@ -4,6 +4,8 @@
 
 #include <Arduino.h>
 
+//TODO: convert to class
+
 ///////////  IR
 #define IR_BIT_LENGTH 32    // number of bits sent by IR remote
 #define FirstLastBit 15     // divide 32 bits into two 15 bit chunks for integer variables. Ignore center two bits. they are all the same.

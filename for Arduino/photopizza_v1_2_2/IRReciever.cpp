@@ -131,7 +131,7 @@ void Ir_interrupt() {
   if (pulse[arrPos] < BIT_START) //skip long impulses
     ++arrPos;
 
-  if (arrPos > IR_BIT_LENGTH) {
+  if (arrPos >= IR_BIT_LENGTH) {
     //Serial.println("LEN");
     ready = true;
     reading = false;

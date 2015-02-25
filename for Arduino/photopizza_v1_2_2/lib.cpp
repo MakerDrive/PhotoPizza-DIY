@@ -83,7 +83,7 @@ void finishPreset(){
 }
 
 void libLoop(){
-  int key = Ir_getKey();
+  int key = IrGetKey();
   if( key == BTN_POWER){
     prvExecutePreset();
   }
@@ -283,7 +283,7 @@ int read_LCD_buttons() { // read the buttons
 
 void edit_preset_mode() {
   long _val;
-  key = Ir_getKey();
+  key = IrGetKey();
   switch (key) {
   case 0:
 //    menu_param_pos = 0;
@@ -450,7 +450,7 @@ void edit_preset_mode() {
 }
 
 void menu_mode() {
-  key = Ir_getKey();
+  key = IrGetKey();
   switch (key) {
   case 0: // first call, no key pressed yet
     menu_param_pos = 0;

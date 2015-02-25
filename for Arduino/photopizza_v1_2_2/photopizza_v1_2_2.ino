@@ -21,7 +21,7 @@ void setup() {
   Serial.begin(115200);
 
   libInit();
-  Ir_init();
+  IrInit();
 }
 
 void yield() {

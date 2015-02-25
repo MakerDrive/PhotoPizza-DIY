@@ -18,49 +18,42 @@
 #define IR_TIMEO 100000L    //
 
 /*
- use pulseIn to receive IR pulses from the remote.
- Record the length of these pulses (in ms) in an array
- */
-
-static void read_pulse(volatile int pulse[]);
-
-/*
  IR pulses encode binary "0" as a short pulse, and binary "1"
  as a long pulse.  Given an array containing pulse lengths,
  convert this to an array containing binary values
  */
 
-static bool pulse_to_bits(volatile int pulse[], volatile int bits[]);
+static bool prvPulseToBits(volatile int pulse[], volatile int bits[]);
 
 /*
  convert an array of binary values to a single base-10 integer
  */
 
-static int bits_to_int(volatile int bits[]);
+static int prvBitsToInt(volatile int bits[]);
 
-static volatile int pulse[IR_BIT_LENGTH];
+static volatile int pulses[IR_BIT_LENGTH];
 static volatile int bits[IR_BIT_LENGTH];
 static volatile char arrPos = 0;
 static volatile unsigned long lastPulseTime = 0;
 static volatile bool ready = false;
 static volatile bool reading = false;
 
-static void Ir_interrupt();
+static void prvIRQ();
 
 ///////////  IR RECEIVER
-void IrDump() {
+static void prvDump() {
   for (char i = 0; i < IR_BIT_LENGTH; i++) {
-    Serial.println((String) (int) i + ": " + pulse[i]);
+    Serial.println((String) (int) i + ": " + pulses[i]);
   }
 }
 
-int Ir_getKey() {
+int IrGetKey() {
   int key = 0;
   if (ready) {
     //Serial.println("RDY");
-    if (pulse_to_bits(pulse, bits)) {
-      //IrDump();
-      key = bits_to_int(bits);
+    if (prvPulseToBits(pulses, bits)) {
+      //prvDump();
+      key = prvBitsToInt(bits);
       Serial.println((String) "IR ReadCode: " + key);
     } else
       Serial.println("IR ReadCode: Parsing error");
@@ -71,13 +64,13 @@ int Ir_getKey() {
   return key;
 }
 
-void Ir_init() {
+void IrInit() {
   pinMode(IR_PIN, INPUT_PULLUP);
-  attachInterrupt(0, Ir_interrupt, CHANGE);
+  attachInterrupt(0, prvIRQ, CHANGE);
   interrupts();
 }
 
-void Ir_interrupt() {
+static void prvIRQ() {
   if (ready) { //skip all frames if current key is not read yet
     //TODO: inc stat. frame overrun
     //Serial.println("BSY (IRQ)");
@@ -126,9 +119,9 @@ void Ir_interrupt() {
     return;
   }
 
-  pulse[arrPos] = pulseTime - lastPulseTime;
+  pulses[arrPos] = pulseTime - lastPulseTime;
 
-  if (pulse[arrPos] < BIT_START) //skip long impulses
+  if (pulses[arrPos] < BIT_START) //skip long impulses
     ++arrPos;
 
   if (arrPos >= IR_BIT_LENGTH) {
@@ -141,13 +134,7 @@ void Ir_interrupt() {
   lastPulseTime = pulseTime;
 }
 
-void read_pulse(volatile int pulse[]) {
-  for (int i = 0; i < IR_BIT_LENGTH; i++) {
-    pulse[i] = pulseIn(IR_PIN, HIGH);
-  }
-}
-
-bool pulse_to_bits(volatile int pulse[], volatile int bits[]) {
+static bool prvPulseToBits(volatile int pulse[], volatile int bits[]) {
 
   for (int i = 0; i < IR_BIT_LENGTH; i++) {
 
@@ -165,7 +152,7 @@ bool pulse_to_bits(volatile int pulse[], volatile int bits[]) {
   return true;
 }
 
-int bits_to_int(volatile int bits[]) {
+static int prvBitsToInt(volatile int bits[]) {
   int result = 0;
   int seed = 1;
 

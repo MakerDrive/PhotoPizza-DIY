@@ -10,7 +10,7 @@
 
 #include "defines.h"
 
-int Ir_getKey();
-void Ir_init();
+int IrGetKey();
+void IrInit();
 
 #endif /* PHOTOPIZZA_V1_2_2_IRRECIEVER_H_ */

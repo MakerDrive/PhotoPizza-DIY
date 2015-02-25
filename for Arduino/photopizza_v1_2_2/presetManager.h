@@ -26,23 +26,50 @@ class presetManager {
 public:
   void init();
 
-  void next();
-  void prev();
-  int getCur();
-  preset get_cur_preset();
+  void nextPreset();
+  void prevPreset();
+  int getPresetNumber();
+  preset getPreset();
 
+  void nextParam();
+  void prevParam();
+
+  param getParamNumber(){
+    return _curParam;
+  }
+
+  void resetParamNumber(){
+     _curParam = SPEED;
+  }
+
+  long getValue(){
+    return getValue(_curParam);
+  }
   long getValue(param pos);
+
   void setValue(param pos, long val);
+  void setValue(long val){
+    setValue(_curParam, val);
+  }
+
   void valueUp(param pos);
+  void valueUp(){
+    valueUp(_curParam);
+  }
+
   void valueDown(param pos);
+  void valueDown(){
+    valueDown(_curParam);
+  }
 
   void changeDirection(int dir);
 
   void save();
 
 private:
-  int _cur; // current preset
+  int _curPreset; // current preset
   preset _presets[NUM_PROGRAMS];
+  param _curParam;
 };
 
 }

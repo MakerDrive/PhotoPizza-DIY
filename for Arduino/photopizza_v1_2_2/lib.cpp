@@ -23,12 +23,9 @@ static bool bRun = false;
 
 static void prvExecutePreset();
 
-param menu_param_pos;
-
-boolean lcd_flag;
-
-int key = 0; // Button code
 byte e_flag = 0;
+
+int cur_mode = MENU_MODE;
 
 void libInit(){
   presets.init();
@@ -48,7 +45,7 @@ void sayHello() {
 }
 
 void prvExecutePreset() {
-  if(bRun){
+  if(bRun){ //TODO: fix infinite run!
     Serial.println("stopping");
     stepper.stop();
     lcd.setCursor(0, 1);
@@ -79,29 +76,28 @@ void finishPreset(){
   lcd.print("Program finished");
   Serial.println("Finished");
   delay(1000);
-  menu_param_pos = SPEED;
   show_curr_program(false);
 }
 
 void libLoop(){
   int key = IrGetKey();
-  if( key == BTN_POWER){
+  /*if( key == BTN_POWER){
     prvExecutePreset();
-  }
+  }*/
 
   if(!stepper.run() && bRun){
     bRun = false;
     finishPreset();
   }
 
-  /*switch (cur_mode) {
+  switch (cur_mode) {
   case MENU_MODE:
     menu_mode();
     break;
   case EDIT_MODE:
     edit_preset_mode();
     break;
-  }*/
+  }
 }
 
 ///////////////////////////////////////
@@ -109,11 +105,11 @@ void libLoop(){
 ///////// edit preset
 
 void value_u() {
-  presets.valueUp(menu_param_pos);
+  presets.valueUp();
 }
 
 void value_d() {
-  presets.valueDown(menu_param_pos);
+  presets.valueDown();
 }
 
 ///////////////////////////////////////
@@ -133,28 +129,28 @@ void show_curr_program(bool _is_edit) {
     lcd.print("M");
   }
 
-  switch (menu_param_pos) {
+  switch (presets.getParamNumber()) {
   case SPEED:
-    print_ul("sp", presets.getValue(SPEED));
+    print_ul("sp", presets.getValue());
     break;
 
   case STEPS:
-    if (presets.getValue(STEPS)) {
+    if (presets.getValue() == 0) {
       lcd.setCursor(0, 1);
       lcd.print("rot");
       lcd.setCursor(4, 1);
       lcd.print("inf");
     } else {
-      print_ul("rot", presets.getValue(STEPS));
+      print_ul("rot", presets.getValue());
     }
     break;
 
   case ACC:
-    print_ul("acc", presets.getValue(ACC));
+    print_ul("acc", presets.getValue());
     break;
 
   case DIR:
-    print_dir(presets.getValue(DIR));
+    print_dir(presets.getValue());
     break;
   }
 
@@ -164,7 +160,7 @@ void print_prog_num() {
   lcd.setCursor(0, 0);
   lcd.print("Program");
   lcd.setCursor(8, 0);
-  lcd.print((presets.getCur() + 1));
+  lcd.print((presets.getPresetNumber() + 1));
 }
 
 void print_ul(String _pref, long _value) {
@@ -233,40 +229,40 @@ int read_LCD_buttons() { // read the buttons
 
 void edit_preset_mode() {
   long val;
-  key = IrGetKey();
+  int key = IrGetKey();
   switch (key) {
-  case 0:
-//    menu_param_pos = 0;
+  /*case 0:
     e_flag = 0;
     show_curr_program(true);
-    break;
+    break;*/
 
   case BTN_POWER: //exit without writing to mem
-    menu_param_pos = SPEED;
+    presets.resetParamNumber();
     key = 0;
     e_flag = 0;
     show_curr_program(false);
+    cur_mode = MENU_MODE;
     break;
 
   case BTN_FUNC: // write to mem and exit
-//    menu_param_pos = 0;
     key = 0;
     e_flag = 0;
     presets.save();
     show_curr_program(false);
+    cur_mode = MENU_MODE;
     break;
 
   case BTN_CH_U:
   case btnUP:
     e_flag = 0;
-    menu_param_pos = (param) ((menu_param_pos + 1) % PARAM_COUNT);
+    presets.nextParam();
     show_curr_program(true);
     break;
 
   case BTN_CH_D:
   case btnDOWN:
     e_flag = 0;
-    menu_param_pos = (param) ((menu_param_pos + PARAM_COUNT - 1) % PARAM_COUNT);
+    presets.prevParam();
     show_curr_program(true);
     break;
 
@@ -286,80 +282,80 @@ void edit_preset_mode() {
 
   case BTN_0:
     if (e_flag != 0) {
-      val = presets.getValue(menu_param_pos) * 10;
-      presets.setValue(menu_param_pos, val);
+      val = presets.getValue() * 10;
+      presets.setValue(val);
       show_curr_program(true);
     }
     break;
 
   case BTN_1:
     if (e_flag != 0) {
-      val = presets.getValue(menu_param_pos) * 10 + 1;
-      presets.setValue(menu_param_pos, val);
+      val = presets.getValue() * 10 + 1;
+      presets.setValue(val);
       show_curr_program(true);
     }
     break;
 
   case BTN_2:
     if (e_flag != 0) {
-      val = presets.getValue(menu_param_pos) * 10 + 2;
-      presets.setValue(menu_param_pos, val);
+      val = presets.getValue() * 10 + 2;
+      presets.setValue(val);
       show_curr_program(true);
     }
     break;
 
   case BTN_3:
     if (e_flag != 0) {
-      val = presets.getValue(menu_param_pos) * 10 + 3;
-      presets.setValue(menu_param_pos, val);
+      val = presets.getValue() * 10 + 3;
+      presets.setValue(val);
       show_curr_program(true);
     }
     break;
 
   case BTN_4:
     if (e_flag != 0) {
-      val = presets.getValue(menu_param_pos) * 10 + 4;
-      presets.setValue(menu_param_pos, val);
+      val = presets.getValue() * 10 + 4;
+      presets.setValue(val);
       show_curr_program(true);
     }
     break;
 
   case BTN_5:
     if (e_flag != 0) {
-      val = presets.getValue(menu_param_pos) * 10 + 5;
-      presets.setValue(menu_param_pos, val);
+      val = presets.getValue() * 10 + 5;
+      presets.setValue(val);
       show_curr_program(true);
     }
     break;
 
   case BTN_6:
     if (e_flag != 0) {
-      val = presets.getValue(menu_param_pos) * 10 + 6;
-      presets.setValue(menu_param_pos, val);
+      val = presets.getValue() * 10 + 6;
+      presets.setValue(val);
       show_curr_program(true);
     }
     break;
 
   case BTN_7:
     if (e_flag != 0) {
-      val = presets.getValue(menu_param_pos) * 10 + 7;
-      presets.setValue(menu_param_pos, val);
+      val = presets.getValue() * 10 + 7;
+      presets.setValue(val);
       show_curr_program(true);
     }
     break;
 
   case BTN_8:
     if (e_flag != 0) {
-      val = presets.getValue(menu_param_pos) * 10 + 8;
-      presets.setValue(menu_param_pos, val);
+      val = presets.getValue() * 10 + 8;
+      presets.setValue(val);
       show_curr_program(true);
     }
     break;
 
   case BTN_9:
     if (e_flag != 0) {
-      val = presets.getValue(menu_param_pos) * 10 + 9;
-      presets.setValue(menu_param_pos, val);
+      val = presets.getValue() * 10 + 9;
+      presets.setValue(val);
       show_curr_program(true);
     }
     break;
@@ -367,8 +363,7 @@ void edit_preset_mode() {
   case BTN_EQ:
     if (e_flag == 0) {
       e_flag = 1;
-      val = 0;
-      presets.setValue(menu_param_pos, val);
+      presets.setValue(0);
     } else {
       e_flag = 0;
     }
@@ -376,57 +371,55 @@ void edit_preset_mode() {
     break;
 
   case BTN_ST:
-    presets.setValue(menu_param_pos, 0);
+    presets.setValue(0);
     show_curr_program(true);
     break;
 
   case BTN_RW:
-    val = presets.getValue(menu_param_pos) / 10;
-    presets.setValue(menu_param_pos, val);
+    val = presets.getValue() / 10;
+    presets.setValue(val);
     show_curr_program(true);
     break;
 
   case BTN_FW:
-    val = presets.getValue(menu_param_pos) * 10;
-    presets.setValue(menu_param_pos, val);
+    val = presets.getValue() * 10;
+    presets.setValue(val);
     show_curr_program(true);
     break;
 
-  default:
+/*  default:
     Serial.println("Unknown key");
-    break;
+    break;*/
   }
 
 }
 
 void menu_mode() {
-  key = IrGetKey();
+  int key = IrGetKey();
   switch (key) {
-  case 0: // first call, no key pressed yet
-    menu_param_pos = SPEED;
+  /*case 0: // first call, no key pressed yet
+    presets.resetParamNumber();
     show_curr_program(false);
-    break;
+    break;*/
   case BTN_VOL_U:
-    menu_param_pos = (param)((menu_param_pos + 1) % PARAM_COUNT);
+    presets.nextParam();
     show_curr_program(false);
     break;
 
   case BTN_VOL_D:
-    menu_param_pos = (param)((menu_param_pos + PARAM_COUNT) % PARAM_COUNT);
+    presets.prevParam();
     show_curr_program(false);
     break;
 
   case BTN_CH_U:
   case btnRIGHT:
-    presets.next();
-    menu_param_pos = SPEED;
+    presets.nextPreset();
     show_curr_program(false);
     break;
 
   case BTN_CH_D:
   case btnLEFT:
-    presets.prev();
-    menu_param_pos = SPEED;
+    presets.prevPreset();
     show_curr_program(false);
     break;
 
@@ -443,6 +436,8 @@ void menu_mode() {
   case BTN_FUNC:
     key = 0;
     edit_preset_mode();
+    show_curr_program(true);
+    cur_mode = EDIT_MODE;
     break;
 
   case BTN_PLAY:
@@ -450,9 +445,9 @@ void menu_mode() {
     prvExecutePreset();
     break;
 
-  default:
+/*  default:
     Serial.println("Unknown key");
-    break;
+    break;*/
   }
 
 }

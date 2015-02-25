@@ -5,7 +5,7 @@
 
 #include <LiquidCrystal.h>
 #include <AccelStepper.h>
-#include "presets.h"
+#include "presetManager.h"
 
 #include "IRReciever.h"
 
@@ -15,8 +15,8 @@ LiquidCrystal lcd(8, 9, 4, 5, 6, 7); // select the pins used on the LCD panel
 AccelStepper stepper(AccelStepper::DRIVER, 12, 13);
 
 ///////////  Presets
-preset programs;
-Preset_st cur_preset;
+presetManager presets;
+preset cur_preset;
 
 static bool bRun = false;
 
@@ -30,9 +30,9 @@ int key = 0; // Button code
 byte e_flag = 0;
 
 void libInit(){
-  programs.init();
+  presets.init();
   sayHello();
-  cur_preset = programs.get_cur_preset();
+  cur_preset = presets.get_cur_preset();
   show_curr_program(false);
 }
 
@@ -61,22 +61,23 @@ void prvExecutePreset() {
   lcd.print("Program started ");
 
   Serial.println("Run");
-  int steps = cur_preset.steps * cur_preset.dir;
-  Serial.println((String)"Accel" + cur_preset.acc);
+  int steps = cur_preset._steps * cur_preset._dir;
+  Serial.println((String)"Accel" + cur_preset._acc);
   Serial.println((String)"Steps" + steps);
-  Serial.println((String)"Speed" + cur_preset.speed);
+  Serial.println((String)"Speed" + cur_preset._speed);
   stepper.setCurrentPosition(0L);
-  if(cur_preset.acc == 0){
+  if(cur_preset._acc == 0){
     stepper.setAcceleration(10000000); //no acc.
   }else
-    stepper.setAcceleration(cur_preset.acc);
+    stepper.setAcceleration(cur_preset._acc);
   stepper.moveTo(steps);
-  stepper.setMaxSpeed(cur_preset.speed);
+  stepper.setMaxSpeed(cur_preset._speed);
 }
 
 void finishPreset(){
   lcd.setCursor(0, 1);
   lcd.print("Program finished");
+  Serial.println("Finished");
   delay(1000);
   menu_param_pos = 0;
   show_curr_program(false);
@@ -89,7 +90,6 @@ void libLoop(){
   }
 
   if(!stepper.run() && bRun){
-    Serial.println("Finished");
     bRun = false;
     finishPreset();
   }
@@ -109,59 +109,13 @@ void libLoop(){
 ///////// edit preset
 
 void value_u() {
-  switch (menu_param_pos) {
-  case SPEEED:
-    programs.change_val_u(SPEED_STEP, SPEEED);
-    break;
-
-  case ROT:
-    programs.change_val_u(ROT_STEP, ROT);
-    break;
-
-  case ACC:
-    programs.change_val_u(ACC_STEP, ACC);
-    break;
-
-  case DIR:
-    programs.change_val_u(CW, DIR);
-    break;
-  }
-
-  cur_preset = programs.get_cur_preset();
+  presets.valueUp(menu_param_pos);
+  cur_preset = presets.get_cur_preset();
 }
 
 void value_d() {
-  switch (menu_param_pos) {
-  case SPEEED:
-    programs.change_val_d(SPEED_STEP, SPEEED);
-    break;
-
-  case ROT:
-    programs.change_val_d(ROT_STEP, ROT);
-    break;
-
-  case ACC:
-    programs.change_val_d(ACC_STEP, ACC);
-    break;
-
-  case DIR:
-    programs.change_val_d(CCW, DIR);
-    break;
-  }
-
-  cur_preset = programs.get_cur_preset();
-}
-
-void update_preset() { // read mem -> check for changes -> write if changed => EEPROM live longer =)
-  Preset_st orig;
-  EEPROM_readAnything((1 + programs.get_cur() * PRESET_SIZE), orig);
-
-  if ((orig.speed != cur_preset.speed) || (orig.steps != cur_preset.steps)
-      || (orig.acc != cur_preset.acc) || (orig.dir != cur_preset.dir)) {
-    EEPROM_writeAnything((1 + programs.get_cur() * PRESET_SIZE), cur_preset);
-    byte f = 204;
-    EEPROM_writeAnything(0, f);
-  }
+  presets.valueDown(SPEEED);
+  cur_preset = presets.get_cur_preset();
 }
 
 ///////////////////////////////////////
@@ -171,13 +125,13 @@ void update_preset() { // read mem -> check for changes -> write if changed => E
 void show_curr_program(bool _is_edit) {
   lcd.clear();
   print_prog_num();
-  print_dir_small(cur_preset.dir);
+  print_dir_small(cur_preset._dir);
 
   if (_is_edit) {
     lcd.setCursor(14, 0);
     lcd.print("E");
 
-    cur_preset = programs.get_cur_preset();
+    cur_preset = presets.get_cur_preset();
   } else {
     lcd.setCursor(14, 0);
     lcd.print("M");
@@ -185,26 +139,26 @@ void show_curr_program(bool _is_edit) {
 
   switch (menu_param_pos) {
   case SPEEED:
-    print_ul("sp", cur_preset.speed);
+    print_ul("sp", cur_preset._speed);
     break;
 
   case ROT:
-    if (cur_preset.steps == 0) {
+    if (cur_preset._steps == 0) {
       lcd.setCursor(0, 1);
       lcd.print("rot");
       lcd.setCursor(4, 1);
       lcd.print("inf");
     } else {
-      print_ul("rot", cur_preset.steps);
+      print_ul("rot", cur_preset._steps);
     }
     break;
 
   case ACC:
-    print_ul("acc", cur_preset.acc);
+    print_ul("acc", cur_preset._acc);
     break;
 
   case DIR:
-    print_dir(cur_preset.dir);
+    print_dir(cur_preset._dir);
     break;
   }
 
@@ -214,7 +168,7 @@ void print_prog_num() {
   lcd.setCursor(0, 0);
   lcd.print("Program");
   lcd.setCursor(8, 0);
-  lcd.print((programs.get_cur() + 1));
+  lcd.print((presets.getCur() + 1));
 }
 
 void print_ul(String _pref, long _value) {
@@ -302,7 +256,7 @@ void edit_preset_mode() {
 //    menu_param_pos = 0;
     key = 0;
     e_flag = 0;
-    update_preset();
+    presets.save();
     show_curr_program(false);
     break;
 
@@ -336,80 +290,80 @@ void edit_preset_mode() {
 
   case BTN_0:
     if (e_flag != 0) {
-      _val = programs.get_val(menu_param_pos) * 10;
-      programs.change_val(_val, menu_param_pos);
+      _val = presets.getValue(menu_param_pos) * 10;
+      presets.setValue(_val, menu_param_pos);
       show_curr_program(true);
     }
     break;
 
   case BTN_1:
     if (e_flag != 0) {
-      _val = programs.get_val(menu_param_pos) * 10 + 1;
-      programs.change_val(_val, menu_param_pos);
+      _val = presets.getValue(menu_param_pos) * 10 + 1;
+      presets.setValue(_val, menu_param_pos);
       show_curr_program(true);
     }
     break;
 
   case BTN_2:
     if (e_flag != 0) {
-      _val = programs.get_val(menu_param_pos) * 10 + 2;
-      programs.change_val(_val, menu_param_pos);
+      _val = presets.getValue(menu_param_pos) * 10 + 2;
+      presets.setValue(_val, menu_param_pos);
       show_curr_program(true);
     }
     break;
 
   case BTN_3:
     if (e_flag != 0) {
-      _val = programs.get_val(menu_param_pos) * 10 + 3;
-      programs.change_val(_val, menu_param_pos);
+      _val = presets.getValue(menu_param_pos) * 10 + 3;
+      presets.setValue(_val, menu_param_pos);
       show_curr_program(true);
     }
     break;
 
   case BTN_4:
     if (e_flag != 0) {
-      _val = programs.get_val(menu_param_pos) * 10 + 4;
-      programs.change_val(_val, menu_param_pos);
+      _val = presets.getValue(menu_param_pos) * 10 + 4;
+      presets.setValue(_val, menu_param_pos);
       show_curr_program(true);
     }
     break;
 
   case BTN_5:
     if (e_flag != 0) {
-      _val = programs.get_val(menu_param_pos) * 10 + 5;
-      programs.change_val(_val, menu_param_pos);
+      _val = presets.getValue(menu_param_pos) * 10 + 5;
+      presets.setValue(_val, menu_param_pos);
       show_curr_program(true);
     }
     break;
 
   case BTN_6:
     if (e_flag != 0) {
-      _val = programs.get_val(menu_param_pos) * 10 + 6;
-      programs.change_val(_val, menu_param_pos);
+      _val = presets.getValue(menu_param_pos) * 10 + 6;
+      presets.setValue(_val, menu_param_pos);
       show_curr_program(true);
     }
     break;
 
   case BTN_7:
     if (e_flag != 0) {
-      _val = programs.get_val(menu_param_pos) * 10 + 7;
-      programs.change_val(_val, menu_param_pos);
+      _val = presets.getValue(menu_param_pos) * 10 + 7;
+      presets.setValue(_val, menu_param_pos);
       show_curr_program(true);
     }
     break;
 
   case BTN_8:
     if (e_flag != 0) {
-      _val = programs.get_val(menu_param_pos) * 10 + 8;
-      programs.change_val(_val, menu_param_pos);
+      _val = presets.getValue(menu_param_pos) * 10 + 8;
+      presets.setValue(_val, menu_param_pos);
       show_curr_program(true);
     }
     break;
 
   case BTN_9:
     if (e_flag != 0) {
-      _val = programs.get_val(menu_param_pos) * 10 + 9;
-      programs.change_val(_val, menu_param_pos);
+      _val = presets.getValue(menu_param_pos) * 10 + 9;
+      presets.setValue(_val, menu_param_pos);
       show_curr_program(true);
     }
     break;
@@ -418,7 +372,7 @@ void edit_preset_mode() {
     if (e_flag == 0) {
       e_flag = 1;
       _val = 0;
-      programs.change_val(_val, menu_param_pos);
+      presets.setValue(_val, menu_param_pos);
     } else {
       e_flag = 0;
     }
@@ -426,19 +380,19 @@ void edit_preset_mode() {
     break;
 
   case BTN_ST:
-    programs.change_val(0, menu_param_pos);
+    presets.setValue(0, menu_param_pos);
     show_curr_program(true);
     break;
 
   case BTN_RW:
-    _val = programs.get_val(menu_param_pos) / 10;
-    programs.change_val(_val, menu_param_pos);
+    _val = presets.getValue(menu_param_pos) / 10;
+    presets.setValue(_val, menu_param_pos);
     show_curr_program(true);
     break;
 
   case BTN_FW:
-    _val = programs.get_val(menu_param_pos) * 10;
-    programs.change_val(_val, menu_param_pos);
+    _val = presets.getValue(menu_param_pos) * 10;
+    presets.setValue(_val, menu_param_pos);
     show_curr_program(true);
     break;
 
@@ -468,29 +422,29 @@ void menu_mode() {
 
   case BTN_CH_U:
   case btnRIGHT:
-    programs.next();
-    cur_preset = programs.get_cur_preset();
+    presets.next();
+    cur_preset = presets.get_cur_preset();
     menu_param_pos = 0;
     show_curr_program(false);
     break;
 
   case BTN_CH_D:
   case btnLEFT:
-    programs.prev();
-    cur_preset = programs.get_cur_preset();
+    presets.prev();
+    cur_preset = presets.get_cur_preset();
     menu_param_pos = 0;
     show_curr_program(false);
     break;
 
   case BTN_FW:
-    programs.change_direction(CW);
-    cur_preset = programs.get_cur_preset();
+    presets.change_direction(CW);
+    cur_preset = presets.get_cur_preset();
     show_curr_program(false);
     break;
 
   case BTN_RW:
-    programs.change_direction(CCW);
-    cur_preset = programs.get_cur_preset();
+    presets.change_direction(CCW);
+    cur_preset = presets.get_cur_preset();
     show_curr_program(false);
     break;
 

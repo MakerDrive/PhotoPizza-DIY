@@ -229,6 +229,9 @@ int read_LCD_buttons() { // read the buttons
 void edit_preset_mode() {
   long val;
   int key = IrGetKey();
+
+  /*if(key == 0)
+    key = read_LCD_buttons();*/
   switch (key) {
   /*case 0:
     e_flag = 0;
@@ -396,8 +399,11 @@ void edit_preset_mode() {
 void menu_mode() {
   int key = IrGetKey();
 
+  /*if(key == 0)
+      key = read_LCD_buttons();*/
+
   if(bRun) {
-    if(key == BTN_PLAY)
+    if(key == BTN_PLAY || key == btnUP)
       prvExecutePreset();
     return;
   }

@@ -12,14 +12,16 @@
 #define VER "V. 1.2.2"
 
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7); // select the pins used on the LCD panel
-volatile boolean exec_flag = true;
 AccelStepper stepper(AccelStepper::DRIVER, 12, 13);
 
 ///////////  Presets
-extern preset programs;
-extern Preset_st cur_preset;
+preset programs;
+Preset_st cur_preset;
 
-byte cur_mode = MENU_MODE;
+static bool bRun = false;
+
+static void prvExecutePreset();
+
 byte menu_param_pos;
 
 boolean lcd_flag;
@@ -27,7 +29,14 @@ boolean lcd_flag;
 int key = 0; // Button code
 byte e_flag = 0;
 
-void say_hello() {
+void libInit(){
+  programs.init();
+  sayHello();
+  cur_preset = programs.get_cur_preset();
+  show_curr_program(false);
+}
+
+void sayHello() {
   lcd.begin(16, 2);
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -35,217 +44,65 @@ void say_hello() {
   Serial.println("PhotoPizza DIY " VER);
   lcd.setCursor(0, 1);
   lcd.print(VER);
+  delay(2000);
 }
 
-void execute_preset() {
-  lcd.setCursor(0, 1);
-  lcd.print("Program started ");
-  lcd.setCursor(13, 0);
-  lcd.print("P "); // P  - perform
-  delay(500); // IR sensetive
-  exec_flag = true;
-
-  stepper.setCurrentPosition(0L);
-  stepper.setAcceleration(cur_preset.acc);
-
-  if (lcd_flag && cur_preset.acc == 0) {
-    run_lcd_no_acc();
-  } else if (lcd_flag && cur_preset.acc != 0) {
-    run_lcd_acc();
-  } else if (!lcd_flag && cur_preset.acc == 0) {
-    run_no_lcd_no_acc();
-  } else { // !lcd_flag && cur_preset.acc!=0
-    run_no_lcd_acc();
+void prvExecutePreset() {
+  if(bRun){
+    Serial.println("stopping");
+    stepper.stop();
+    lcd.setCursor(0, 1);
+    lcd.print("Program stopping ");
+    return;
   }
 
+  bRun = true;
+  lcd.setCursor(0, 1);
+  lcd.print("Program started ");
+
+  Serial.println("Run");
+  int steps = cur_preset.steps * cur_preset.dir;
+  Serial.println((String)"Accel" + cur_preset.acc);
+  Serial.println((String)"Steps" + steps);
+  Serial.println((String)"Speed" + cur_preset.speed);
+  stepper.setCurrentPosition(0L);
+  if(cur_preset.acc == 0){
+    stepper.setAcceleration(10000000); //no acc.
+  }else
+    stepper.setAcceleration(cur_preset.acc);
+  stepper.moveTo(steps);
+  stepper.setMaxSpeed(cur_preset.speed);
+}
+
+void finishPreset(){
   lcd.setCursor(0, 1);
   lcd.print("Program finished");
   delay(1000);
-  cur_mode = MENU_MODE;
   menu_param_pos = 0;
   show_curr_program(false);
 }
 
-void run_lcd_acc() {
-  lcd.setCursor(0, 1);
-  lcd.print("                ");
-  lcd.setCursor(7, 1);
-  lcd.print("/");
-  lcd.print(cur_preset.rot);
-
-  long tmprot = cur_preset.rot * cur_preset.dir;
-  float tmpsp = float(cur_preset.sp * cur_preset.dir);
-  long tmpstop = cur_preset.dir * cur_preset.sp * cur_preset.sp
-      / (2 * cur_preset.acc);
-  long tmpstart = 2.5 * tmpstop;
-  stepper.setMaxSpeed(cur_preset.sp);
-  stepper.moveTo(tmpstart * 3);
-  stepper.run(); // first 2 steps
-  stepper.run();
-  // acceleration
-  lcd.setCursor(14, 0);
-  lcd.print("A");
-  if (cur_preset.dir == CCW) {
-    while ((stepper.currentPosition() <= tmpstart) && exec_flag) {
-      stepper.run();
-    }
-  } else {
-    while ((stepper.currentPosition() >= tmpstart) && exec_flag) {
-      stepper.run();
-    }
+void libLoop(){
+  int key = Ir_getKey();
+  if( key == BTN_POWER){
+    prvExecutePreset();
   }
 
-  // move
-  lcd.setCursor(14, 0);
-  lcd.print("R");
-  if (tmprot == 0) {
-    while (true && exec_flag) {
-      lcd.setCursor(0, 1);
-      lcd.print(stepper.currentPosition() - tmpstart);
-      stepper.runSpeed();
-    }
-
-  } else {
-    stepper.move(tmprot + tmpstop);
-    stepper.setSpeed(tmpsp);
-
-    if (cur_preset.dir == CCW) {
-      while ((stepper.currentPosition() <= tmprot + tmpstart) && exec_flag) {
-        lcd.setCursor(0, 1);
-        lcd.print(stepper.currentPosition() - tmpstart);
-        stepper.runSpeed();
-      }
-    } else {
-      while ((stepper.currentPosition() >= tmprot + tmpstart) && exec_flag) {
-        lcd.setCursor(0, 1);
-        lcd.print(stepper.currentPosition() - tmpstart);
-        stepper.runSpeed();
-      }
-    }
+  if(!stepper.run() && bRun){
+    Serial.println("Finished");
+    bRun = false;
+    finishPreset();
   }
-  // stop
-  lcd.setCursor(14, 0);
-  lcd.print("S");
 
-  stepper.stop();
-  stepper.runToPosition();
-
+  /*switch (cur_mode) {
+  case MENU_MODE:
+    menu_mode();
+    break;
+  case EDIT_MODE:
+    edit_preset_mode();
+    break;
+  }*/
 }
-;
-
-void run_lcd_no_acc() {
-  lcd.setCursor(0, 1);
-  lcd.print("                ");
-  lcd.setCursor(7, 1);
-  lcd.print("/");
-  lcd.print(cur_preset.rot);
-
-  long tmprot = cur_preset.rot * cur_preset.dir;
-  float tmpsp = float(cur_preset.sp * cur_preset.dir);
-
-  stepper.setMaxSpeed(tmpsp);
-
-  lcd.setCursor(14, 0);
-  lcd.print("R");
-
-  if (tmprot == 0) { // infinite
-    stepper.moveTo(10 * tmpsp);
-    stepper.setSpeed(tmpsp);
-    while (true && exec_flag) {
-      lcd.setCursor(0, 1);
-      lcd.print(stepper.currentPosition());
-      stepper.runSpeed();
-    }
-  } else {
-    stepper.moveTo(tmprot);
-    stepper.setSpeed(tmpsp);
-    while ((stepper.currentPosition() != cur_preset.rot) && exec_flag) {
-      lcd.setCursor(0, 1);
-      lcd.print(stepper.currentPosition());
-      stepper.runSpeed();
-    }
-  }
-}
-;
-
-void run_no_lcd_acc() {
-  long tmprot = cur_preset.rot * cur_preset.dir;
-  float tmpsp = float(cur_preset.sp * cur_preset.dir);
-  long tmpstop = cur_preset.dir * cur_preset.sp * cur_preset.sp
-      / (2 * cur_preset.acc);
-  long tmpstart = 2.5 * tmpstop;
-  stepper.setMaxSpeed(cur_preset.sp);
-  stepper.moveTo(tmpstart * 3);
-  stepper.run(); // first 2 steps
-  stepper.run();
-  // acceleration
-  lcd.setCursor(14, 0);
-  lcd.print("A");
-  if (cur_preset.dir == CCW) {
-    while ((stepper.currentPosition() <= tmpstart) && exec_flag) {
-      stepper.run();
-    }
-  } else {
-    while ((stepper.currentPosition() >= tmpstart) && exec_flag) {
-      stepper.run();
-    }
-  }
-
-  // move
-  lcd.setCursor(14, 0);
-  lcd.print("R");
-  if (tmprot == 0) {
-    while (true && exec_flag) {
-      stepper.runSpeed();
-    }
-  } else {
-    stepper.move(tmprot + tmpstop);
-    stepper.setSpeed(tmpsp);
-
-    if (cur_preset.dir == CCW) {
-      while ((stepper.currentPosition() <= tmprot + tmpstart) && exec_flag) {
-        stepper.runSpeed();
-      }
-    } else {
-      while ((stepper.currentPosition() >= tmprot + tmpstart) && exec_flag) {
-        stepper.runSpeed();
-      }
-    }
-  }
-  // stop
-  lcd.setCursor(14, 0);
-  lcd.print("S");
-
-  stepper.stop();
-  stepper.runToPosition();
-
-}
-;
-
-void run_no_lcd_no_acc() {
-  lcd.setCursor(14, 0);
-  lcd.print("R");
-
-  long tmprot = cur_preset.rot * cur_preset.dir;
-  float tmpsp = float(cur_preset.sp * cur_preset.dir);
-
-  stepper.setMaxSpeed(tmpsp);
-
-  if (tmprot == 0) { // infinite
-    stepper.moveTo(10 * tmpsp);
-    stepper.setSpeed(tmpsp);
-    while (true && exec_flag) {
-      stepper.runSpeed();
-    }
-  } else {
-    stepper.moveTo(tmprot);
-    stepper.setSpeed(tmpsp);
-    while ((stepper.currentPosition() != cur_preset.rot) && exec_flag) {
-      stepper.runSpeed();
-    }
-  }
-}
-;
 
 ///////////////////////////////////////
 
@@ -299,7 +156,7 @@ void update_preset() { // read mem -> check for changes -> write if changed => E
   Preset_st orig;
   EEPROM_readAnything((1 + programs.get_cur() * PRESET_SIZE), orig);
 
-  if ((orig.sp != cur_preset.sp) || (orig.rot != cur_preset.rot)
+  if ((orig.speed != cur_preset.speed) || (orig.steps != cur_preset.steps)
       || (orig.acc != cur_preset.acc) || (orig.dir != cur_preset.dir)) {
     EEPROM_writeAnything((1 + programs.get_cur() * PRESET_SIZE), cur_preset);
     byte f = 204;
@@ -328,17 +185,17 @@ void show_curr_program(bool _is_edit) {
 
   switch (menu_param_pos) {
   case SPEEED:
-    print_ul("sp", cur_preset.sp);
+    print_ul("sp", cur_preset.speed);
     break;
 
   case ROT:
-    if (cur_preset.rot == 0) {
+    if (cur_preset.steps == 0) {
       lcd.setCursor(0, 1);
       lcd.print("rot");
       lcd.setCursor(4, 1);
       lcd.print("inf");
     } else {
-      print_ul("rot", cur_preset.rot);
+      print_ul("rot", cur_preset.steps);
     }
     break;
 
@@ -386,13 +243,6 @@ void print_dir_small(int _dir) {
     lcd.print("<");
   }
 }
-
-void print_ir_error(char _sym) {
-  lcd.setCursor(15, 0);
-  lcd.print(_sym);
-  delay(1000);
-}
-
 ///////////////////////////////////////
 
 ///////// LCD Buttons
@@ -445,7 +295,6 @@ void edit_preset_mode() {
     menu_param_pos = 0;
     key = 0;
     e_flag = 0;
-    cur_mode = MENU_MODE;
     show_curr_program(false);
     break;
 
@@ -453,7 +302,6 @@ void edit_preset_mode() {
 //    menu_param_pos = 0;
     key = 0;
     e_flag = 0;
-    cur_mode = MENU_MODE;
     update_preset();
     show_curr_program(false);
     break;
@@ -595,7 +443,7 @@ void edit_preset_mode() {
     break;
 
   default:
-    print_ir_error('#');
+    Serial.println("Unknown key");
     break;
   }
 
@@ -647,19 +495,17 @@ void menu_mode() {
     break;
 
   case BTN_FUNC:
-    cur_mode = EDIT_MODE;
     key = 0;
     edit_preset_mode();
     break;
 
   case BTN_PLAY:
   case btnUP:
-    cur_mode = EXEC_MODE;
-    execute_preset();
+    prvExecutePreset();
     break;
 
   default:
-    print_ir_error('#');
+    Serial.println("Unknown key");
     break;
   }
 

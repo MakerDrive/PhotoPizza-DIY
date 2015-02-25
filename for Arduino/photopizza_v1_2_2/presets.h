@@ -6,8 +6,8 @@
 
 
 struct Preset_st{
-  long sp; // speed
-  long rot; // rotaion
+  long speed; // speed
+  long steps; // rotaion
   long acc; // acceleration
   int  dir;   // -1 - clockwise , 1 - counterclockwise
 };

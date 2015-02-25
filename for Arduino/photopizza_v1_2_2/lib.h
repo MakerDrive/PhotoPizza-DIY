@@ -10,17 +10,11 @@
 
 #include <Arduino.h>
 
-void execute_preset();
+void libLoop();
 
-void run_lcd_acc();
+void sayHello();
 
-void run_lcd_no_acc();
-
-void run_no_lcd_acc();
-
-void run_no_lcd_no_acc();
-
-void say_hello();
+void libInit();
 ///////////////////////////////////////
 
 ///////// edit preset

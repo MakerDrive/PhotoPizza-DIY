@@ -6,31 +6,31 @@ void preset::init() {
   byte flag;
   EEPROM_readAnything(0, flag);
 
-  if (flag == 204) { // 11 00 11 00
+  /*if (flag == 204) { // 11 00 11 00
     EEPROM_readAnything(1, presets[0]); //  first int in memory
     EEPROM_readAnything(1 + PRESET_SIZE, presets[1]); //
     EEPROM_readAnything(1 + PRESET_SIZE * 2, presets[2]); //
     EEPROM_readAnything(1 + PRESET_SIZE * 3, presets[3]); //
     return;
-  }
+  }*/ //TODO: restore
 
-  presets[0].sp = 4300;
-  presets[0].rot = 0;
+  presets[0].speed = 4300;
+  presets[0].steps = 3200;
   presets[0].acc = 5000;
   presets[0].dir = CW;
 
-  presets[1].sp = 3300;
-  presets[1].rot = 0;
+  presets[1].speed = 3300;
+  presets[1].steps = 3200;
   presets[1].acc = 5000;
   presets[1].dir = CW;
 
-  presets[2].sp = 1000;
-  presets[2].rot = 10000;
+  presets[2].speed = 1000;
+  presets[2].steps = 10000;
   presets[2].acc = 5000;
   presets[2].dir = CW;
 
-  presets[3].sp = 2000;
-  presets[3].rot = 20000;
+  presets[3].speed = 2000;
+  presets[3].steps = 20000;
   presets[3].acc = 5000;
   presets[3].dir = CW;
 
@@ -63,10 +63,10 @@ long preset::get_val(byte _pos) {
   long rez = 0;
   switch (_pos) {
   case SPEEED:
-    rez = presets[cur].sp;
+    rez = presets[cur].speed;
     break;
   case ROT:
-    rez = presets[cur].rot;
+    rez = presets[cur].steps;
     break;
   case ACC:
     rez = presets[cur].acc;
@@ -85,7 +85,7 @@ void preset::change_val(long _val, byte _pos) {
       _val = SPEED_MIN;
     if (_val > SPEED_MAX)
       _val = SPEED_MAX;
-    presets[cur].sp = _val;
+    presets[cur].speed = _val;
     break;
 
   case ROT:
@@ -93,7 +93,7 @@ void preset::change_val(long _val, byte _pos) {
       _val = ROT_MIN;
     if (_val > ROT_MAX)
       _val = ROT_MAX;
-    presets[cur].rot = _val;
+    presets[cur].steps = _val;
     break;
 
   case ACC:
@@ -118,22 +118,22 @@ void preset::change_val(long _val, byte _pos) {
 void preset::change_val_u(long _val, byte _pos) {
   switch (_pos) {
   case SPEEED: {
-    long tmp = presets[cur].sp + _val;
-    if ((presets[cur].sp > SPEED_MAX) || tmp > SPEED_MAX) {
-      presets[cur].sp = SPEED_MAX;
+    long tmp = presets[cur].speed + _val;
+    if ((presets[cur].speed > SPEED_MAX) || tmp > SPEED_MAX) {
+      presets[cur].speed = SPEED_MAX;
       break;
     }
-    presets[cur].sp = tmp;
+    presets[cur].speed = tmp;
   }
     break;
 
   case ROT: {
-    long tmp = presets[cur].rot + _val;
-    if ((presets[cur].rot > ROT_MAX) || tmp > ROT_MAX) {
-      presets[cur].rot = ROT_MAX;
+    long tmp = presets[cur].steps + _val;
+    if ((presets[cur].steps > ROT_MAX) || tmp > ROT_MAX) {
+      presets[cur].steps = ROT_MAX;
       break;
     }
-    presets[cur].rot = tmp;
+    presets[cur].steps = tmp;
   }
     break;
 
@@ -157,22 +157,22 @@ void preset::change_val_u(long _val, byte _pos) {
 void preset::change_val_d(long _val, byte _pos) {
   switch (_pos) {
   case SPEEED: {
-    long tmp = presets[cur].sp - _val;
-    if ((presets[cur].sp < SPEED_MIN) || tmp < SPEED_MIN) {
-      presets[cur].sp = SPEED_MIN;
+    long tmp = presets[cur].speed - _val;
+    if ((presets[cur].speed < SPEED_MIN) || tmp < SPEED_MIN) {
+      presets[cur].speed = SPEED_MIN;
       break;
     }
-    presets[cur].sp = tmp;
+    presets[cur].speed = tmp;
   }
     break;
 
   case ROT: {
-    long tmp = presets[cur].rot - _val;
-    if ((presets[cur].rot < ROT_MIN) || tmp < ROT_MIN) {
-      presets[cur].rot = ROT_MIN;
+    long tmp = presets[cur].steps - _val;
+    if ((presets[cur].steps < ROT_MIN) || tmp < ROT_MIN) {
+      presets[cur].steps = ROT_MIN;
       break;
     }
-    presets[cur].rot = tmp;
+    presets[cur].steps = tmp;
   }
     break;
 

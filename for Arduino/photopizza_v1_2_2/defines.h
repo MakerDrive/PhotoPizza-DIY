@@ -24,12 +24,6 @@
 #define CW -1  //clockwise
 #define CCW 1  //counterclockwise
 
-// parameter num
-#define SPEEED 0
-#define ROT 1
-#define ACC 2
-#define DIR 3
-
 /////////Ir buttons map
 #define BTN_POWER      23842         // pos 0 0
 #define BTN_VOL_U      24480         // pos 0 1

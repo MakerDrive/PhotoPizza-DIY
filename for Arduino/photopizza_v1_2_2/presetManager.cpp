@@ -1,5 +1,7 @@
 #include "presetManager.h"
 
+using namespace PhotoPizza;
+
 void presetManager::init() {
 
   _cur = 0;
@@ -71,13 +73,13 @@ preset presetManager::get_cur_preset() {
   return _presets[_cur];
 }
 
-long presetManager::getValue(byte _pos) {
+long presetManager::getValue(param pos) {
   long rez = 0;
-  switch (_pos) {
-  case SPEEED:
+  switch (pos) {
+  case SPEED:
     rez = _presets[_cur]._speed;
     break;
-  case ROT:
+  case STEPS:
     rez = _presets[_cur]._steps;
     break;
   case ACC:
@@ -90,34 +92,34 @@ long presetManager::getValue(byte _pos) {
   return rez;
 }
 
-void presetManager::setValue(long _val, byte _pos) {
-  switch (_pos) {
-  case SPEEED:
-    if (_val < SPEED_MIN)
-      _val = SPEED_MIN;
-    if (_val > SPEED_MAX)
-      _val = SPEED_MAX;
-    _presets[_cur]._speed = _val;
+void presetManager::setValue(param pos, long val) {
+  switch (pos) {
+  case SPEED:
+    if (val < SPEED_MIN)
+      val = SPEED_MIN;
+    if (val > SPEED_MAX)
+      val = SPEED_MAX;
+    _presets[_cur]._speed = val;
     break;
 
-  case ROT:
-    if (_val < ROT_MIN)
-      _val = ROT_MIN;
-    if (_val > ROT_MAX)
-      _val = ROT_MAX;
-    _presets[_cur]._steps = _val;
+  case STEPS:
+    if (val < ROT_MIN)
+      val = ROT_MIN;
+    if (val > ROT_MAX)
+      val = ROT_MAX;
+    _presets[_cur]._steps = val;
     break;
 
   case ACC:
-    if (_val < ACC_MIN)
-      _val = ACC_MIN;
-    if (_val > ACC_MAX)
-      _val = ACC_MAX;
-    _presets[_cur]._acc = _val;
+    if (val < ACC_MIN)
+      val = ACC_MIN;
+    if (val > ACC_MAX)
+      val = ACC_MAX;
+    _presets[_cur]._acc = val;
     break;
 
   case DIR:
-    if (_val == 0) {
+    if (val == 0) {
       _presets[_cur]._dir = CCW;
     } else {
       _presets[_cur]._dir = CW;
@@ -127,12 +129,12 @@ void presetManager::setValue(long _val, byte _pos) {
 
 }
 
-void presetManager::valueUp(byte _pos) {
-  long _val = 0;
-  switch (_pos) {
-  case SPEEED: {
-    _val = SPEED_STEP;
-    long tmp = _presets[_cur]._speed + _val;
+void presetManager::valueUp(param pos) {
+  long val = 0;
+  switch (pos) {
+  case SPEED: {
+    val = SPEED_STEP;
+    long tmp = _presets[_cur]._speed + val;
     if ((_presets[_cur]._speed > SPEED_MAX) || tmp > SPEED_MAX) {
       _presets[_cur]._speed = SPEED_MAX;
       break;
@@ -141,9 +143,9 @@ void presetManager::valueUp(byte _pos) {
   }
     break;
 
-  case ROT: {
-    _val = ROT_STEP;
-    long tmp = _presets[_cur]._steps + _val;
+  case STEPS: {
+    val = ROT_STEP;
+    long tmp = _presets[_cur]._steps + val;
     if ((_presets[_cur]._steps > ROT_MAX) || tmp > ROT_MAX) {
       _presets[_cur]._steps = ROT_MAX;
       break;
@@ -153,8 +155,8 @@ void presetManager::valueUp(byte _pos) {
     break;
 
   case ACC: {
-    _val = ACC_STEP;
-    long tmp = _presets[_cur]._acc + _val;
+    val = ACC_STEP;
+    long tmp = _presets[_cur]._acc + val;
     if ((_presets[_cur]._acc > ACC_MAX) || tmp > ACC_MAX) {
       _presets[_cur]._acc = ACC_MAX;
       break;
@@ -164,19 +166,19 @@ void presetManager::valueUp(byte _pos) {
     break;
 
   case DIR: {
-    _val = CW;
+    val = CW;
     _presets[_cur]._dir = CW;
   }
     break;
   }
 }
 
-void presetManager::valueDown(byte _pos) {
-  long _val = 0;
-  switch (_pos) {
-  case SPEEED: {
-    _val = SPEED_STEP;
-    long tmp = _presets[_cur]._speed - _val;
+void presetManager::valueDown(param pos) {
+  long val = 0;
+  switch (pos) {
+  case SPEED: {
+    val = SPEED_STEP;
+    long tmp = _presets[_cur]._speed - val;
     if ((_presets[_cur]._speed < SPEED_MIN) || tmp < SPEED_MIN) {
       _presets[_cur]._speed = SPEED_MIN;
       break;
@@ -185,9 +187,9 @@ void presetManager::valueDown(byte _pos) {
   }
     break;
 
-  case ROT: {
-    _val = ROT_STEP;
-    long tmp = _presets[_cur]._steps - _val;
+  case STEPS: {
+    val = ROT_STEP;
+    long tmp = _presets[_cur]._steps - val;
     if ((_presets[_cur]._steps < ROT_MIN) || tmp < ROT_MIN) {
       _presets[_cur]._steps = ROT_MIN;
       break;
@@ -197,8 +199,8 @@ void presetManager::valueDown(byte _pos) {
     break;
 
   case ACC: {
-    _val = ACC_STEP;
-    long tmp = _presets[_cur]._acc - _val;
+    val = ACC_STEP;
+    long tmp = _presets[_cur]._acc - val;
     if ((_presets[_cur]._acc < ACC_MIN) || tmp < ACC_MIN) {
       _presets[_cur]._acc = ACC_MIN;
       break;
@@ -208,14 +210,14 @@ void presetManager::valueDown(byte _pos) {
     break;
 
   case DIR: {
-    _val = CCW;
+    val = CCW;
     _presets[_cur]._dir = CCW;
   }
     break;
   }
 }
 
-void presetManager::change_direction(int _dir) {
-  _presets[_cur]._dir = _dir;
+void presetManager::changeDirection(int dir) {
+  _presets[_cur]._dir = dir;
 }
 

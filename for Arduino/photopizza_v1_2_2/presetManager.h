@@ -4,13 +4,22 @@
 #include "defines.h"
 #include "eepromAnything.h"
 
+namespace PhotoPizza {
 
-class preset{
+typedef enum {
+  SPEED,
+  STEPS,
+  ACC,
+  DIR,
+  PARAM_COUNT,
+} param;
+
+class preset {
 public:
-  long _speed;  // speed
-  long _steps;  // rotaion
-  long _acc;    // acceleration
-  int  _dir;    // -1 - clockwise , 1 - counterclockwise
+  long _speed; // speed
+  long _steps; // rotaion
+  long _acc; // acceleration
+  int _dir; // -1 - clockwise , 1 - counterclockwise
 };
 
 class presetManager {
@@ -22,12 +31,12 @@ public:
   int getCur();
   preset get_cur_preset();
 
-  long getValue(byte _pos);
-  void setValue(long _val, byte _pos);
-  void valueUp(byte _pos);
-  void valueDown(byte _pos);
+  long getValue(param pos);
+  void setValue(param pos, long val);
+  void valueUp(param pos);
+  void valueDown(param pos);
 
-  void change_direction(int _dir);
+  void changeDirection(int dir);
 
   void save();
 
@@ -36,9 +45,7 @@ private:
   preset _presets[NUM_PROGRAMS];
 };
 
+}
+
 #endif
-
-
-
-
 

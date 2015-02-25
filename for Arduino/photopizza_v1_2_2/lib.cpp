@@ -80,7 +80,7 @@ void finishPreset(){
 }
 
 void libLoop(){
-  int key = IrGetKey();
+  //int key = IrGetKey();
   /*if( key == BTN_POWER){
     prvExecutePreset();
   }*/

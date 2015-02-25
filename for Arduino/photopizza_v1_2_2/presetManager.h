@@ -14,8 +14,8 @@ typedef enum {
   PARAM_COUNT,
 } param;
 
-class preset {
-public:
+struct preset {
+//public:
   long _speed; // speed
   long _steps; // rotaion
   long _acc; // acceleration

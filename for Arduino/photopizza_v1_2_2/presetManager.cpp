@@ -9,13 +9,13 @@ void presetManager::init() {
   byte flag;
   EEPROM_readAnything(0, flag);
 
-  /*if (flag == 204) { // 11 00 11 00
-    EEPROM_readAnything(1, presets[0]); //  first int in memory
-    EEPROM_readAnything(1 + PRESET_SIZE, presets[1]); //
-    EEPROM_readAnything(1 + PRESET_SIZE * 2, presets[2]); //
-    EEPROM_readAnything(1 + PRESET_SIZE * 3, presets[3]); //
+  if (flag == 204) { // 11 00 11 00
+    EEPROM_readAnything(1, _presets[0]); //  first int in memory
+    EEPROM_readAnything(1 + PRESET_SIZE, _presets[1]); //
+    EEPROM_readAnything(1 + PRESET_SIZE * 2, _presets[2]); //
+    EEPROM_readAnything(1 + PRESET_SIZE * 3, _presets[3]); //
     return;
-  }*/ //TODO: restore
+  } //TODO: restore
 
   _presets[0]._speed = 4300;
   _presets[0]._steps = 3200;

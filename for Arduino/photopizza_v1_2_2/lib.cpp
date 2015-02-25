@@ -8,8 +8,9 @@
 #include "presetManager.h"
 
 #include "IRReciever.h"
+#include <limits.h>
 
-#define VER "V. 1.2.2"
+#define VER "V. 1.3.0"
 
 using namespace PhotoPizza;
 
@@ -45,7 +46,7 @@ void sayHello() {
 }
 
 void prvExecutePreset() {
-  if(bRun){ //TODO: fix infinite run!
+  if(bRun){
     Serial.println("stopping");
     stepper.stop();
     lcd.setCursor(0, 1);
@@ -67,7 +68,10 @@ void prvExecutePreset() {
     stepper.setAcceleration(10000000); //no acc.
   }else
     stepper.setAcceleration(presets.getValue(ACC));
-  stepper.moveTo(steps);
+  if(steps != 0){
+    stepper.moveTo(steps);
+  }else
+    stepper.moveTo(LONG_MAX * presets.getValue(DIR));
   stepper.setMaxSpeed(presets.getValue(SPEED));
 }
 
@@ -80,11 +84,6 @@ void finishPreset(){
 }
 
 void libLoop(){
-  //int key = IrGetKey();
-  /*if( key == BTN_POWER){
-    prvExecutePreset();
-  }*/
-
   if(!stepper.run() && bRun){
     bRun = false;
     finishPreset();
@@ -396,6 +395,12 @@ void edit_preset_mode() {
 
 void menu_mode() {
   int key = IrGetKey();
+
+  if(bRun) {
+    if(key == BTN_PLAY)
+      prvExecutePreset();
+    return;
+  }
   switch (key) {
   /*case 0: // first call, no key pressed yet
     presets.resetParamNumber();

@@ -31,6 +31,7 @@ public:
     _val = 0;
     _valHiLimit = 100;
     _valLoLimit = 0;
+    _isEnum = false;
   }
 
   virtual void up(){
@@ -77,7 +78,7 @@ public:
   }
 
   virtual bool isEnum(){
-    return false;
+    return _isEnum;
   }
 
   virtual ~param(){};
@@ -87,6 +88,7 @@ protected:
   long _valLoLimit;
   long _valStep;
   long _val;
+  bool _isEnum;
 };
 
 class paramSpeed : public param {
@@ -157,6 +159,7 @@ public:
     _val = val;
     _valLoLimit = CW;
     _valHiLimit = CCW;
+    _isEnum = true;
   }
 
   virtual void up(){

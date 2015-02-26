@@ -29,6 +29,9 @@ byte e_flag = 0;
 int cur_mode = MENU_MODE;
 
 void libInit(){
+  Serial.println((String) "Sizeof long: " + sizeof(long));
+  Serial.println((String) "Sizeof param: " + sizeof(param));
+  Serial.println((String) "Sizeof paramSpeed: " + sizeof(paramSpeed));
   presets.init();
   sayHello();
   show_curr_program(false);
@@ -45,7 +48,7 @@ void sayHello() {
   delay(2000);
 }
 
-void prvExecutePreset() {
+static void prvExecutePreset() {
   if(bRun){
     Serial.println("stopping");
     stepper.stop();
@@ -59,7 +62,7 @@ void prvExecutePreset() {
   lcd.print("Program started ");
 
   Serial.println("Run");
-  int steps = presets.getValue(STEPS) * presets.getValue(DIR); //TODO: refactor getters (via local vars)
+  long steps = presets.getValue(STEPS) * presets.getValue(DIR); //TODO: refactor getters (via local vars)
   Serial.println((String)"Accel" + presets.getValue(ACC));
   Serial.println((String)"Steps" + steps);
   Serial.println((String)"Speed" + presets.getValue(SPEED));
@@ -97,18 +100,6 @@ void libLoop(){
     edit_preset_mode();
     break;
   }
-}
-
-///////////////////////////////////////
-
-///////// edit preset
-
-void value_u() {
-  presets.valueUp();
-}
-
-void value_d() {
-  presets.valueDown();
 }
 
 ///////////////////////////////////////
@@ -239,7 +230,7 @@ void edit_preset_mode() {
     break;*/
 
   case BTN_POWER: //exit without writing to mem
-    presets.resetParamNumber();
+    presets.firstParam();
     key = 0;
     e_flag = 0;
     show_curr_program(false);
@@ -271,14 +262,14 @@ void edit_preset_mode() {
   case BTN_VOL_D:
   case btnLEFT:
     e_flag = 0;
-    value_d();
+    presets.valueDown();
     show_curr_program(true);
     break;
 
   case BTN_VOL_U:
   case btnRIGHT:
     e_flag = 0;
-    value_u();
+    presets.valueUp();
     show_curr_program(true);
     break;
 

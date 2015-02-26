@@ -17,15 +17,6 @@ void sayHello();
 void libInit();
 ///////////////////////////////////////
 
-///////// edit preset
-
-void value_u();
-
-void value_d();
-
-void update_preset();
-///////////////////////////////////////
-
 ///////// print info
 
 void show_curr_program(bool _is_edit);
@@ -37,8 +28,6 @@ void print_ul(String _pref, long _value);
 void print_dir(int _dir);
 
 void print_dir_small(int _dir);
-
-void print_ir_error(char _sym);
 ///////////////////////////////////////
 
 ///////// LCD Buttons

@@ -11,7 +11,18 @@
 namespace PhotoPizza{
 typedef enum kbKeys{
 
-  kbNoKey = 0,  //!!! DO NOT SET NUMBERS OR CHANGE ORDER!
+  kbNoKey = -1,  //!!! DO NOT SET NUMBERS OR CHANGE ORDER!
+
+  kbBtn0 = 0, //numeric
+  kbBtn1,
+  kbBtn2,
+  kbBtn3,
+  kbBtn4,
+  kbBtn5,
+  kbBtn6,
+  kbBtn7,
+  kbBtn8,
+  kbBtn9,
 
   kbPwr,
   kbMenu,
@@ -27,16 +38,7 @@ typedef enum kbKeys{
   kbLeft,
   kbRight,
 
-  kbBtn0, //numeric
-  kbBtn1,
-  kbBtn2,
-  kbBtn3,
-  kbBtn4,
-  kbBtn5,
-  kbBtn6,
-  kbBtn7,
-  kbBtn8,
-  kbBtn9,
+
 
   kbBtnCount //!!! DO NOT SET NUMBERS OR CHANGE ORDER!
 };

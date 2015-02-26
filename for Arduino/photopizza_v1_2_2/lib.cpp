@@ -131,18 +131,18 @@ static void show_curr_program() {
   print_dir_small(presets.getValue(DIR));
 
   if (cur_mode == EDIT_MODE) {
-    lcd.setCursor(14, 0);
-    lcd.print("E");
+    lcd.setCursor(0, 1);
+    lcd.print(">");
   } else {
-    lcd.setCursor(14, 0);
-    lcd.print("M");
+    lcd.setCursor(0, 1);
+    lcd.print(" ");
   }
 
   param *ptr = presets.getParam();
 
-  lcd.setCursor(0, 1);
+  lcd.setCursor(1, 1);
   lcd.print(ptr->getName());
-  lcd.setCursor(6, 1);
+  lcd.setCursor(7, 1);
   lcd.print(ptr->ToString());
 }
 
@@ -158,17 +158,9 @@ void edit_preset_mode() {
     cur_mode = MENU_MODE;
     break;
 
-  case kbMenu: // write to mem and exit
+  case kbOk: // write to mem and exit
     presets.save();
     cur_mode = MENU_MODE;
-    break;
-
-  case kbRight:
-    presets.nextParam();
-    break;
-
-  case kbLeft:
-    presets.prevParam();
     break;
 
   case kbDown:
@@ -183,19 +175,6 @@ void edit_preset_mode() {
     presets.setValue(0);
     break;
 
-  case kbOk:
-    presets.setValue(0);
-    break;
-
-  /*case BTN_RW:
-    val = presets.getValue() / 10;
-    presets.setValue(val);
-    break;
-
-  case BTN_FW:
-    val = presets.getValue() * 10;
-    presets.setValue(val);
-    break;*/
   default:
     key = kbGetNumericKey(key);
     if(key >= 0){
@@ -210,9 +189,10 @@ void edit_preset_mode() {
 
 void menu_mode() {
   int key = kbGetKey();
+  long val;
 
   switch (key) {
-  case kbOk:
+  case kbPwr:
     prvExecutePreset();
     break;
   case kbUp:
@@ -231,20 +211,22 @@ void menu_mode() {
     presets.prevPreset();
     break;
 
-  /*case BTN_FW:
-    presets.changeDirection(CW);
+  case kbOk:
+    cur_mode = EDIT_MODE;
     break;
 
-  case BTN_RW:
-    presets.changeDirection(CCW);
-    break;*/
-
-  case kbMenu:
-    cur_mode = EDIT_MODE;
+  default:
+    key = kbGetNumericKey(key);
+    if(key >= 0){
+      cur_mode = EDIT_MODE;
+      presets.setValue(0);
+      val = presets.getValue() * 10 + key;
+      presets.setValue(val);
+    }
     break;
   }
 
-  if(key != kbNoKey && key != kbOk)
+  if(key != kbNoKey && key != kbPwr)
     show_curr_program();
 
 }

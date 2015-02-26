@@ -182,7 +182,7 @@ public:
   }
 
   virtual bool set(long val){
-    if (val != CW || val != CCW)
+    if (val != CW && val != CCW)
       val = CW;
     _val = val;
     return true;

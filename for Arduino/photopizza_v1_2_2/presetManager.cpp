@@ -77,6 +77,10 @@ void presetManager::prevParam(){
   _curParam = (paramType) ((_curParam + PARAM_COUNT - 1) % PARAM_COUNT);
 }
 
+param* presetManager::getParam(){
+  return &(*get())[_curParam];
+}
+
 void presetManager::nextPreset() {
   _curParam = SPEED;
   _curPreset = (_curPreset + 1) % NUM_PROGRAMS;
@@ -94,10 +98,6 @@ int presetManager::getPresetNumber() {
 preset* presetManager::get() {
   return &_preset[_curPreset];
 }
-
-/*param* presetManager::getParam() {
-  return &_preset[_curPreset];
-}*/
 
 long presetManager::getValue(paramType pos) {
   return _preset[_curPreset][pos];

@@ -119,32 +119,12 @@ void show_curr_program(bool _is_edit) {
     lcd.print("M");
   }
 
-  switch (presets.getParamNumber()) {
-  case SPEED:
-    print_ul("sp", presets.getValue());
-    break;
+  param *ptr = presets.getParam();
 
-  case STEPS:
-    if (presets.getValue() == 0) {
-      lcd.setCursor(0, 1);
-      lcd.print("rot");
-      lcd.setCursor(4, 1);
-      lcd.print("inf");
-    } else {
-      print_ul("rot", presets.getValue());
-    }
-    break;
-
-  case ACC:
-    //presets.get()->[presets.getParamNumber()]
-    print_ul("acc", presets.getValue());
-    break;
-
-  case DIR:
-    print_dir(presets.getValue());
-    break;
-  }
-
+  lcd.setCursor(0, 1);
+  lcd.print(ptr->getName());
+  lcd.setCursor(6, 1);
+  lcd.print(ptr->ToString());
 }
 
 void print_prog_num() {
@@ -152,24 +132,6 @@ void print_prog_num() {
   lcd.print("Program");
   lcd.setCursor(8, 0);
   lcd.print((presets.getPresetNumber() + 1));
-}
-
-void print_ul(String _pref, long _value) {
-  lcd.setCursor(0, 1);
-  lcd.print(_pref);
-  lcd.setCursor(4, 1);
-  lcd.print(_value);
-}
-
-void print_dir(int _dir) {
-  lcd.setCursor(0, 1);
-  lcd.print("dir");
-  lcd.setCursor(5, 1);
-  if (_dir == CW) {
-    lcd.print("CW");
-  } else {
-    lcd.print("CCW");
-  }
 }
 
 void print_dir_small(int _dir) {
@@ -222,14 +184,7 @@ void edit_preset_mode() {
   long val;
   int key = IrGetKey();
 
-  /*if(key == 0)
-    key = read_LCD_buttons();*/
   switch (key) {
-  /*case 0:
-    e_flag = 0;
-    show_curr_program(true);
-    break;*/
-
   case BTN_POWER: //exit without writing to mem
     presets.firstParam();
     key = 0;
@@ -380,10 +335,6 @@ void edit_preset_mode() {
     presets.setValue(val);
     show_curr_program(true);
     break;
-
-/*  default:
-    Serial.println("Unknown key");
-    break;*/
   }
 
 }
@@ -391,19 +342,12 @@ void edit_preset_mode() {
 void menu_mode() {
   int key = IrGetKey();
 
-  /*if(key == 0)
-      key = read_LCD_buttons();*/
-
   if(bRun) {
     if(key == BTN_PLAY || key == btnUP)
       prvExecutePreset();
     return;
   }
   switch (key) {
-  /*case 0: // first call, no key pressed yet
-    presets.resetParamNumber();
-    show_curr_program(false);
-    break;*/
   case BTN_VOL_U:
     presets.nextParam();
     show_curr_program(false);
@@ -447,10 +391,6 @@ void menu_mode() {
   case btnUP:
     prvExecutePreset();
     break;
-
-/*  default:
-    Serial.println("Unknown key");
-    break;*/
   }
 
 }

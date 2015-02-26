@@ -100,7 +100,7 @@ public:
   }
 
   virtual String getName(bool shorten = false){
-    return "sp";
+    return "speed";
   }
 };
 
@@ -115,7 +115,14 @@ public:
   }
 
   virtual String getName(bool shorten = false){
-    return "rot";
+    return "steps";
+  }
+
+  virtual String ToString(bool shorten = false){
+    if(_val == 0)
+      return "inf";
+    else
+      return (String) _val;
   }
 };
 
@@ -130,7 +137,16 @@ public:
   }
 
   virtual String getName(bool shorten = false){
-    return "acc";
+    return "accel";
+  }
+
+  virtual String ToString(bool shorten = false){
+    if(_val > 0)
+      return (String)_val;
+    else if(_val == 0)
+      return "inf";
+    else
+      return "?";
   }
 };
 
@@ -152,6 +168,14 @@ public:
 
   virtual String getName(bool shorten = false){
     return "dir";
+  }
+
+  virtual String ToString(bool shorten = false){
+    switch(_val){
+      case CW: return "CW";
+      case CCW: return "CCW";
+      default : return "?";
+    }
   }
 
   virtual bool set(long val){
@@ -199,6 +223,8 @@ public:
 
   void nextParam();
   void prevParam();
+
+  param* getParam();
 
   paramType getParamNumber(){
     return _curParam;

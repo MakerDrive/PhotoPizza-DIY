@@ -130,15 +130,16 @@ static void show_curr_program() {
   print_prog_num();
   print_dir_small(presets.getValue(DIR));
 
-  if (cur_mode == EDIT_MODE) {
+
+  param *ptr = presets.getParam();
+
+  if (ptr->isEdit()) {
     lcd.setCursor(0, 1);
     lcd.print(">");
   } else {
     lcd.setCursor(0, 1);
     lcd.print(" ");
   }
-
-  param *ptr = presets.getParam();
 
   lcd.setCursor(1, 1);
   lcd.print(ptr->getName());
@@ -154,12 +155,13 @@ void edit_preset_mode() {
 
   switch (key) {
   case kbPwr: //exit without writing to mem
-    presets.firstParam();
+    presets.getParam()->discard();
     cur_mode = MENU_MODE;
     break;
 
   case kbOk: // write to mem and exit
-    presets.save();
+    presets.save(); //TODO: fix that!
+    presets.getParam()->save();
     cur_mode = MENU_MODE;
     break;
 
@@ -213,12 +215,14 @@ void menu_mode() {
 
   case kbOk:
     cur_mode = EDIT_MODE;
+    presets.getParam()->edit();
     break;
 
   default:
     key = kbGetNumericKey(key);
     if(key >= 0){
       cur_mode = EDIT_MODE;
+      presets.getParam()->edit();
       presets.setValue(0);
       val = presets.getValue() * 10 + key;
       presets.setValue(val);

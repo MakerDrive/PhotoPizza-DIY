@@ -29,20 +29,46 @@ public:
   param(){
     _valStep = 1;
     _val = 0;
+    _tmpVal = 0;
     _valHiLimit = 100;
     _valLoLimit = 0;
-    _isEnum = false;
+    _edit = false;
   }
 
   virtual void up(){
-    set(get() - get() % _valStep + _valStep);
+    long tmp = get();
+       tmp = tmp - tmp % _valStep + _valStep;
+    if(tmp > _valHiLimit)
+      tmp = _valLoLimit;
+    set(tmp);
   }
   virtual void down(){
-    set(get() - get() % _valStep - _valStep);
+    long tmp = get();
+      tmp = tmp - tmp % _valStep - _valStep;
+    if(tmp < _valLoLimit)
+      tmp = _valHiLimit;
+    set(tmp);
+  }
+
+  virtual void edit(){
+    _tmpVal = _val;
+    _edit = true;
+  }
+
+  virtual bool save(){
+    _edit = false;
+    return set(_tmpVal);
+  }
+
+  virtual void discard(){
+    _edit = false;
   }
 
   virtual String ToString(bool shorten = false){
-    return (String) _val;
+    if(_edit)
+      return (String) _tmpVal;
+    else
+      return (String) _val;
   }
   virtual String getName(bool shorten = false){
     return "param";
@@ -53,19 +79,17 @@ public:
       val = _valLoLimit;
     if (val > _valHiLimit)
       val = _valHiLimit;
-    _val = val;
+    if(_edit)
+      _tmpVal = val;
+    else
+      _val = val;
     return true;
   }
   virtual long get() {
-    return _val;
-  }
-
-  virtual long operator()() { //alias to get()
-    return get(); //TODO: decrease stack usage???
-  }
-
-  virtual long operator()(long val) { //alias to set()
-    set(val); //TODO: decrease stack usage???
+    if(_edit)
+      return _tmpVal;
+    else
+      return _val;
   }
 
   virtual operator long() {
@@ -77,8 +101,8 @@ public:
     return *this;
   }
 
-  virtual bool isEnum(){
-    return _isEnum;
+  virtual bool isEdit(){
+    return _edit;
   }
 
   virtual ~param(){};
@@ -88,17 +112,18 @@ protected:
   long _valLoLimit;
   long _valStep;
   long _val;
-  bool _isEnum;
+  bool _edit;
+  long _tmpVal;
 };
 
 class paramSpeed : public param {
 public:
   paramSpeed() : paramSpeed(1000){}
   paramSpeed(long val){
-    _val = val;
     _valStep = SPEED_STEP;
     _valLoLimit = SPEED_MIN;
     _valHiLimit = SPEED_MAX;
+    this->set(val);
   }
 
   virtual String getName(bool shorten = false){
@@ -110,10 +135,10 @@ class paramSteps : public param {
 public:
   paramSteps() : paramSteps(3200){}
   paramSteps(long val){
-    _val = val;
     _valStep = ROT_STEP;
     _valLoLimit = ROT_MIN;
     _valHiLimit = ROT_MAX;
+    this->set(val);
   }
 
   virtual String getName(bool shorten = false){
@@ -121,10 +146,11 @@ public:
   }
 
   virtual String ToString(bool shorten = false){
-    if(_val == 0)
+    long val = get();
+    if(val == 0)
       return "inf";
     else
-      return (String) _val;
+      return (String) val;
   }
 };
 
@@ -132,10 +158,10 @@ class paramAcc : public param {
 public:
   paramAcc() : paramAcc(5000){}
   paramAcc(long val){
-    _val = val;
     _valStep = ACC_STEP;
     _valLoLimit = ACC_MIN;
     _valHiLimit = ACC_MAX;
+    this->set(val);
   }
 
   virtual String getName(bool shorten = false){
@@ -143,50 +169,55 @@ public:
   }
 
   virtual String ToString(bool shorten = false){
-    if(_val > 0)
-      return (String)_val;
-    else if(_val == 0)
+    long val = get();
+    if(val > 0)
+      return (String)val;
+    else if(val == 0)
       return "inf";
     else
       return "?";
   }
 };
 
+#define PARAM_DIR_VAL_COUNT 2
+
+typedef struct enumParamMap{
+  long   value;
+  char*  label;
+};
+
 class paramDir : public param {
 public:
   paramDir() : paramDir(CW){}
-  paramDir(long val){
-    _val = val;
-    _valLoLimit = CW;
-    _valHiLimit = CCW;
-    _isEnum = true;
-  }
-
-  virtual void up(){
-    set(-get());
-  }
-  virtual void down(){
-    set(-get());
+  paramDir(long val): _map{
+    {CW, "CW"}, {CCW, "CCW"}
+  }{
+    _valLoLimit = 0;
+    _valHiLimit = PARAM_DIR_VAL_COUNT - 1;
+    _valStep = 1;
+    this->set(val);
   }
 
   virtual String getName(bool shorten = false){
     return "dir";
   }
 
-  virtual String ToString(bool shorten = false){
-    switch(_val){
-      case CW: return "CW";
-      case CCW: return "CCW";
-      default : return "?";
-    }
+  virtual long get(){
+    if(_edit)
+      return _map[_tmpVal].value;
+    else
+      return _map[_val].value;
   }
 
-  virtual bool set(long val){
-    if (val != CW && val != CCW)
-      val = CW;
-    _val = val;
-    return true;
+  virtual String ToString(bool shorten = false){
+    if(_edit)
+       return _map[_tmpVal].label;
+    else
+      return _map[_val].label;
   }
+
+protected:
+  enumParamMap _map[PARAM_DIR_VAL_COUNT];
 };
 
 class preset {

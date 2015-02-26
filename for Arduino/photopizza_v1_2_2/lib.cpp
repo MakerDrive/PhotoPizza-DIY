@@ -62,20 +62,20 @@ static void prvExecutePreset() {
   lcd.print("Program started ");
 
   Serial.println("Run");
-  long steps = presets.getValue(STEPS) * presets.getValue(DIR); //TODO: refactor getters (via local vars)
-  Serial.println((String)"Accel" + presets.getValue(ACC));
+  long steps = presets.get()->_steps * presets.get()->_dir; //TODO: refactor getters (via local vars)
+  Serial.println((String)"Accel" + presets.get()->_acc);
   Serial.println((String)"Steps" + steps);
-  Serial.println((String)"Speed" + presets.getValue(SPEED));
+  Serial.println((String)"Speed" + presets.get()->_speed);
   stepper.setCurrentPosition(0L);
-  if(presets.getValue(ACC) == 0){
+  if(presets.get()->_acc == 0){
     stepper.setAcceleration(10000000); //no acc.
   }else
-    stepper.setAcceleration(presets.getValue(ACC));
+    stepper.setAcceleration(presets.get()->_acc);
   if(steps != 0){
     stepper.moveTo(steps);
   }else
-    stepper.moveTo(LONG_MAX * presets.getValue(DIR));
-  stepper.setMaxSpeed(presets.getValue(SPEED));
+    stepper.moveTo(LONG_MAX * presets.get()->_dir);
+  stepper.setMaxSpeed(presets.get()->_speed);
 }
 
 void finishPreset(){
@@ -136,6 +136,7 @@ void show_curr_program(bool _is_edit) {
     break;
 
   case ACC:
+    //presets.get()->[presets.getParamNumber()]
     print_ul("acc", presets.getValue());
     break;
 

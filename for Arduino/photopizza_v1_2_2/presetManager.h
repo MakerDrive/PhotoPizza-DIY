@@ -22,7 +22,7 @@ struct presetStorage {
   int _dir; // -1 - clockwise , 1 - counterclockwise
 };
 
-/*template<class T>*/ class param {
+class param {
 
 public:
 
@@ -162,12 +162,30 @@ public:
   }
 };
 
-struct preset {
-//public:
+class preset {
+public:
   paramSpeed  _speed; // speed
   paramSteps  _steps; // rotaion
   paramAcc    _acc; // acceleration
   paramDir    _dir; // -1 - clockwise , 1 - counterclockwise
+
+  param& operator[] (const int nIndex){
+    switch (nIndex) {
+    case SPEED:
+      return _speed;
+    case STEPS:
+      return _steps;
+    case ACC:
+      return _acc;
+    case DIR:
+      return _dir;
+    default:
+      return _default;
+    }
+  }
+
+private:
+  static param _default;
 };
 
 class presetManager {
@@ -216,7 +234,7 @@ public:
 
 private:
   int _curPreset; // current preset
-  presetStorage _presetStorage[NUM_PROGRAMS];
+//  presetStorage _presetStorage[NUM_PROGRAMS];
   preset _preset[NUM_PROGRAMS];
   paramType _curParam;
 };

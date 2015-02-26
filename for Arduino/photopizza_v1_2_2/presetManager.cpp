@@ -2,19 +2,21 @@
 
 using namespace PhotoPizza;
 
+/* static */ param preset::_default;
+
 void presetManager::init() {
 
   _curPreset = 0;
   _curParam = SPEED;
   byte flag;
 
-  _preset[0] = {4300, 3200, 5000, CW },
+  _preset[0] = {4300, 3200, 5000, CW };
 
   _preset[1] = {3300, 3200, 5000, CW};
 
-  _preset[3] = {1000, 10000, 5000, CW};
+  _preset[2] = {1000, 10000, 5000, CW};
 
-  _preset[4] = {2000, 20000, 5000, CW};
+  _preset[3] = {2000, 20000, 5000, CW};
 
   /*EEPROM_readAnything(0, flag);
 
@@ -93,85 +95,24 @@ preset* presetManager::get() {
   return &_preset[_curPreset];
 }
 
+/*param* presetManager::getParam() {
+  return &_preset[_curPreset];
+}*/
+
 long presetManager::getValue(paramType pos) {
-  long rez = 0;
-  switch (pos) {
-  case SPEED:
-    rez = _preset[_curPreset]._speed;
-    break;
-  case STEPS:
-    rez = _preset[_curPreset]._steps;
-    break;
-  case ACC:
-    rez = _preset[_curPreset]._acc;
-    break;
-  case DIR:
-    rez = _preset[_curPreset]._dir;
-    break;
-  }
-  return rez;
+  return _preset[_curPreset][pos];
 }
 
 void presetManager::setValue(paramType pos, long val) {
-  switch (pos) {
-  case SPEED:
-    _preset[_curPreset]._speed = val;
-    break;
-
-  case STEPS:
-    _preset[_curPreset]._steps = val;
-    break;
-
-  case ACC:
-    _preset[_curPreset]._acc = val;
-    break;
-
-  case DIR:
-    _preset[_curPreset]._dir = CCW;
-    break;
-  }
-
+  _preset[_curPreset][pos] = val;
 }
 
 void presetManager::valueUp(paramType pos) {
-  switch (pos) {
-  case SPEED:
-    _preset[_curPreset]._speed.up();
-    break;
-
-  case STEPS:
-    _preset[_curPreset]._steps.up();
-    break;
-
-  case ACC:
-    _preset[_curPreset]._acc.up();
-    break;
-
-  case DIR:
-    _preset[_curPreset]._dir = CW;
-
-    break;
-  }
+  _preset[_curPreset][pos].up();
 }
 
 void presetManager::valueDown(paramType pos) {
-  switch (pos) {
-  case SPEED:
-    _preset[_curPreset]._speed.down();
-    break;
-
-  case STEPS:
-    _preset[_curPreset]._steps.down();
-    break;
-
-  case ACC:
-    _preset[_curPreset]._acc.down();
-    break;
-
-  case DIR:
-    _preset[_curPreset]._dir = CCW;
-    break;
-  }
+  _preset[_curPreset][pos].down();
 }
 
 void presetManager::changeDirection(int dir) {

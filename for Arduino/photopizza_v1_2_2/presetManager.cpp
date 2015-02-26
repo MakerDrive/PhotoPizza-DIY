@@ -4,11 +4,18 @@ using namespace PhotoPizza;
 
 /* static */ param preset::_default;
 
+static presetStorage ps;
+
+#define EEPROM_FLAG 204
+#define EEPROM_VER 3
+
 void presetManager::init() {
 
   _curPreset = 0;
   _curParam = SPEED;
   byte flag;
+
+  EEPROM_readAnything(0, ps);
 
   _preset[0] = {4300, 3200, 5000, CW };
 
@@ -18,55 +25,46 @@ void presetManager::init() {
 
   _preset[3] = {2000, 20000, 5000, CW};
 
-  /*EEPROM_readAnything(0, flag);
-
-  if (flag == 204) { // 11 00 11 00
-    EEPROM_readAnything(1, _presetStorage[0]); //  first int in memory
-    EEPROM_readAnything(1 + PRESET_SIZE, _presetStorage[1]); //
-    EEPROM_readAnything(1 + PRESET_SIZE * 2, _presetStorage[2]); //
-    EEPROM_readAnything(1 + PRESET_SIZE * 3, _presetStorage[3]); //
+  if (ps.flag == EEPROM_FLAG && ps.version == EEPROM_VER) { // 11 00 11 00
+    Serial.println("Loading presets...");
+    for(int i = 0; i < NUM_PROGRAMS; ++i){
+      _preset[i] = ps.data[i];
+    }
     return;
-  } //TODO: restore
+  }
 
-  _presetStorage[0]._speed = 4300;
-  _presetStorage[0]._steps = 3200;
-  _presetStorage[0]._acc = 5000;
-  _presetStorage[0]._dir = CW;
+  ps.flag = EEPROM_FLAG;
+  ps.version = EEPROM_VER;
 
-  _presetStorage[1]._speed = 3300;
-  _presetStorage[1]._steps = 3200;
-  _presetStorage[1]._acc = 5000;
-  _presetStorage[1]._dir = CW;
+  Serial.println("EEPROM data is invalid. Resetting...");
 
-  _presetStorage[2]._speed = 1000;
-  _presetStorage[2]._steps = 10000;
-  _presetStorage[2]._acc = 5000;
-  _presetStorage[2]._dir = CW;
-
-  _presetStorage[3]._speed = 2000;
-  _presetStorage[3]._steps = 20000;
-  _presetStorage[3]._acc = 5000;
-  _presetStorage[3]._dir = CW;
-
-  flag = 204;
-  EEPROM_writeAnything(0, flag);
-  EEPROM_writeAnything(1, _presetStorage[0]); //  first byte in memory
-  EEPROM_writeAnything(1 + PRESET_SIZE, _presetStorage[1]); //
-  EEPROM_writeAnything(1 + PRESET_SIZE * 2, _presetStorage[2]); //
-  EEPROM_writeAnything(1 + PRESET_SIZE * 3, _presetStorage[3]); //*/
-
+  save(true);
 }
 
-void presetManager::save() { // read mem -> check for changes -> write if changed => EEPROM live longer =)
-  /*presetStorage orig;
-  EEPROM_readAnything((1 + getPresetNumber() * PRESET_SIZE), orig);
+void presetManager::save(bool force) { // read mem -> check for changes -> write if changed => EEPROM live longer =)
 
-  if ((orig._speed != getPreset()._speed) || (orig._steps != getPreset()._steps) //TODO: refactor this
-      || (orig._acc != getPreset()._acc) || (orig._dir != getPreset()._dir)) {
-    EEPROM_writeAnything((1 + getPresetNumber() * PRESET_SIZE), getPreset());
-    byte f = 204;
-    EEPROM_writeAnything(0, f);
-  }*/
+  bool update = force;
+  for(int i = 0; i < NUM_PROGRAMS; ++i){
+    if(_preset[i] != ps.data[i]){
+      Serial.println("preset has changed, saving");
+      update = true;
+      ps.data[i] = _preset[i];
+      /*Serial.println((String)"Sp: " + ps.data[i]._speed);
+      Serial.println((String)"acc: " + ps.data[i]._acc);
+      Serial.println((String)"steps: " + ps.data[i]._steps);*/
+    }
+  }
+
+  if(!update){
+    Serial.println("EEPROM data is actual, not saving");
+    return;
+  }else
+    Serial.println("EEPROM data needs update, saving");
+
+  ps.flag = EEPROM_FLAG;
+  ps.version = EEPROM_VER;
+
+  EEPROM_writeAnything(0, ps);
 }
 
 void presetManager::nextParam(){

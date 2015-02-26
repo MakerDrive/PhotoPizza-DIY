@@ -20,6 +20,7 @@
 void setup() {
   Serial.begin(115200);
 
+  //delay(1000); //for debug
   libInit();
   IrInit();
 }

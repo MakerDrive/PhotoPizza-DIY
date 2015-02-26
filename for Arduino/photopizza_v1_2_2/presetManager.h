@@ -25,11 +25,19 @@ struct presetStorage {
 /*template<class T>*/ class param {
 
 public:
+
+  param(){
+    _valStep = 1;
+    _val = 0;
+    _valHiLimit = 100;
+    _valLoLimit = 0;
+  }
+
   virtual void up(){
-    ++_val;
+    set(get() - get() % _valStep + _valStep);
   }
   virtual void down(){
-    --_val;
+    set(get() - get() % _valStep - _valStep);
   }
 
   virtual String ToString(bool shorten = false){
@@ -40,6 +48,10 @@ public:
   }
 
   virtual bool set(long val){
+    if (val < _valLoLimit)
+      val = _valLoLimit;
+    if (val > _valHiLimit)
+      val = _valHiLimit;
     _val = val;
     return true;
   }
@@ -71,7 +83,9 @@ public:
   virtual ~param(){};
 
 protected:
-  //static const long _valAlter = 6;
+  long _valHiLimit;
+  long _valLoLimit;
+  long _valStep;
   long _val;
 };
 
@@ -80,26 +94,13 @@ public:
   paramSpeed() : paramSpeed(1000){}
   paramSpeed(long val){
     _val = val;
-  }
-
-  virtual void up(){
-    set(get() - get() % SPEED_STEP + SPEED_STEP);
-  }
-  virtual void down(){
-    set(get() - get() % SPEED_STEP - SPEED_STEP);
+    _valStep = SPEED_STEP;
+    _valLoLimit = SPEED_MIN;
+    _valHiLimit = SPEED_MAX;
   }
 
   virtual String getName(bool shorten = false){
     return "sp";
-  }
-
-  virtual bool set(long val){
-    if (val < SPEED_MIN)
-      val = SPEED_MIN;
-    if (val > SPEED_MAX)
-      val = SPEED_MAX;
-    _val = val;
-    return true;
   }
 };
 
@@ -108,26 +109,13 @@ public:
   paramSteps() : paramSteps(3200){}
   paramSteps(long val){
     _val = val;
-  }
-
-  virtual void up(){
-    set(get() - get() % ROT_STEP + ROT_STEP);
-  }
-  virtual void down(){
-    set(get() - get() % ROT_STEP - ROT_STEP);
+    _valStep = ROT_STEP;
+    _valLoLimit = ROT_MIN;
+    _valHiLimit = ROT_MAX;
   }
 
   virtual String getName(bool shorten = false){
     return "rot";
-  }
-
-  virtual bool set(long val){
-    if (val < ROT_MIN)
-      val = ROT_MIN;
-    if (val > ROT_MAX)
-      val = ROT_MAX;
-    _val = val;
-    return true;
   }
 };
 
@@ -136,26 +124,13 @@ public:
   paramAcc() : paramAcc(5000){}
   paramAcc(long val){
     _val = val;
-  }
-
-  virtual void up(){
-    set(get() - get() % ACC_STEP + ACC_STEP);
-  }
-  virtual void down(){
-    set(get() - get() % ACC_STEP - ACC_STEP);
+    _valStep = ACC_STEP;
+    _valLoLimit = ACC_MIN;
+    _valHiLimit = ACC_MAX;
   }
 
   virtual String getName(bool shorten = false){
     return "acc";
-  }
-
-  virtual bool set(long val){
-    if (val < ACC_MIN)
-      val = ACC_MIN;
-    if (val > ACC_MAX)
-      val = ACC_MAX;
-    _val = val;
-    return true;
   }
 };
 
@@ -164,6 +139,8 @@ public:
   paramDir() : paramDir(CW){}
   paramDir(long val){
     _val = val;
+    _valLoLimit = CW;
+    _valHiLimit = CCW;
   }
 
   virtual void up(){
@@ -178,10 +155,8 @@ public:
   }
 
   virtual bool set(long val){
-    if (val < CW)
+    if (val != CW || val != CCW)
       val = CW;
-    if (val > CCW)
-      val = CCW;
     _val = val;
     return true;
   }
@@ -202,7 +177,7 @@ public:
   void nextPreset();
   void prevPreset();
   int getPresetNumber();
-  //presetStorage getPreset();
+  preset* get();
 
   void nextParam();
   void prevParam();

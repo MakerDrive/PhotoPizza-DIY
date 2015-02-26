@@ -8,25 +8,14 @@ void presetManager::init() {
   _curParam = SPEED;
   byte flag;
 
-  _preset[0]._speed = 4300;
-  _preset[0]._steps = 3200;
-  _preset[0]._acc = 5000;
-  _preset[0]._dir = CW;
+  _preset[0] = {4300, 3200, 5000, CW },
 
-  _preset[1]._speed = 3300;
-  _preset[1]._steps = 3200;
-  _preset[1]._acc = 5000;
-  _preset[1]._dir = CW;
+  _preset[1] = {3300, 3200, 5000, CW};
 
-  _preset[2]._speed = 1000;
-  _preset[2]._steps = 10000;
-  _preset[2]._acc = 5000;
-  _preset[2]._dir = CW;
+  _preset[3] = {1000, 10000, 5000, CW};
 
-  _preset[3]._speed = 2000;
-  _preset[3]._steps = 20000;
-  _preset[3]._acc = 5000;
-  _preset[3]._dir = CW;
+  _preset[4] = {2000, 20000, 5000, CW};
+
   /*EEPROM_readAnything(0, flag);
 
   if (flag == 204) { // 11 00 11 00
@@ -100,9 +89,9 @@ int presetManager::getPresetNumber() {
   return _curPreset;
 }
 
-/*presetStorage presetManager::getPreset() {
-  return _presetStorage[_curPreset];
-}*/
+preset* presetManager::get() {
+  return &_preset[_curPreset];
+}
 
 long presetManager::getValue(paramType pos) {
   long rez = 0;
@@ -138,7 +127,7 @@ void presetManager::setValue(paramType pos, long val) {
     break;
 
   case DIR:
-      _preset[_curPreset]._dir = CCW;
+    _preset[_curPreset]._dir = CCW;
     break;
   }
 
@@ -167,22 +156,22 @@ void presetManager::valueUp(paramType pos) {
 
 void presetManager::valueDown(paramType pos) {
   switch (pos) {
-    case SPEED:
-      _preset[_curPreset]._speed.down();
-      break;
+  case SPEED:
+    _preset[_curPreset]._speed.down();
+    break;
 
-    case STEPS:
-      _preset[_curPreset]._steps.down();
-      break;
+  case STEPS:
+    _preset[_curPreset]._steps.down();
+    break;
 
-    case ACC:
-      _preset[_curPreset]._acc.down();
-      break;
+  case ACC:
+    _preset[_curPreset]._acc.down();
+    break;
 
-    case DIR:
-      _preset[_curPreset]._dir = CCW;
-      break;
-    }
+  case DIR:
+    _preset[_curPreset]._dir = CCW;
+    break;
+  }
 }
 
 void presetManager::changeDirection(int dir) {

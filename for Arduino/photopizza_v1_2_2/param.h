@@ -9,6 +9,29 @@
 #define PHOTOPIZZA_V1_2_2_PARAM_CPP_
 
 namespace PhotoPizza {
+
+class IParam {
+
+public:
+
+  virtual void up() = 0;
+  virtual void down() = 0;
+  virtual void edit() = 0;
+  virtual bool save() = 0;
+  virtual void discard() = 0;
+  virtual String ToString() = 0;
+  virtual String getName() = 0;
+  virtual bool set(long val) = 0;
+  virtual long get() = 0;
+  virtual operator long() = 0;
+  virtual IParam& operator=(long val) = 0;
+
+  virtual bool isEdit() = 0;
+
+  virtual ~IParam() {};
+
+};
+
 class param {
 
 public:

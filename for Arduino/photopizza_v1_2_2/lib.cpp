@@ -4,6 +4,7 @@
 #include "lib.h"
 
 #include <LiquidCrystal.h>
+#include <LiquidCrystal_I2C.h>
 #include <AccelStepper.h>
 #include "presetManager.h"
 
@@ -14,9 +15,12 @@
 #define VER "V. 1.3.0"
 
 using namespace PhotoPizza;
-
+#if (BOARD_TYPE == BOARD_TYPE_NANO)
+LiquidCrystal_I2C lcd(0x27,16,2); // select the pins used on the LCD panel
+#elif (BOARD_TYPE == BOARD_TYPE_UNO)
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7); // select the pins used on the LCD panel
-AccelStepper stepper(AccelStepper::DRIVER, 12, 13);
+#endif
+AccelStepper stepper(AccelStepper::DRIVER, MOTOR_STP_PIN, MOTOR_DIR_PIN);
 
 ///////////  Presets
 presetManager presets;
@@ -35,6 +39,12 @@ static void menu_mode();
 static void sayHello();
 
 void libInit(){
+  Wire.begin();
+#if (BOARD_TYPE == BOARD_TYPE_NANO)
+  lcd.init();                      // initialize the lcd
+  lcd.backlight();
+#endif
+  lcd.home();
   presets.init();
   sayHello();
   show_curr_program();

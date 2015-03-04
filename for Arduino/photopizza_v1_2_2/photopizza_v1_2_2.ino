@@ -7,6 +7,8 @@
 //need to include libs here, because of compile error in other files.
 #include <AccelStepper.h>
 #include <LiquidCrystal.h>
+#include <LiquidCrystal_I2C.h>
+#include <Wire.h>
 #include <Arduino.h>
 
 ////////////

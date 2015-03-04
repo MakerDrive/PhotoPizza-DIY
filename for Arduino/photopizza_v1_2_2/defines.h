@@ -1,5 +1,23 @@
 #ifndef defines_h
 #define defines_h
+
+#define BOARD_TYPE_NANO 0
+#define BOARD_TYPE_UNO 1
+
+#ifndef BOARD_TYPE
+#define BOARD_TYPE BOARD_TYPE_NANO
+#endif
+
+#if (BOARD_TYPE == BOARD_TYPE_NANO)
+#define MOTOR_STP_PIN 6
+#define MOTOR_DIR_PIN 3
+#elif (BOARD_TYPE == BOARD_TYPE_UNO)
+#define MOTOR_STP_PIN 12
+#define MOTOR_DIR_PIN 13
+#else
+#error "Board Not Supported!"
+#endif
+
 //// Modes
 #define MENU_MODE 1
 #define EDIT_MODE 2

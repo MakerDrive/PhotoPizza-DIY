@@ -11,7 +11,7 @@
 #include <Arduino.h>
 
 void libLoop();
-
 void libInit();
+void libUpdateLCD();
 
 #endif /* PHOTOPIZZA_V1_2_2_LIB_H_ */

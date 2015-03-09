@@ -3,16 +3,20 @@
 using namespace PhotoPizza;
 
 /* static */ LimitedParam preset::_default;
+/* static */ //paramRun preset::_run;
+/* static */ presetManager *presetManager::_presetMgr = NULL;
 
 static presetStorage ps;
 
 #define EEPROM_FLAG 204
 #define EEPROM_VER 3
 
-void presetManager::init() {
+presetManager::presetManager() {
 
   _curPreset = 0;
   _curParam = SPEED;
+  _edit = false;
+
   byte flag;
 
   EEPROM_readAnything(0, ps);
@@ -39,6 +43,11 @@ void presetManager::init() {
   Serial.println(F("EEPROM data is invalid. Resetting..."));
 
   save(true);
+  //_run = &getPreset()->_run;
+}
+
+void presetManager::loop(){
+  //_run->loop();
 }
 
 void presetManager::save(bool force) { // read mem -> check for changes -> write if changed => EEPROM live longer =)
@@ -78,13 +87,13 @@ void presetManager::prevParam(){
 }
 
 IParam* presetManager::getParam(){
-  return &(*get())[_curParam];
+  return &(*getPreset())[_curParam];
 }
 
 void presetManager::edit(){
   LimitedParam *src = static_cast<LimitedParam *>(getParam());
-  LimitedParam *dst = static_cast<LimitedParam *>(&(*get())[SAVED_PARAM]);
-  *dst = *src; //save param we are changing
+  LimitedParam *dst = static_cast<LimitedParam *>(&(*getPreset())[SAVED_PARAM]);
+  *dst = *src; //save param we are changing*/
   getParam()->edit();
   _edit = true;
 }
@@ -96,7 +105,7 @@ bool presetManager::isEdit(){
 void presetManager::discard(){
   getParam()->discard();
   LimitedParam *dst = static_cast<LimitedParam *>(getParam());
-  LimitedParam *src = static_cast<LimitedParam *>(&(*get())[SAVED_PARAM]);
+  LimitedParam *src = static_cast<LimitedParam *>(&(*getPreset())[SAVED_PARAM]);
   *dst = *src; //load saved param from default value*/
   _edit = false;
 }
@@ -115,7 +124,7 @@ int presetManager::getPresetNumber() {
   return _curPreset;
 }
 
-preset* presetManager::get() {
+preset* presetManager::getPreset() {
   return &_preset[_curPreset];
 }
 
@@ -137,5 +146,25 @@ void presetManager::valueDown(paramType pos) {
 
 void presetManager::changeDirection() {
   _preset[_curPreset]._dir.up();
+}
+
+/*void presetManager::run(){
+  _run->edit();
+}
+
+void presetManager::stop(){
+  _run->discard();
+}*/
+
+presetManager * presetManager::get(){
+  if(_presetMgr == NULL){
+    static presetManager presetMgr;
+    _presetMgr = &presetMgr;
+  }
+  /*if(_presetMgr == NULL){
+    _presetMgr = new presetManager();
+    Serial.println((String) F("PresetMgr: ") + (String) (int)_presetMgr);
+  }*/
+  return _presetMgr; //= &presetMgr;
 }
 

@@ -32,6 +32,7 @@ static bool prvPulseToBits(volatile int pulse[], int bits[]);
 static int prvBitsToInt(int bits[]);
 
 static volatile int pulses[IR_BIT_LENGTH];
+static int bits[IR_BIT_LENGTH];
 static volatile char arrPos = 0;
 static volatile unsigned long lastPulseTime = 0;
 static volatile bool ready = false;
@@ -48,7 +49,6 @@ static void prvDump() {
 
 int IrGetKey() {
   int key = 0;
-  int bits[IR_BIT_LENGTH];
   if (ready) {
     //Serial.println("RDY");
     if (prvPulseToBits(pulses, bits)) {

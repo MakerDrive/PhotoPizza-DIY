@@ -9,6 +9,7 @@
 #include "paramSteps.h"
 #include "paramSpeed.h"
 #include "paramDir.h"
+#include "paramRun.h"
 
 namespace PhotoPizza {
 
@@ -17,9 +18,11 @@ typedef enum {
   STEPS,
   ACC,
   DIR,
+  //RUN,         // command-parameter
   PARAM_COUNT,
 
-  SAVED_PARAM = PARAM_COUNT,
+
+  SAVED_PARAM,
 } paramType;
 
 struct presetStorageData {
@@ -42,9 +45,7 @@ public:
   paramAcc    _acc; // acceleration
   paramDir    _dir; // -1 - clockwise , 1 - counterclockwise
 
-  /*preset(){
-    //_dir();
-  }*/
+  //static paramRun _run;
 
   IParam& operator[] (const int nIndex){
     switch (nIndex) {
@@ -56,6 +57,8 @@ public:
       return _acc;
     case DIR:
       return _dir;
+    /*case RUN:
+      return _run;*/
     default:
       return _default;
     }
@@ -104,12 +107,13 @@ private:
 
 class presetManager {
 public:
-  void init();
+  static presetManager* get();
 
   void nextPreset();
   void prevPreset();
   int getPresetNumber();
-  preset* get();
+  preset* getPreset();
+
 
   void nextParam();
   void prevParam();
@@ -128,9 +132,9 @@ public:
   bool isEdit();
   void discard();
 
+  void loop();
+
   long getValue(){
-    /*if(_edit)
-        return getValue(PARAM_COUNT); //getting default param*/
     return getValue(_curParam);
   }
   long getValue(paramType pos);
@@ -151,15 +155,20 @@ public:
   }
 
   void changeDirection();
+  /*void run();
+  void stop();*/
 
   void save(bool force = false);
 
 private:
+  static presetManager *_presetMgr;
+  presetManager();
   int _curPreset; // current preset
 //  presetStorage _presetStorage[NUM_PROGRAMS];
   preset _preset[NUM_PROGRAMS];
   paramType _curParam;
   bool _edit;
+  //paramRun *_run; //link to run object
 };
 
 }

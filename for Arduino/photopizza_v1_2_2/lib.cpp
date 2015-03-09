@@ -10,8 +10,6 @@
 
 #include "keyboard.h"
 
-#include <limits.h>
-
 #define VER "V. 1.4.0"
 
 using namespace PhotoPizza;
@@ -20,14 +18,9 @@ LiquidCrystal_I2C lcd(0x27,16,2); // select the pins used on the LCD panel
 #elif (BOARD_TYPE == BOARD_TYPE_UNO)
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7); // select the pins used on the LCD panel
 #endif
-AccelStepper stepper(AccelStepper::DRIVER, MOTOR_STP_PIN, MOTOR_DIR_PIN);
 
 ///////////  Presets
-presetManager presets;
-
-static bool bRun = false;
-
-static void prvExecutePreset();
+presetManager *presetMgr;
 
 static void show_curr_program();
 
@@ -37,13 +30,13 @@ static void menu_mode();
 static void sayHello();
 
 void libInit(){
-  Wire.begin();
 #if (BOARD_TYPE == BOARD_TYPE_NANO)
+  Wire.begin();
   lcd.init();                      // initialize the lcd
   lcd.backlight();
 #endif
   lcd.home();
-  presets.init();
+  presetMgr = presetManager::get();
   sayHello();
   show_curr_program();
 }
@@ -59,51 +52,10 @@ void sayHello() {
   delay(2000);
 }
 
-static void prvExecutePreset() {
-  if(bRun){
-    Serial.println(F("stopping"));
-    stepper.stop();
-    lcd.setCursor(0, 1);
-    lcd.print(F("Program stopping "));
-    return;
-  }
-
-  bRun = true;
-  lcd.setCursor(0, 1);
-  lcd.print(F("Program started "));
-
-  Serial.println(F("Run"));
-  long steps = presets.get()->_steps * presets.get()->_dir; //TODO: refactor getters (via local vars)
-  Serial.println((String)F("Accel") + presets.get()->_acc);
-  Serial.println((String)F("Steps") + steps);
-  Serial.println((String)F("Speed") + presets.get()->_speed);
-  stepper.setCurrentPosition(0L);
-  if(presets.get()->_acc == 0){
-    stepper.setAcceleration(10000000); //no acc.
-  }else
-    stepper.setAcceleration(presets.get()->_acc);
-  if(steps != 0){
-    stepper.moveTo(steps);
-  }else
-    stepper.moveTo(LONG_MAX * presets.get()->_dir);
-  stepper.setMaxSpeed(presets.get()->_speed);
-}
-
-void finishPreset(){
-  lcd.setCursor(0, 1);
-  lcd.print(F("Program finished"));
-  Serial.println(F("Finished"));
-  delay(1000);
-  show_curr_program();
-}
-
 void libLoop(){
-  if(!stepper.run() && bRun){
-    bRun = false;
-    finishPreset();
-  }
+  presetMgr->loop();
 
-  if (presets.isEdit())
+  if (presetMgr->isEdit())
     edit_preset_mode();
   else
     menu_mode();
@@ -117,7 +69,7 @@ void print_prog_num() {
   lcd.setCursor(0, 0);
   lcd.print(F("Program"));
   lcd.setCursor(8, 0);
-  lcd.print((presets.getPresetNumber() + 1));
+  lcd.print((presetMgr->getPresetNumber() + 1));
 }
 
 void print_dir_small(int _dir) {
@@ -132,12 +84,12 @@ void print_dir_small(int _dir) {
 static void show_curr_program() {
   lcd.clear();
   print_prog_num();
-  print_dir_small(presets.getValue(DIR));
+  print_dir_small(presetMgr->getValue(DIR));
 
 
-  IParam *ptr = presets.getParam();
+  IParam *ptr = presetMgr->getParam();
 
-  if (presets.isEdit()) {
+  if (presetMgr->isEdit()) {
     lcd.setCursor(0, 1);
     lcd.print(F(">"));
   } else {
@@ -159,30 +111,30 @@ void edit_preset_mode() {
 
   switch (key) {
   case kbLeft: //exit without writing to mem
-    presets.discard();
+    presetMgr->discard();
     break;
 
   case kbOk: // write to mem and exit
-    presets.save(); //TODO: fix that!
+    presetMgr->save(); //TODO: fix that!
     break;
 
   case kbDown:
-    presets.valueDown();
+    presetMgr->valueDown();
     break;
 
   case kbUp:
-    presets.valueUp();
+    presetMgr->valueUp();
     break;
 
   case kbClear:
-    presets.setValue(0);
+    presetMgr->setValue(0);
     break;
 
   default:
     key = kbGetNumericKey(key);
     if(key >= 0){
-        val = presets.getValue() * 10 + key;
-        presets.setValue(val);
+        val = presetMgr->getValue() * 10 + key;
+        presetMgr->setValue(val);
     }
     break;
   }
@@ -196,35 +148,35 @@ void menu_mode() {
 
   switch (key) {
   case kbPwr:
-    prvExecutePreset();
+    //presetMgr->run();
     break;
   case kbUp:
-    presets.nextParam();
+    presetMgr->nextParam();
     break;
 
   case kbDown:
-    presets.prevParam();
+    presetMgr->prevParam();
     break;
 
   case kbRight:
-    presets.nextPreset();
+    presetMgr->nextPreset();
     break;
 
   case kbLeft:
-    presets.prevPreset();
+    presetMgr->prevPreset();
     break;
 
   case kbOk:
-    presets.edit();
+    presetMgr->edit();
     break;
 
   default:
     key = kbGetNumericKey(key);
     if(key >= 0){
-      presets.edit();
-      presets.setValue(0);
-      val = presets.getValue() * 10 + key;
-      presets.setValue(val);
+      presetMgr->edit();
+      presetMgr->setValue(0);
+      val = presetMgr->getValue() * 10 + key;
+      presetMgr->setValue(val);
     }
     break;
   }
@@ -232,5 +184,9 @@ void menu_mode() {
   if(key != kbNoKey && key != kbPwr)
     show_curr_program();
 
+}
+
+void libUpdateLCD(){
+  //show_curr_program();
 }
 

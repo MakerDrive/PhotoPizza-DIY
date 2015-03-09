@@ -4,8 +4,10 @@
 #define BOARD_TYPE_NANO 0
 #define BOARD_TYPE_UNO 1
 
-#ifndef BOARD_TYPE
 #define BOARD_TYPE BOARD_TYPE_NANO
+
+#ifndef BOARD_TYPE
+#define BOARD_TYPE BOARD_TYPE_UNO
 #endif
 
 #if (BOARD_TYPE == BOARD_TYPE_NANO)

@@ -23,7 +23,7 @@ public:
   }
 
   virtual String getName(bool shorten = false){
-    return "speed";
+    return F("speed");
   }
 };
 }

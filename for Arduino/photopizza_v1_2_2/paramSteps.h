@@ -23,13 +23,13 @@ public:
   }
 
   virtual String getName(bool shorten = false){
-    return "steps";
+    return F("steps");
   }
 
   virtual String ToString(bool shorten = false){
     long val = get();
     if(val == 0)
-      return "inf";
+      return F("inf");
     else
       return (String) val;
   }

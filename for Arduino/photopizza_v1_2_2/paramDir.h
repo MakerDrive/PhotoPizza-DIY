@@ -32,21 +32,15 @@ public:
   }
 
   virtual String getName(bool shorten = false){
-    return "dir";
+    return F("dir");
   }
 
   virtual long get(){
-    if(_edit)
-      return _map[_tmpVal].value;
-    else
-      return _map[_val].value;
+    return _map[_val].value;
   }
 
   virtual String ToString(bool shorten = false){
-    if(_edit)
-       return _map[_tmpVal].label;
-    else
-      return _map[_val].label;
+    return _map[_val].label;
   }
 
 protected:

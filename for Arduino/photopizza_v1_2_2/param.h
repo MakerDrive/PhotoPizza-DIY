@@ -20,7 +20,7 @@ public:
   virtual bool save() = 0;
   virtual void discard() = 0;
   virtual String ToString() = 0;
-  virtual String getName() = 0;
+  virtual const char* getName() = 0;
   virtual bool set(long val) = 0;
   virtual long get() = 0;
   virtual operator long() = 0;
@@ -39,10 +39,8 @@ public:
   param() {
     _valStep = 1;
     _val = 0;
-    _tmpVal = 0;
     _valHiLimit = 100;
     _valLoLimit = 0;
-    _edit = false;
   }
 
   virtual void up() {
@@ -61,27 +59,20 @@ public:
   }
 
   virtual void edit() {
-    _tmpVal = _val;
-    _edit = true;
   }
 
   virtual bool save() {
-    _edit = false;
-    return set(_tmpVal);
+    return true;
   }
 
   virtual void discard() {
-    _edit = false;
   }
 
   virtual String ToString(bool shorten = false) {
-    if (_edit)
-      return (String) _tmpVal;
-    else
-      return (String) _val;
+    return (String) _val;
   }
   virtual String getName(bool shorten = false) {
-    return "param";
+    return F("param");
   }
 
   virtual bool set(long val) {
@@ -89,16 +80,10 @@ public:
       val = _valLoLimit;
     if (val > _valHiLimit)
       val = _valHiLimit;
-    if (_edit)
-      _tmpVal = val;
-    else
-      _val = val;
+    _val = val;
     return true;
   }
   virtual long get() {
-    if (_edit)
-      return _tmpVal;
-    else
       return _val;
   }
 
@@ -112,7 +97,7 @@ public:
   }
 
   virtual bool isEdit() {
-    return _edit;
+    return false;
   }
 
   virtual ~param() {
@@ -122,10 +107,8 @@ public:
 protected:
   long _valHiLimit;
   long _valLoLimit;
-  long _valStep;
+  short _valStep;
   long _val;
-  bool _edit;
-  long _tmpVal;
 };
 }
 

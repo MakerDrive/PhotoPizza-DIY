@@ -23,7 +23,7 @@ public:
   }
 
   virtual String getName(bool shorten = false){
-    return "accel";
+    return F("accel");
   }
 
   virtual String ToString(bool shorten = false){
@@ -31,9 +31,9 @@ public:
     if(val > 0)
       return (String)val;
     else if(val == 0)
-      return "inf";
+      return F("inf");
     else
-      return "?";
+      return F("?");
   }
 };
 }

@@ -54,31 +54,31 @@ void sayHello() {
   lcd.begin(16, 2);
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("PhotoPizza DIY");
-  Serial.println("PhotoPizza DIY " VER);
+  lcd.print(F("PhotoPizza DIY"));
+  Serial.println(F("PhotoPizza DIY " VER));
   lcd.setCursor(0, 1);
-  lcd.print(VER);
+  lcd.print(F(VER));
   delay(2000);
 }
 
 static void prvExecutePreset() {
   if(bRun){
-    Serial.println("stopping");
+    Serial.println(F("stopping"));
     stepper.stop();
     lcd.setCursor(0, 1);
-    lcd.print("Program stopping ");
+    lcd.print(F("Program stopping "));
     return;
   }
 
   bRun = true;
   lcd.setCursor(0, 1);
-  lcd.print("Program started ");
+  lcd.print(F("Program started "));
 
-  Serial.println("Run");
+  Serial.println(F("Run"));
   long steps = presets.get()->_steps * presets.get()->_dir; //TODO: refactor getters (via local vars)
-  Serial.println((String)"Accel" + presets.get()->_acc);
-  Serial.println((String)"Steps" + steps);
-  Serial.println((String)"Speed" + presets.get()->_speed);
+  Serial.println((String)F("Accel") + presets.get()->_acc);
+  Serial.println((String)F("Steps") + steps);
+  Serial.println((String)F("Speed") + presets.get()->_speed);
   stepper.setCurrentPosition(0L);
   if(presets.get()->_acc == 0){
     stepper.setAcceleration(10000000); //no acc.
@@ -93,8 +93,8 @@ static void prvExecutePreset() {
 
 void finishPreset(){
   lcd.setCursor(0, 1);
-  lcd.print("Program finished");
-  Serial.println("Finished");
+  lcd.print(F("Program finished"));
+  Serial.println(F("Finished"));
   delay(1000);
   show_curr_program();
 }
@@ -121,7 +121,7 @@ void libLoop(){
 
 void print_prog_num() {
   lcd.setCursor(0, 0);
-  lcd.print("Program");
+  lcd.print(F("Program"));
   lcd.setCursor(8, 0);
   lcd.print((presets.getPresetNumber() + 1));
 }
@@ -129,9 +129,9 @@ void print_prog_num() {
 void print_dir_small(int _dir) {
   lcd.setCursor(10, 0);
   if (_dir == CW) {
-    lcd.print(">");
+    lcd.print(F(">"));
   } else {
-    lcd.print("<");
+    lcd.print(F("<"));
   }
 }
 
@@ -145,10 +145,10 @@ static void show_curr_program() {
 
   if (ptr->isEdit()) {
     lcd.setCursor(0, 1);
-    lcd.print(">");
+    lcd.print(F(">"));
   } else {
     lcd.setCursor(0, 1);
-    lcd.print(" ");
+    lcd.print(F(" "));
   }
 
   lcd.setCursor(1, 1);

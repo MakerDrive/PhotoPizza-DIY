@@ -23,16 +23,15 @@
  convert this to an array containing binary values
  */
 
-static bool prvPulseToBits(volatile int pulse[], volatile int bits[]);
+static bool prvPulseToBits(volatile int pulse[], int bits[]);
 
 /*
  convert an array of binary values to a single base-10 integer
  */
 
-static int prvBitsToInt(volatile int bits[]);
+static int prvBitsToInt(int bits[]);
 
 static volatile int pulses[IR_BIT_LENGTH];
-static volatile int bits[IR_BIT_LENGTH];
 static volatile char arrPos = 0;
 static volatile unsigned long lastPulseTime = 0;
 static volatile bool ready = false;
@@ -43,20 +42,21 @@ static void prvIRQ();
 ///////////  IR RECEIVER
 static void prvDump() {
   for (char i = 0; i < IR_BIT_LENGTH; i++) {
-    Serial.println((String) (int) i + ": " + pulses[i]);
+    Serial.println((String) (int) i + F(": ") + pulses[i]);
   }
 }
 
 int IrGetKey() {
   int key = 0;
+  int bits[IR_BIT_LENGTH];
   if (ready) {
     //Serial.println("RDY");
     if (prvPulseToBits(pulses, bits)) {
       //prvDump();
       key = prvBitsToInt(bits);
-      Serial.println((String) "IR ReadCode: " + key);
+      Serial.println((String) F("IR ReadCode: ") + key);
     } else
-      Serial.println("IR ReadCode: Parsing error");
+      Serial.println(F("IR ReadCode: Parsing error"));
     arrPos = 0;
     ready = false;
   }
@@ -134,7 +134,7 @@ static void prvIRQ() {
   lastPulseTime = pulseTime;
 }
 
-static bool prvPulseToBits(volatile int pulse[], volatile int bits[]) {
+static bool prvPulseToBits(volatile int pulse[], int bits[]) {
 
   for (int i = 0; i < IR_BIT_LENGTH; i++) {
 
@@ -152,7 +152,7 @@ static bool prvPulseToBits(volatile int pulse[], volatile int bits[]) {
   return true;
 }
 
-static int prvBitsToInt(volatile int bits[]) {
+static int prvBitsToInt(int bits[]) {
   int result = 0;
   int seed = 1;
 

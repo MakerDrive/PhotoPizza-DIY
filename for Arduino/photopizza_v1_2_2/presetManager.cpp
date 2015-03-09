@@ -26,7 +26,7 @@ void presetManager::init() {
   _preset[3] = {2000, 20000, 5000, CW};
 
   if (ps.flag == EEPROM_FLAG && ps.version == EEPROM_VER) { // 11 00 11 00
-    Serial.println("Loading presets...");
+    Serial.println(F("Loading presets..."));
     for(int i = 0; i < NUM_PROGRAMS; ++i){
       _preset[i] = ps.data[i];
     }
@@ -36,7 +36,7 @@ void presetManager::init() {
   ps.flag = EEPROM_FLAG;
   ps.version = EEPROM_VER;
 
-  Serial.println("EEPROM data is invalid. Resetting...");
+  Serial.println(F("EEPROM data is invalid. Resetting..."));
 
   save(true);
 }
@@ -46,7 +46,7 @@ void presetManager::save(bool force) { // read mem -> check for changes -> write
   bool update = force;
   for(int i = 0; i < NUM_PROGRAMS; ++i){
     if(_preset[i] != ps.data[i]){
-      Serial.println("preset has changed, saving");
+      Serial.println(F("preset has changed, saving"));
       update = true;
       ps.data[i] = _preset[i];
       /*Serial.println((String)"Sp: " + ps.data[i]._speed);
@@ -56,10 +56,10 @@ void presetManager::save(bool force) { // read mem -> check for changes -> write
   }
 
   if(!update){
-    Serial.println("EEPROM data is actual, not saving");
+    Serial.println(F("EEPROM data is actual, not saving"));
     return;
   }else
-    Serial.println("EEPROM data needs update, saving");
+    Serial.println(F("EEPROM data needs update, saving"));
 
   ps.flag = EEPROM_FLAG;
   ps.version = EEPROM_VER;

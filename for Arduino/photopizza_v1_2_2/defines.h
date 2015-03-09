@@ -39,7 +39,6 @@
 #define ACC_STEP 100
 
 #define NUM_PROGRAMS 4
-#define PRESET_SIZE 14
 
 #define CW -1  //clockwise
 #define CCW 1  //counterclockwise

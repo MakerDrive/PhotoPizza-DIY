@@ -12,7 +12,7 @@
 #include "param.h"
 
 namespace PhotoPizza {
-class paramSpeed : public param {
+class paramSpeed : public LimitedParam {
 public:
   paramSpeed() : paramSpeed(1000){}
   paramSpeed(long val){

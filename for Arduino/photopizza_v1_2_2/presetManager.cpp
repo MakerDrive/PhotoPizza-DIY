@@ -2,7 +2,7 @@
 
 using namespace PhotoPizza;
 
-/* static */ param preset::_default;
+/* static */ LimitedParam preset::_default;
 
 static presetStorage ps;
 
@@ -17,13 +17,13 @@ void presetManager::init() {
 
   EEPROM_readAnything(0, ps);
 
-  _preset[0] = {4300, 3200, 5000, CW };
+  _preset[0] = (presetStorageData){4300, -3200, 5000};
 
-  _preset[1] = {3300, 3200, 5000, CW};
+  _preset[1] = (presetStorageData){3300, -3200, 5000};
 
-  _preset[2] = {1000, 10000, 5000, CW};
+  _preset[2] = (presetStorageData){1000, -10000, 5000};
 
-  _preset[3] = {2000, 20000, 5000, CW};
+  _preset[3] = (presetStorageData){2000, -20000, 5000};
 
   if (ps.flag == EEPROM_FLAG && ps.version == EEPROM_VER) { // 11 00 11 00
     Serial.println(F("Loading presets..."));
@@ -44,6 +44,8 @@ void presetManager::init() {
 void presetManager::save(bool force) { // read mem -> check for changes -> write if changed => EEPROM live longer =)
 
   bool update = force;
+  _edit = false;
+  getParam()->save();
   for(int i = 0; i < NUM_PROGRAMS; ++i){
     if(_preset[i] != ps.data[i]){
       Serial.println(F("preset has changed, saving"));
@@ -75,8 +77,28 @@ void presetManager::prevParam(){
   _curParam = (paramType) ((_curParam + PARAM_COUNT - 1) % PARAM_COUNT);
 }
 
-param* presetManager::getParam(){
+IParam* presetManager::getParam(){
   return &(*get())[_curParam];
+}
+
+void presetManager::edit(){
+  LimitedParam *src = static_cast<LimitedParam *>(getParam());
+  LimitedParam *dst = static_cast<LimitedParam *>(&(*get())[SAVED_PARAM]);
+  *dst = *src; //save param we are changing
+  getParam()->edit();
+  _edit = true;
+}
+
+bool presetManager::isEdit(){
+  return _edit;
+}
+
+void presetManager::discard(){
+  getParam()->discard();
+  LimitedParam *dst = static_cast<LimitedParam *>(getParam());
+  LimitedParam *src = static_cast<LimitedParam *>(&(*get())[SAVED_PARAM]);
+  *dst = *src; //load saved param from default value*/
+  _edit = false;
 }
 
 void presetManager::nextPreset() {
@@ -113,7 +135,7 @@ void presetManager::valueDown(paramType pos) {
   _preset[_curPreset][pos].down();
 }
 
-void presetManager::changeDirection(int dir) {
-  _preset[_curPreset]._dir = dir;
+void presetManager::changeDirection() {
+  _preset[_curPreset]._dir.up();
 }
 

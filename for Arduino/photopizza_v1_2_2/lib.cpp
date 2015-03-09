@@ -12,7 +12,7 @@
 
 #include <limits.h>
 
-#define VER "V. 1.3.0"
+#define VER "V. 1.4.0"
 
 using namespace PhotoPizza;
 #if (BOARD_TYPE == BOARD_TYPE_NANO)
@@ -28,8 +28,6 @@ presetManager presets;
 static bool bRun = false;
 
 static void prvExecutePreset();
-
-int cur_mode = MENU_MODE;
 
 static void show_curr_program();
 
@@ -105,14 +103,10 @@ void libLoop(){
     finishPreset();
   }
 
-  switch (cur_mode) {
-  case MENU_MODE:
-    menu_mode();
-    break;
-  case EDIT_MODE:
+  if (presets.isEdit())
     edit_preset_mode();
-    break;
-  }
+  else
+    menu_mode();
 }
 
 ///////////////////////////////////////
@@ -141,9 +135,9 @@ static void show_curr_program() {
   print_dir_small(presets.getValue(DIR));
 
 
-  param *ptr = presets.getParam();
+  IParam *ptr = presets.getParam();
 
-  if (ptr->isEdit()) {
+  if (presets.isEdit()) {
     lcd.setCursor(0, 1);
     lcd.print(F(">"));
   } else {
@@ -164,15 +158,12 @@ void edit_preset_mode() {
   int key = kbGetKey();
 
   switch (key) {
-  case kbPwr: //exit without writing to mem
-    presets.getParam()->discard();
-    cur_mode = MENU_MODE;
+  case kbLeft: //exit without writing to mem
+    presets.discard();
     break;
 
   case kbOk: // write to mem and exit
     presets.save(); //TODO: fix that!
-    presets.getParam()->save();
-    cur_mode = MENU_MODE;
     break;
 
   case kbDown:
@@ -224,15 +215,13 @@ void menu_mode() {
     break;
 
   case kbOk:
-    cur_mode = EDIT_MODE;
-    presets.getParam()->edit();
+    presets.edit();
     break;
 
   default:
     key = kbGetNumericKey(key);
     if(key >= 0){
-      cur_mode = EDIT_MODE;
-      presets.getParam()->edit();
+      presets.edit();
       presets.setValue(0);
       val = presets.getValue() * 10 + key;
       presets.setValue(val);

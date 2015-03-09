@@ -18,6 +18,8 @@ typedef enum {
   ACC,
   DIR,
   PARAM_COUNT,
+
+  SAVED_PARAM = PARAM_COUNT,
 } paramType;
 
 struct presetStorageData {
@@ -40,7 +42,11 @@ public:
   paramAcc    _acc; // acceleration
   paramDir    _dir; // -1 - clockwise , 1 - counterclockwise
 
-  param& operator[] (const int nIndex){
+  /*preset(){
+    //_dir();
+  }*/
+
+  IParam& operator[] (const int nIndex){
     switch (nIndex) {
     case SPEED:
       return _speed;
@@ -53,15 +59,6 @@ public:
     default:
       return _default;
     }
-  }
-
-  preset& operator=(int val[4]) {
-    //Serial.println("op = ar");
-    _speed = val[0];
-    _acc = val[1];
-    _steps = val[2];
-    _dir = val[3];
-    return *this;
   }
 
   bool operator!=(presetStorageData & val) {
@@ -84,7 +81,7 @@ public:
     return tmp;
   }
 
-  preset& operator=(presetStorageData & val) {
+  preset& operator=(presetStorageData val) {
     /*Serial.println("op = psd");
     Serial.println((String)"Sp: " + val._speed);
     Serial.println((String)"acc: " + val._acc);
@@ -93,16 +90,16 @@ public:
     _acc = val._acc;
 
     if(val._steps < 0)
-      _dir = CW;
+      _dir.setByVal(CW);
     else
-      _dir = CCW;
+      _dir.setByVal(CCW);
 
     _steps = abs(val._steps);
     return *this;
   }
 
 private:
-  static param _default;
+  static LimitedParam _default;
 };
 
 class presetManager {
@@ -117,7 +114,7 @@ public:
   void nextParam();
   void prevParam();
 
-  param* getParam();
+  IParam* getParam();
 
   paramType getParamNumber(){
     return _curParam;
@@ -127,7 +124,13 @@ public:
      _curParam = SPEED;
   }
 
+  void edit();
+  bool isEdit();
+  void discard();
+
   long getValue(){
+    /*if(_edit)
+        return getValue(PARAM_COUNT); //getting default param*/
     return getValue(_curParam);
   }
   long getValue(paramType pos);
@@ -147,7 +150,7 @@ public:
     valueDown(_curParam);
   }
 
-  void changeDirection(int dir);
+  void changeDirection();
 
   void save(bool force = false);
 
@@ -156,6 +159,7 @@ private:
 //  presetStorage _presetStorage[NUM_PROGRAMS];
   preset _preset[NUM_PROGRAMS];
   paramType _curParam;
+  bool _edit;
 };
 
 }

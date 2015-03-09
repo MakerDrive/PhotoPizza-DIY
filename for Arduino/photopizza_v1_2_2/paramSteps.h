@@ -12,7 +12,7 @@
 #include "param.h"
 
 namespace PhotoPizza {
-class paramSteps : public param {
+class paramSteps : public LimitedParam {
 public:
   paramSteps() : paramSteps(3200){}
   paramSteps(long val){

@@ -10,41 +10,26 @@
 
 #include "defines.h"
 #include "param.h"
+#include "param.h"
 
 namespace PhotoPizza {
-#define PARAM_DIR_VAL_COUNT 2
 
-typedef struct enumParamMap{
-  long   value;
-  char*  label;
-};
-
-class paramDir : public param {
+class paramDir : public EnumedParam {
 public:
-  paramDir() : paramDir(CW){}
-  paramDir(long val): _map{
-    {CW, "CW"}, {CCW, "CCW"}
-  }{
-    _valLoLimit = 0;
-    _valHiLimit = PARAM_DIR_VAL_COUNT - 1;
-    _valStep = 1;
-    this->set(val);
+  paramDir() : paramDir(0){}
+  paramDir(long val) {
+    static enumParamMapItem dirMap[] = {
+        {CW, F("CW")},
+        {CCW, F("CCW")}
+    };
+    _valHiLimit = MAP_SIZE(dirMap) - 1;
+    _map = dirMap;
+    set(val);
   }
 
   virtual String getName(bool shorten = false){
     return F("dir");
   }
-
-  virtual long get(){
-    return _map[_val].value;
-  }
-
-  virtual String ToString(bool shorten = false){
-    return _map[_val].label;
-  }
-
-protected:
-  enumParamMap _map[PARAM_DIR_VAL_COUNT];
 };
 }
 

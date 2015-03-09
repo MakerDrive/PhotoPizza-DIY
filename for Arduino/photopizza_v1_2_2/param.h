@@ -8,6 +8,8 @@
 #ifndef PHOTOPIZZA_V1_2_2_PARAM_CPP_
 #define PHOTOPIZZA_V1_2_2_PARAM_CPP_
 
+#include <WString.h>
+
 namespace PhotoPizza {
 
 class IParam {
@@ -19,12 +21,13 @@ public:
   virtual void edit() = 0;
   virtual bool save() = 0;
   virtual void discard() = 0;
-  virtual String ToString() = 0;
-  virtual const char* getName() = 0;
+  virtual String ToString(bool shorten = false) = 0;
+  virtual String getName(bool shorten = false) = 0;
   virtual bool set(long val) = 0;
   virtual long get() = 0;
   virtual operator long() = 0;
   virtual IParam& operator=(long val) = 0;
+  //virtual IParam& operator=(IParam& other) {};
 
   virtual bool isEdit() = 0;
 
@@ -32,11 +35,11 @@ public:
 
 };
 
-class param {
+class LimitedParam: public IParam {
 
 public:
 
-  param() {
+  LimitedParam() {
     _valStep = 1;
     _val = 0;
     _valHiLimit = 100;
@@ -44,14 +47,15 @@ public:
   }
 
   virtual void up() {
-    long tmp = get(); //TODO: fix! works incorrect with enumed settings
+    long tmp = _val; //TODO: fix! works incorrect with enumed settings
     tmp = tmp - tmp % _valStep + _valStep;
     if (tmp > _valHiLimit)
       tmp = _valLoLimit;
     set(tmp);
   }
+
   virtual void down() {
-    long tmp = get();
+    long tmp = _val;
     tmp = tmp - tmp % _valStep - _valStep;
     if (tmp < _valLoLimit)
       tmp = _valHiLimit;
@@ -91,16 +95,21 @@ public:
     return get();
   }
 
-  virtual param& operator=(long val) {
+  virtual IParam& operator=(long val) {
     set(val);
     return *this;
   }
+
+  /*virtual IParam& operator=(IParam& other){
+    //LimitedParam *p = other;
+    return other;
+  }*/
 
   virtual bool isEdit() {
     return false;
   }
 
-  virtual ~param() {
+  virtual ~LimitedParam() {
   }
   ;
 
@@ -110,6 +119,57 @@ protected:
   short _valStep;
   long _val;
 };
+
+class enumParamMapItem{
+public:
+  long   value;
+  const __FlashStringHelper* label;
+};
+
+#ifndef MAP_SIZE(x)
+#define MAP_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+#endif
+
+class EnumedParam : public LimitedParam {
+public:
+  EnumedParam() : EnumedParam(CW){}
+  EnumedParam(long val): _map(NULL){
+    _valStep = 1;
+    _valLoLimit = 0;
+    _valHiLimit = 100;
+    this->set(val);
+  }
+
+  virtual long get(){
+    if(_map != NULL)
+      return _map[_val].value;
+
+    return _val;
+  }
+
+  virtual bool setByVal(long val){
+    if(_map)
+      return false;
+    for(int i = 0; i<_valHiLimit; i++){
+      if(_map[i].value == val){
+        _val = i;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  virtual String ToString(bool shorten = false){
+    if(_map != NULL)
+      return _map[_val].label;
+
+    return (String) _val;
+  }
+
+protected:
+  enumParamMapItem *_map;
+};
+
 }
 
 #endif /* PHOTOPIZZA_V1_2_2_PARAM_CPP_ */

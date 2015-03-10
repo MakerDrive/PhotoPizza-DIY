@@ -48,7 +48,7 @@ bool presetManager::loadPreset(unsigned short num, bool set){
   EEPROM_readAnything(sizeof(presetStorage) * num, ps);
   if (ps.flag != EEPROM_FLAG || ps.version != EEPROM_VER){
     valid = false;
-    Serial.println((String)F("Loading def preset ") + num + " from " + (uint_farptr_t)&(psData[num]));
+    Serial.println((String)F("Loading def preset ") + num + F(" from ") + (uint_farptr_t)&(psData[num]));
     memcpy_PF((void *)&ps.data, (uint_farptr_t)&(psData[num]), sizeof(presetStorageData));
   }
 

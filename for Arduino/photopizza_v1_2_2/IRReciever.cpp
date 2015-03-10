@@ -23,16 +23,16 @@
  convert this to an array containing binary values
  */
 
-static bool prvPulseToBits(volatile int pulse[], int bits[]);
+static bool prvPulseToBits(volatile int pulse[], char bits[]);
 
 /*
  convert an array of binary values to a single base-10 integer
  */
 
-static int prvBitsToInt(int bits[]);
+static int prvBitsToInt(char bits[]);
 
 static volatile int pulses[IR_BIT_LENGTH];
-static int bits[IR_BIT_LENGTH];
+static char bits[IR_BIT_LENGTH];  //TODO: optimize! (bitmask)
 static volatile char arrPos = 0;
 static volatile unsigned long lastPulseTime = 0;
 static volatile bool ready = false;
@@ -134,7 +134,7 @@ static void prvIRQ() {
   lastPulseTime = pulseTime;
 }
 
-static bool prvPulseToBits(volatile int pulse[], int bits[]) {
+static bool prvPulseToBits(volatile int pulse[], char bits[]) {
 
   for (int i = 0; i < IR_BIT_LENGTH; i++) {
 
@@ -152,7 +152,7 @@ static bool prvPulseToBits(volatile int pulse[], int bits[]) {
   return true;
 }
 
-static int prvBitsToInt(int bits[]) {
+static int prvBitsToInt(char bits[]) {
   int result = 0;
   int seed = 1;
 

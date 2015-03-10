@@ -12,7 +12,6 @@
 #include "defines.h"
 #include "param.h"
 #include "param.h"
-#include "lib.h"
 
 namespace PhotoPizza {
 

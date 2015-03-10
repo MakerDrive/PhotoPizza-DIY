@@ -11,23 +11,19 @@
 #include <Wire.h>
 #include <Arduino.h>
 #include "presetManager.h"
-
+#include "lcdIrController.h"
 ////////////
 
 using namespace PhotoPizza;
-static presetManager *presetMgr;
+static presetManager *presetMgr = NULL;
+static lcdIrController controller;
 #include "IRReciever.h"
-
-#include "lib.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
 
 void setup() {
   Serial.begin(115200);
-
-  //delay(1000); //for debug
-  libInit();
-  IrInit();
+  controller.init();
   presetMgr = presetManager::get();
 }
 
@@ -37,6 +33,6 @@ void yield() {
 
 void loop() {
   presetMgr->loop();
-  libLoop();
+  controller.loop();
 }
 

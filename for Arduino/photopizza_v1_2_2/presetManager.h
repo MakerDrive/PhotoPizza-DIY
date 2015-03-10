@@ -170,7 +170,7 @@ public:
 
   void update(){
     _update = true;
-    if(!_preset[0]._run.isRunning())
+    if(!_preset._run.isRunning())
       _edit = false;
   }
   bool isUpdated(){
@@ -189,7 +189,7 @@ private:
   static presetManager *_presetMgr;
   presetManager();
   int _curPreset; // current preset
-  preset _preset[NUM_PROGRAMS];
+  preset _preset;
   paramType _curParam;
   bool _edit;
   bool _update;

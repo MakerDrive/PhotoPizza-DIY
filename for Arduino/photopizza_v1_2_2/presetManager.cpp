@@ -18,18 +18,15 @@ presetManager::presetManager() {
   _edit = false;
   _update = false;
 
-  Serial.println(F("Loading presets..."));
+  Serial.println(F("Validating presets..."));
   for(int i = 0; i < NUM_PROGRAMS; ++i){
     if (!loadPreset(i, true)) {
-      Serial.println(F("EEPROM data is invalid. Resetting..."));
-      _preset[0] = (presetStorageData){4300, -3200, 5000};
-      _preset[1] = (presetStorageData){3300, -3200, 5000};
-      _preset[2] = (presetStorageData){1000, -10000, 5000};
-      _preset[3] = (presetStorageData){2000, -20000, 5000};
-      save(true);
-      return;
+      Serial.println((String) F("Data for preset ") + i + F(" is invalid, saving default"));
+      savePreset(i);
     }
   }
+
+  loadPreset(0, true);
 
   //_run = &(_preset[0]._run);//&(getPreset()->_run);
 }
@@ -41,8 +38,23 @@ bool presetManager::loadPreset(unsigned short num, bool set){
   EEPROM_readAnything(0 + sizeof(ps) * num, ps);
   if (ps.flag == EEPROM_FLAG && ps.version == EEPROM_VER) { // 11 00 11 00
     if(set)
-      _preset[num] = ps.data;
+      _preset = ps.data;
     return true;
+  }
+
+  switch(num){
+  case 0:
+    _preset = (presetStorageData){4300, -3200, 5000};
+    break;
+  case 1:
+    _preset = (presetStorageData){3300, -3200, 5000};
+    break;
+  case 2:
+    _preset = (presetStorageData){1000, -10000, 5000};
+    break;
+  case 3:
+    _preset = (presetStorageData){2000, -20000, 5000};
+    break;
   }
 
   return false;
@@ -54,13 +66,17 @@ bool presetManager::savePreset(unsigned short num){
 
   ps.flag = EEPROM_FLAG;
   ps.version = EEPROM_VER;
+  ps.data = _preset;
+  Serial.println((String)F("Sp: ") + ps.data._speed);
+  Serial.println((String)F("acc: ") + ps.data._acc);
+  Serial.println((String)F("steps: ") + ps.data._steps);
   EEPROM_writeAnything(0 + sizeof(ps) * num, ps);
 
   return true;
 }
 
 void presetManager::loop(){
-  _preset[0]._run.loop();
+  _preset._run.loop();
 }
 
 void presetManager::save(bool force) { // read mem -> check for changes -> write if changed => EEPROM live longer =)
@@ -68,16 +84,10 @@ void presetManager::save(bool force) { // read mem -> check for changes -> write
   _edit = false;
   getParam()->save();
 
-  for(int i = 0; i < NUM_PROGRAMS; ++i){
-    loadPreset(i, false);
-    if(_preset[i] != ps.data || force){
-      Serial.println((String)F("preset ") + i + F(" has changed, saving"));
-      ps.data = _preset[i];
-      savePreset(i);
-      Serial.println((String)F("Sp: ") + ps.data._speed);
-      Serial.println((String)F("acc: ") + ps.data._acc);
-      Serial.println((String)F("steps: ") + ps.data._steps);
-    }
+  loadPreset(_curPreset, false);
+  if(_preset != ps.data || force){
+    Serial.println((String)F("preset ") + _curPreset + F(" has changed, saving"));
+    savePreset(_curPreset);
   }
 }
 
@@ -116,11 +126,13 @@ void presetManager::discard(){
 void presetManager::nextPreset() {
   firstParam();
   _curPreset = (_curPreset + 1) % NUM_PROGRAMS;
+  loadPreset(_curPreset, true);
 }
 
 void presetManager::prevPreset() {
   firstParam();
   _curPreset = (_curPreset + NUM_PROGRAMS - 1) % NUM_PROGRAMS;
+  loadPreset(_curPreset, true);
 }
 
 int presetManager::getPresetNumber() {
@@ -128,27 +140,27 @@ int presetManager::getPresetNumber() {
 }
 
 preset* presetManager::getPreset() {
-  return &_preset[_curPreset];
+  return &_preset;
 }
 
 long presetManager::getValue(paramType pos) {
-  return _preset[_curPreset][pos];
+  return _preset[pos];
 }
 
 void presetManager::setValue(paramType pos, long val) {
-  _preset[_curPreset][pos] = val;
+  _preset[pos] = val;
 }
 
 void presetManager::valueUp(paramType pos) {
-  _preset[_curPreset][pos].up();
+  _preset[pos].up();
 }
 
 void presetManager::valueDown(paramType pos) {
-  _preset[_curPreset][pos].down();
+  _preset[pos].down();
 }
 
 void presetManager::changeDirection() {
-  _preset[_curPreset]._dir.up();
+  _preset._dir.up();
   save();
   update();
 }
@@ -156,13 +168,13 @@ void presetManager::changeDirection() {
 void presetManager::run(){
   _edit = true;
   firstParam();
-  _preset[0]._run.edit();
+  _preset._run.edit();
 }
 
 void presetManager::stop(){
   _edit = false;
   firstParam();
-  _preset[0]._run.discard();
+  _preset._run.discard();
 }
 
 presetManager * presetManager::get(){

@@ -10,6 +10,8 @@
 #include "paramSpeed.h"
 #include "paramDir.h"
 #include "paramRun.h"
+#include "paramIterCount.h"
+#include "paramPause.h"
 
 namespace PhotoPizza {
 
@@ -18,6 +20,8 @@ typedef enum {
   RUN = FIRST_PARAM,  // command-parameter
   STEPS,
   SPEED,
+  ITER_COUNT,
+  PAUSE,
   ACC,
   DIR,
   PARAM_COUNT,
@@ -41,10 +45,12 @@ struct presetStorage {
 
 class preset {
 public:
-  paramSpeed  _speed; // speed
-  paramSteps  _steps; // rotaion
-  paramAcc    _acc; // acceleration
-  paramDir    _dir; // -1 - clockwise , 1 - counterclockwise
+  paramSpeed     _speed; // speed
+  paramSteps     _steps; // rotaion
+  paramAcc       _acc; // acceleration
+  paramDir       _dir; // -1 - clockwise , 1 - counterclockwise
+  paramIterCount _iter;
+  paramPause     _pause;
 
   static paramRun _run;
 
@@ -54,6 +60,10 @@ public:
       return _run;
     case SPEED:
       return _speed;
+    case ITER_COUNT:
+      return _iter;
+    case PAUSE:
+        return _pause;
     case STEPS:
       return _steps;
     case ACC:

@@ -26,6 +26,7 @@ public:
     _valHiLimit = MAP_SIZE(map) - 1;
     _map = map;
     _run = false;
+    _iterCount = 0;
     set(val);
   }
 
@@ -62,6 +63,8 @@ private:
   bool _run;
   //void finishPreset();
   void stopPreset();
+  void startMotor();
+  short _iterCount;
 private:
 };
 }

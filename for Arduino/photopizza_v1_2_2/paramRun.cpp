@@ -27,22 +27,22 @@ void paramRun::stopPreset(){
 
 void paramRun::loop(){
   if(!stepper.run() && _run){
-    _run = false;
-    _val = 0;
-    presetManager::get()->update();
-    Serial.println(F("Finished"));
+    if(_iterCount == 0 || _val == 0){
+      _run = false;
+      _val = 0;
+      presetManager::get()->update();
+      Serial.println(F("Finished"));
+    }else
+      startMotor();
   }
 }
 
-void paramRun::edit() {
-  if(_run)
-    return;
-
-  _val = 1;
-  _run = true;
+void paramRun::startMotor(){
   presetManager *presetMgr = presetManager::get();
 
-  Serial.println(F("Run"));
+  if(_iterCount >= 0)
+    --_iterCount;
+
   long steps = presetMgr->getPreset()->_steps * presetMgr->getPreset()->_dir; //TODO: refactor getters (via local vars)
   Serial.println((String)F("Accel") + presetMgr->getPreset()->_acc);
   Serial.println((String)F("Steps") + steps);
@@ -57,7 +57,18 @@ void paramRun::edit() {
   }else
     stepper.moveTo(LONG_MAX * presetMgr->getPreset()->_dir);
   stepper.setMaxSpeed(presetMgr->getPreset()->_speed);
-  presetMgr->update();
+}
+
+void paramRun::edit() {
+  if(_run)
+    return;
+  Serial.println(F("Run"));
+  _val = 1;
+  _run = true;
+  _iterCount = presetManager::get()->getPreset()->_iter;
+  startMotor();
+
+  presetManager::get()->update();
 }
 
 };

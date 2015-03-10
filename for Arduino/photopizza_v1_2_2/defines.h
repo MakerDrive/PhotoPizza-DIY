@@ -38,6 +38,14 @@
 #define ACC_MAX 5000
 #define ACC_STEP 100
 
+#define ITER_COUNT_MIN 0
+#define ITER_COUNT_MAX 500
+#define ITER_COUNT_STEP 1
+
+#define PAUSE_MIN 0
+#define PAUSE_MAX 50000
+#define PAUSE_STEP 100
+
 #define NUM_PROGRAMS 4
 
 #define CW -1  //clockwise

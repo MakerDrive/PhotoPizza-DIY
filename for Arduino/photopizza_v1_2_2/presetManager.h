@@ -30,9 +30,11 @@ typedef enum {
 } paramType;
 
 struct presetStorageData {
-  long _speed; // speed
-  long _steps; // rotaion
-  long _acc; // acceleration
+  long _steps;  // rotaion
+  long _accel;    // acceleration
+  long _pause;
+  int   _iter;
+  short _speed; // speed
 };
 
 struct presetStorage {
@@ -77,10 +79,14 @@ public:
   bool operator!=(presetStorageData & val) {
     if(_speed != val._speed)
        return true;
-    if(_acc != val._acc)
+    if(_acc != val._accel)
        return true;
     if(_steps * _dir != val._steps)
        return true;
+    if(_pause != val._pause)
+      return true;
+    if(_iter != val._iter)
+        return true;
 
     return false;
   }
@@ -88,19 +94,23 @@ public:
   operator presetStorageData() {
     //Serial.println("op = cast to psd");
     presetStorageData tmp;
-    tmp._acc = _acc;
+    tmp._accel = _acc;
     tmp._speed = _speed;
     tmp._steps = _steps * _dir;
+    tmp._iter = _iter;
+    tmp._pause = _pause;
     return tmp;
   }
 
   preset& operator=(presetStorageData val) {
-    /*Serial.println(F("op = psd"));
-    Serial.println((String)F("Sp: ") + val._speed);
-    Serial.println((String)F("acc: ") + val._acc);
-    Serial.println((String)F("steps: ") + val._steps);*/
+//    Serial.println(F("op = psd"));
+//    Serial.println((String)F("Sp: ") + val._speed);
+//    Serial.println((String)F("acc: ") + val._acc);
+//    Serial.println((String)F("steps: ") + val._steps);
     _speed = val._speed;
-    _acc = val._acc;
+    _acc = val._accel;
+    _iter = val._iter;
+    _pause = val._pause;
 
     if(val._steps < 0)
       _dir.setByVal(CW);

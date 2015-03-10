@@ -1,4 +1,5 @@
 #include "presetManager.h"
+#include <avr/pgmspace.h>
 
 using namespace PhotoPizza;
 
@@ -9,7 +10,14 @@ using namespace PhotoPizza;
 static presetStorage ps;
 
 #define EEPROM_FLAG 204
-#define EEPROM_VER 4
+#define EEPROM_VER 5
+
+const PROGMEM presetStorageData psData[NUM_PROGRAMS] = {
+    {-3100, 5000, 100,  0, 1000},
+    { 3200, 5000, 200, 10, 2000},
+    {-3300, 5000, 300, 20, 3000},
+    {-3400, 5000, 400, 30, 4300},
+};
 
 presetManager::presetManager() {
 
@@ -35,29 +43,22 @@ bool presetManager::loadPreset(unsigned short num, bool set){
   if(num >= NUM_PROGRAMS)
     return false;
 
-  EEPROM_readAnything(0 + sizeof(ps) * num, ps);
-  if (ps.flag == EEPROM_FLAG && ps.version == EEPROM_VER) { // 11 00 11 00
-    if(set)
-      _preset = ps.data;
-    return true;
+  bool valid = true;
+
+  EEPROM_readAnything(sizeof(presetStorage) * num, ps);
+  if (ps.flag != EEPROM_FLAG || ps.version != EEPROM_VER){
+    valid = false;
+    Serial.println((String)F("Loading def preset ") + num + " from " + (uint_farptr_t)&(psData[num]));
+    memcpy_PF((void *)&ps.data, (uint_farptr_t)&(psData[num]), sizeof(presetStorageData));
   }
 
-  switch(num){
-  case 0:
-    _preset = (presetStorageData){4300, -3200, 5000};
-    break;
-  case 1:
-    _preset = (presetStorageData){3300, -3200, 5000};
-    break;
-  case 2:
-    _preset = (presetStorageData){1000, -10000, 5000};
-    break;
-  case 3:
-    _preset = (presetStorageData){2000, -20000, 5000};
-    break;
-  }
+//  Serial.println((String)F("Sp: ") + ps.data._speed);
+//  Serial.println((String)F("acc: ") + ps.data._acc);
+//  Serial.println((String)F("steps: ") + ps.data._steps);
 
-  return false;
+  if(set)
+    _preset = ps.data;
+  return valid;
 }
 
 bool presetManager::savePreset(unsigned short num){
@@ -67,10 +68,10 @@ bool presetManager::savePreset(unsigned short num){
   ps.flag = EEPROM_FLAG;
   ps.version = EEPROM_VER;
   ps.data = _preset;
-  Serial.println((String)F("Sp: ") + ps.data._speed);
-  Serial.println((String)F("acc: ") + ps.data._acc);
-  Serial.println((String)F("steps: ") + ps.data._steps);
-  EEPROM_writeAnything(0 + sizeof(ps) * num, ps);
+//  Serial.println((String)F("Sp: ") + ps.data._speed);
+//  Serial.println((String)F("acc: ") + ps.data._acc);
+//  Serial.println((String)F("steps: ") + ps.data._steps);
+  EEPROM_writeAnything(sizeof(presetStorage) * num, ps);
 
   return true;
 }

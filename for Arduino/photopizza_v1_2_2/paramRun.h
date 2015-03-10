@@ -33,9 +33,7 @@ public:
   virtual void up(){}
   virtual void down(){}
 
-  virtual void edit(){
-    runPreset();
-  }
+  virtual void edit();
 
   virtual bool save(){
     stopPreset();
@@ -47,10 +45,10 @@ public:
   }
 
   virtual bool isEdit(){
-    return false;//return _run || _val != 0;
+    return _run || _val != 0;
   }
 
-  bool isRunning(){
+  virtual bool isRunning(){
     return _run;
   }
 
@@ -65,7 +63,6 @@ private:
   bool _run;
   //void finishPreset();
   void stopPreset();
-  void runPreset();
 private:
 };
 }

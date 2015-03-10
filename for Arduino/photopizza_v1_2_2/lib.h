@@ -12,6 +12,6 @@
 
 void libLoop();
 void libInit();
-void libUpdateLCD();
+int freeRam ();
 
 #endif /* PHOTOPIZZA_V1_2_2_LIB_H_ */

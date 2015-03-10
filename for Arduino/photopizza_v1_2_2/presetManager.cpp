@@ -3,7 +3,7 @@
 using namespace PhotoPizza;
 
 /* static */ LimitedParam preset::_default;
-/* static */ //paramRun preset::_run;
+/* static */ paramRun preset::_run;
 /* static */ presetManager *presetManager::_presetMgr = NULL;
 
 static presetStorage ps;
@@ -14,8 +14,9 @@ static presetStorage ps;
 presetManager::presetManager() {
 
   _curPreset = 0;
-  _curParam = SPEED;
+  _curParam = FIRST_PARAM;
   _edit = false;
+  _update = false;
 
   byte flag;
 
@@ -43,11 +44,11 @@ presetManager::presetManager() {
   Serial.println(F("EEPROM data is invalid. Resetting..."));
 
   save(true);
-  //_run = &getPreset()->_run;
+  //_run = &(_preset[0]._run);//&(getPreset()->_run);
 }
 
 void presetManager::loop(){
-  //_run->loop();
+  _preset[0]._run.loop();
 }
 
 void presetManager::save(bool force) { // read mem -> check for changes -> write if changed => EEPROM live longer =)
@@ -111,12 +112,12 @@ void presetManager::discard(){
 }
 
 void presetManager::nextPreset() {
-  _curParam = SPEED;
+  firstParam();
   _curPreset = (_curPreset + 1) % NUM_PROGRAMS;
 }
 
 void presetManager::prevPreset() {
-  _curParam = SPEED;
+  firstParam();
   _curPreset = (_curPreset + NUM_PROGRAMS - 1) % NUM_PROGRAMS;
 }
 
@@ -146,25 +147,28 @@ void presetManager::valueDown(paramType pos) {
 
 void presetManager::changeDirection() {
   _preset[_curPreset]._dir.up();
+  save();
+  update();
 }
 
-/*void presetManager::run(){
-  _run->edit();
+void presetManager::run(){
+  _edit = true;
+  firstParam();
+  _preset[0]._run.edit();
 }
 
 void presetManager::stop(){
-  _run->discard();
-}*/
+  _edit = false;
+  firstParam();
+  _preset[0]._run.discard();
+}
 
 presetManager * presetManager::get(){
   if(_presetMgr == NULL){
     static presetManager presetMgr;
     _presetMgr = &presetMgr;
   }
-  /*if(_presetMgr == NULL){
-    _presetMgr = new presetManager();
-    Serial.println((String) F("PresetMgr: ") + (String) (int)_presetMgr);
-  }*/
-  return _presetMgr; //= &presetMgr;
+
+  return _presetMgr;
 }
 

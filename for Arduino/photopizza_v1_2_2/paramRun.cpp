@@ -21,34 +21,25 @@ void paramRun::stopPreset(){
   _val = 0;
   Serial.println(F("stopping"));
   stepper.stop();
-  libUpdateLCD(); //todo: refactor???
-  //lcd.setCursor(0, 1);
-  //lcd.print(F("Program stopping "));
+  presetManager::get()->update();
   return;
 }
 
 void paramRun::loop(){
   if(!stepper.run() && _run){
-    Serial.println((String) _run);
     _run = false;
     _val = 0;
-    //presetManager::get()->discard();
+    presetManager::get()->update();
     Serial.println(F("Finished"));
-    Serial.println((String) _run);
-    libUpdateLCD(); //todo: refactor???
-    //finishPreset();
   }
 }
 
-void paramRun::runPreset() {
-  Serial.println((String)F("Run: ") + _run);
+void paramRun::edit() {
   if(_run)
     return;
 
   _val = 1;
   _run = true;
-  //lcd.setCursor(0, 1);
-  //lcd.print(F("Program started "));
   presetManager *presetMgr = presetManager::get();
 
   Serial.println(F("Run"));
@@ -66,15 +57,7 @@ void paramRun::runPreset() {
   }else
     stepper.moveTo(LONG_MAX * presetMgr->getPreset()->_dir);
   stepper.setMaxSpeed(presetMgr->getPreset()->_speed);
-  libUpdateLCD(); //todo: refactor???
+  presetMgr->update();
 }
 
-/*void paramRun::finishPreset(){
-  //lcd.setCursor(0, 1);
-  //lcd.print(F("Program finished"));
-
-  //delay(1000);
-  //presetMgr->stop();
-  //show_curr_program();
-}*/
 };

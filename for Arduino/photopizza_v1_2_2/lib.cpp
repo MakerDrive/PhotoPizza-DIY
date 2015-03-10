@@ -20,7 +20,13 @@ LiquidCrystal lcd(8, 9, 4, 5, 6, 7); // select the pins used on the LCD panel
 #endif
 
 ///////////  Presets
-presetManager *presetMgr;
+static presetManager *presetMgr;
+
+int freeRam (){
+  extern int __heap_start, *__brkval;
+  int v;
+  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
+}
 
 static void show_curr_program();
 
@@ -53,17 +59,15 @@ void sayHello() {
 }
 
 void libLoop(){
-  presetMgr->loop();
 
   if (presetMgr->isEdit())
     edit_preset_mode();
   else
     menu_mode();
+
+  if(presetMgr->isUpdated())
+    show_curr_program();
 }
-
-///////////////////////////////////////
-
-///////// print info
 
 void print_prog_num() {
   lcd.setCursor(0, 0);
@@ -105,17 +109,74 @@ static void show_curr_program() {
 
 ///////////////////////////////////////
 
+void menu_mode() {
+  int key = kbGetKey();
+  long val;
+
+  switch (key) {
+  case kbPwr:
+    presetMgr->stop();
+    presetMgr->run();
+    break;
+  case kbUp:
+    presetMgr->nextParam();
+    break;
+
+  case kbDown:
+    presetMgr->prevParam();
+    break;
+
+  case kbRight:
+    presetMgr->nextPreset();
+    break;
+
+  case kbLeft:
+    presetMgr->prevPreset();
+    break;
+
+  case kbOk:
+    presetMgr->edit();
+    break;
+
+  case kbClear:
+    presetMgr->edit();
+    presetMgr->setValue(0);
+    break;
+
+  case kbBksp:
+    presetMgr->changeDirection();
+    break;
+
+  default:
+    key = kbGetNumericKey(key);
+    if(key >= 0){
+      presetMgr->edit();
+      presetMgr->setValue(0);
+      val = presetMgr->getValue() * 10 + key;
+      presetMgr->setValue(val);
+    }
+    break;
+  }
+
+  if(key != kbNoKey && key != kbPwr)
+    show_curr_program();
+}
+
 void edit_preset_mode() {
   long val;
   int key = kbGetKey();
 
   switch (key) {
-  case kbLeft: //exit without writing to mem
+  case kbPwr:
+    presetMgr->stop();
+    presetMgr->run();
+    break;
+  case kbLeft:
     presetMgr->discard();
     break;
 
-  case kbOk: // write to mem and exit
-    presetMgr->save(); //TODO: fix that!
+  case kbOk:
+    presetMgr->save();
     break;
 
   case kbDown:
@@ -140,53 +201,5 @@ void edit_preset_mode() {
   }
   if(key != kbNoKey)
     show_curr_program();
-}
-
-void menu_mode() {
-  int key = kbGetKey();
-  long val;
-
-  switch (key) {
-  case kbPwr:
-    //presetMgr->run();
-    break;
-  case kbUp:
-    presetMgr->nextParam();
-    break;
-
-  case kbDown:
-    presetMgr->prevParam();
-    break;
-
-  case kbRight:
-    presetMgr->nextPreset();
-    break;
-
-  case kbLeft:
-    presetMgr->prevPreset();
-    break;
-
-  case kbOk:
-    presetMgr->edit();
-    break;
-
-  default:
-    key = kbGetNumericKey(key);
-    if(key >= 0){
-      presetMgr->edit();
-      presetMgr->setValue(0);
-      val = presetMgr->getValue() * 10 + key;
-      presetMgr->setValue(val);
-    }
-    break;
-  }
-
-  if(key != kbNoKey && key != kbPwr)
-    show_curr_program();
-
-}
-
-void libUpdateLCD(){
-  //show_curr_program();
 }
 

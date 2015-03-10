@@ -14,11 +14,12 @@
 namespace PhotoPizza {
 
 typedef enum {
-  SPEED,
+  FIRST_PARAM = 0,
+  RUN = FIRST_PARAM,  // command-parameter
   STEPS,
+  SPEED,
   ACC,
   DIR,
-  //RUN,         // command-parameter
   PARAM_COUNT,
 
 
@@ -45,10 +46,12 @@ public:
   paramAcc    _acc; // acceleration
   paramDir    _dir; // -1 - clockwise , 1 - counterclockwise
 
-  //static paramRun _run;
+  static paramRun _run;
 
   IParam& operator[] (const int nIndex){
     switch (nIndex) {
+    case RUN:
+      return _run;
     case SPEED:
       return _speed;
     case STEPS:
@@ -57,8 +60,6 @@ public:
       return _acc;
     case DIR:
       return _dir;
-    /*case RUN:
-      return _run;*/
     default:
       return _default;
     }
@@ -125,7 +126,7 @@ public:
   }
 
   void firstParam(){
-     _curParam = SPEED;
+     _curParam = FIRST_PARAM;
   }
 
   void edit();
@@ -155,8 +156,21 @@ public:
   }
 
   void changeDirection();
-  /*void run();
-  void stop();*/
+  void run();
+  void stop();
+
+  void update(){
+    _update = true;
+    if(!_preset[0]._run.isRunning())
+      _edit = false;
+  }
+  bool isUpdated(){
+    if(_update){
+      _update = false;
+      return true;
+    }
+    return false;
+  }
 
   void save(bool force = false);
 
@@ -164,11 +178,10 @@ private:
   static presetManager *_presetMgr;
   presetManager();
   int _curPreset; // current preset
-//  presetStorage _presetStorage[NUM_PROGRAMS];
   preset _preset[NUM_PROGRAMS];
   paramType _curParam;
   bool _edit;
-  //paramRun *_run; //link to run object
+  bool _update;
 };
 
 }

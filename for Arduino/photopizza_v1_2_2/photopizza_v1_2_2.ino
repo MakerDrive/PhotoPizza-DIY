@@ -10,9 +10,12 @@
 #include <LiquidCrystal_I2C.h>
 #include <Wire.h>
 #include <Arduino.h>
+#include "presetManager.h"
 
 ////////////
 
+using namespace PhotoPizza;
+static presetManager *presetMgr;
 #include "IRReciever.h"
 
 #include "lib.h"
@@ -25,13 +28,15 @@ void setup() {
   //delay(1000); //for debug
   libInit();
   IrInit();
+  presetMgr = presetManager::get();
 }
 
 void yield() {
-  //TDOD: YIELD hook
+  presetMgr->loop(); //very carefully! do not allow delay call in presetMgr
 }
 
 void loop() {
+  presetMgr->loop();
   libLoop();
 }
 

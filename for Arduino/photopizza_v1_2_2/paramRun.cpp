@@ -19,6 +19,7 @@ void paramRun::stopPreset(){
   if(!_run)
       return;
   _val = 0;
+  _delayTime = 0;
   Serial.println(F("stopping"));
   stepper.stop();
   presetManager::get()->update();
@@ -26,14 +27,39 @@ void paramRun::stopPreset(){
 }
 
 void paramRun::loop(){
+  presetManager *pMgr = presetManager::get();
   if(!stepper.run() && _run){
-    if(_iterCount == 0 || _val == 0){
-      _run = false;
-      _val = 0;
-      presetManager::get()->update();
-      Serial.println(F("Finished"));
-    }else
-      startMotor();
+
+    if(!_delay){
+      unsigned long now = millis();
+      _delayTime = now + pMgr->getPreset()->_pause;
+        _ovr = false;
+
+      if(_delayTime < now) //check for overflow
+        _ovr = true;
+
+      _delay = true;
+    }
+
+    if(_delay){
+
+      //if(!_ovr){ //todo: handle overflow
+        if(millis() <= _delayTime)
+          return;
+      /*}else
+        if(millis() > _delayTime)
+          return;*/
+
+        _delay = false;
+
+      if(_iterCount == 0 || _val == 0){
+        _run = false;
+        _val = 0;
+        pMgr->update();
+        Serial.println(F("Finished"));
+      }else
+        startMotor();
+    }
   }
 }
 

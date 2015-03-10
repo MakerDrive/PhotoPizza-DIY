@@ -27,6 +27,9 @@ public:
     _map = map;
     _run = false;
     _iterCount = 0;
+    _delayTime = 0;
+    _ovr = false;
+    _delay = false;
     set(val);
   }
 
@@ -61,6 +64,9 @@ public:
 
 private:
   bool _run;
+  bool _ovr;
+  bool _delay;
+  unsigned long _delayTime;
   //void finishPreset();
   void stopPreset();
   void startMotor();

@@ -9,6 +9,7 @@
 #define PHOTOPIZZA_V1_2_2_PARAM_CPP_
 
 #include <WString.h>
+#include <Arduino.h>
 
 namespace PhotoPizza {
 
@@ -148,14 +149,19 @@ public:
   }
 
   virtual bool setByVal(long val){
-    if(_map)
+    //Serial.println((String)F("SetByVal: ") + val);
+    //Serial.println((String)F("_valHiLim: ") + _valHiLimit);
+    if(!_map)
       return false;
-    for(int i = 0; i<_valHiLimit; i++){
+    for(int i = 0; i<=_valHiLimit; i++){
+      //Serial.println((String)F("Checking: ") + _map[i].value);
       if(_map[i].value == val){
         _val = i;
+        //Serial.println(F("SetByVal: true"));
         return true;
       }
     }
+    //Serial.println(F("SetByVal: false"));
     return false;
   }
 

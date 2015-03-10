@@ -26,8 +26,7 @@ typedef enum {
   DIR,
   PARAM_COUNT,
 
-
-  SAVED_PARAM,
+  SAVED_PARAM,       //parameter where we save value before editing
 } paramType;
 
 struct presetStorageData {
@@ -40,7 +39,7 @@ struct presetStorage {
   byte flag;
   int  version;
 
-  presetStorageData data[NUM_PROGRAMS];
+  presetStorageData data;
 };
 
 class preset {
@@ -96,10 +95,10 @@ public:
   }
 
   preset& operator=(presetStorageData val) {
-    /*Serial.println("op = psd");
-    Serial.println((String)"Sp: " + val._speed);
-    Serial.println((String)"acc: " + val._acc);
-    Serial.println((String)"steps: " + val._steps);*/
+    /*Serial.println(F("op = psd"));
+    Serial.println((String)F("Sp: ") + val._speed);
+    Serial.println((String)F("acc: ") + val._acc);
+    Serial.println((String)F("steps: ") + val._steps);*/
     _speed = val._speed;
     _acc = val._acc;
 
@@ -185,6 +184,8 @@ public:
   void save(bool force = false);
 
 private:
+  bool loadPreset(unsigned short num, bool set = false);
+  bool savePreset(unsigned short num);
   static presetManager *_presetMgr;
   presetManager();
   int _curPreset; // current preset

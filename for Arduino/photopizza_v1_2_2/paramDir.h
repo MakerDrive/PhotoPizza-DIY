@@ -23,6 +23,7 @@ public:
         {CCW, F("CCW")}
     };
     _valHiLimit = MAP_SIZE(dirMap) - 1;
+    //Serial.println((String)F("_valHiLim ctor: ") + _valHiLimit);
     _map = dirMap;
     set(val);
   }

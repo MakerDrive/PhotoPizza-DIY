@@ -28,7 +28,8 @@ void setup() {
 }
 
 void yield() {
-  presetMgr->loop(); //very carefully! do not allow delay call in presetMgr
+  if(presetMgr)
+    presetMgr->loop(); //very carefully! do not allow delay call in presetMgr
 }
 
 void loop() {

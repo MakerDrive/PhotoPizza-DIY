@@ -46,9 +46,6 @@ void paramRun::loop(){
       //if(!_ovr){ //todo: handle overflow
         if(millis() <= _delayTime)
           return;
-      /*}else
-        if(millis() > _delayTime)
-          return;*/
 
         _delay = false;
 

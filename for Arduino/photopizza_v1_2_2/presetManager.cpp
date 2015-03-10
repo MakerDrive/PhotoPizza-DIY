@@ -9,7 +9,7 @@ using namespace PhotoPizza;
 static presetStorage ps;
 
 #define EEPROM_FLAG 204
-#define EEPROM_VER 3
+#define EEPROM_VER 4
 
 presetManager::presetManager() {
 
@@ -18,33 +18,45 @@ presetManager::presetManager() {
   _edit = false;
   _update = false;
 
-  byte flag;
-
-  EEPROM_readAnything(0, ps);
-
-  _preset[0] = (presetStorageData){4300, -3200, 5000};
-
-  _preset[1] = (presetStorageData){3300, -3200, 5000};
-
-  _preset[2] = (presetStorageData){1000, -10000, 5000};
-
-  _preset[3] = (presetStorageData){2000, -20000, 5000};
-
-  if (ps.flag == EEPROM_FLAG && ps.version == EEPROM_VER) { // 11 00 11 00
-    Serial.println(F("Loading presets..."));
-    for(int i = 0; i < NUM_PROGRAMS; ++i){
-      _preset[i] = ps.data[i];
+  Serial.println(F("Loading presets..."));
+  for(int i = 0; i < NUM_PROGRAMS; ++i){
+    if (!loadPreset(i, true)) {
+      Serial.println(F("EEPROM data is invalid. Resetting..."));
+      _preset[0] = (presetStorageData){4300, -3200, 5000};
+      _preset[1] = (presetStorageData){3300, -3200, 5000};
+      _preset[2] = (presetStorageData){1000, -10000, 5000};
+      _preset[3] = (presetStorageData){2000, -20000, 5000};
+      save(true);
+      return;
     }
-    return;
   }
+
+  //_run = &(_preset[0]._run);//&(getPreset()->_run);
+}
+
+bool presetManager::loadPreset(unsigned short num, bool set){
+  if(num >= NUM_PROGRAMS)
+    return false;
+
+  EEPROM_readAnything(0 + sizeof(ps) * num, ps);
+  if (ps.flag == EEPROM_FLAG && ps.version == EEPROM_VER) { // 11 00 11 00
+    if(set)
+      _preset[num] = ps.data;
+    return true;
+  }
+
+  return false;
+}
+
+bool presetManager::savePreset(unsigned short num){
+  if(num >= NUM_PROGRAMS)
+    return false;
 
   ps.flag = EEPROM_FLAG;
   ps.version = EEPROM_VER;
+  EEPROM_writeAnything(0 + sizeof(ps) * num, ps);
 
-  Serial.println(F("EEPROM data is invalid. Resetting..."));
-
-  save(true);
-  //_run = &(_preset[0]._run);//&(getPreset()->_run);
+  return true;
 }
 
 void presetManager::loop(){
@@ -53,30 +65,20 @@ void presetManager::loop(){
 
 void presetManager::save(bool force) { // read mem -> check for changes -> write if changed => EEPROM live longer =)
 
-  bool update = force;
   _edit = false;
   getParam()->save();
+
   for(int i = 0; i < NUM_PROGRAMS; ++i){
-    if(_preset[i] != ps.data[i]){
-      Serial.println(F("preset has changed, saving"));
-      update = true;
-      ps.data[i] = _preset[i];
-      /*Serial.println((String)"Sp: " + ps.data[i]._speed);
-      Serial.println((String)"acc: " + ps.data[i]._acc);
-      Serial.println((String)"steps: " + ps.data[i]._steps);*/
+    loadPreset(i, false);
+    if(_preset[i] != ps.data || force){
+      Serial.println((String)F("preset ") + i + F(" has changed, saving"));
+      ps.data = _preset[i];
+      savePreset(i);
+      Serial.println((String)F("Sp: ") + ps.data._speed);
+      Serial.println((String)F("acc: ") + ps.data._acc);
+      Serial.println((String)F("steps: ") + ps.data._steps);
     }
   }
-
-  if(!update){
-    Serial.println(F("EEPROM data is actual, not saving"));
-    return;
-  }else
-    Serial.println(F("EEPROM data needs update, saving"));
-
-  ps.flag = EEPROM_FLAG;
-  ps.version = EEPROM_VER;
-
-  EEPROM_writeAnything(0, ps);
 }
 
 void presetManager::nextParam(){

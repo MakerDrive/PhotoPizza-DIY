@@ -17,19 +17,18 @@
 
 namespace PhotoPizza {
 
-#define ledPin 13
 class relayPause: public DelayRun{
 public:
   relayPause(unsigned long delayMs): DelayRun(delayMs, NULL){
-    pinMode(ledPin, OUTPUT);
+    pinMode(RELAY_PIN, OUTPUT);
   };
   ~relayPause(){};
   void startDelayed(){
-    digitalWrite(ledPin, HIGH);
+    digitalWrite(RELAY_PIN, HIGH);
     DelayRun::startDelayed();
   };
   virtual boolean operator()(){
-    digitalWrite(ledPin, LOW);
+    digitalWrite(RELAY_PIN, LOW);
     return true;
   }
 };

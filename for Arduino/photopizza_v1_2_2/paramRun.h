@@ -13,12 +13,32 @@
 #include "param.h"
 #include "param.h"
 
+#include <DelayRun.h>
+
 namespace PhotoPizza {
 
-class paramRun : public EnumedParam {
+#define ledPin 13
+class relayPause: public DelayRun{
 public:
+  relayPause(unsigned long delayMs): DelayRun(delayMs, NULL){
+    pinMode(ledPin, OUTPUT);
+  };
+  ~relayPause(){};
+  void startDelayed(){
+    digitalWrite(ledPin, HIGH);
+    DelayRun::startDelayed();
+  };
+  virtual boolean operator()(){
+    digitalWrite(ledPin, LOW);
+    return true;
+  }
+};
+
+class paramRun : public EnumedParam, public DelayRun{
+public:
+
   paramRun() : paramRun(0){}
-  paramRun(long val) {
+  paramRun(long val): DelayRun(0, NULL), _relay(100){//_iterRepeatTask(0, /*boolean (*)(Task*))*/NULL) {
     static enumParamMapItem map[] = {
         {0, F("")},
         {1, F(">>>")}
@@ -28,10 +48,11 @@ public:
     _run = false;
     _iterCount = 0;
     _delayTime = 0;
-    _ovr = false;
-    _delay = false;
+    _relayCycle = false;
     set(val);
   }
+
+  virtual boolean operator()();
 
   virtual void up(){}
   virtual void down(){}
@@ -64,12 +85,11 @@ public:
 
 private:
   bool _run;
-  bool _ovr;
-  bool _delay;
+  bool _relayCycle;
   unsigned long _delayTime;
-  //void finishPreset();
   void stopPreset();
-  void startMotor();
+  bool startMotor(Task *t);
+  relayPause _relay;
   short _iterCount;
 private:
 };

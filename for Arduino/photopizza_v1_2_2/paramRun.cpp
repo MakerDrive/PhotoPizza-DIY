@@ -15,6 +15,17 @@ namespace PhotoPizza{
 
 AccelStepper stepper(AccelStepper::DRIVER, MOTOR_STP_PIN, MOTOR_DIR_PIN);
 
+boolean paramRun::operator()(){
+  if(_iterCount == 0 || _val == 0){
+    _run = false;
+    _val = 0;
+    presetManager::get()->update();
+    Serial.println(F("Finished"));
+  }else
+    startMotor(NULL);
+  return true;
+}
+
 void paramRun::stopPreset(){
   if(!_run)
       return;
@@ -29,43 +40,24 @@ void paramRun::stopPreset(){
 void paramRun::loop(){
   presetManager *pMgr = presetManager::get();
   if(!stepper.run() && _run){
-
-    if(!_delay){
-      unsigned long now = millis();
-      _delayTime = now + pMgr->getPreset()->_pause;
-        _ovr = false;
-
-      if(_delayTime < now) //check for overflow
-        _ovr = true;
-
-      _delay = true;
+    if(getState() == DelayRun::STATE_INITED){
+      setPeriodMs(pMgr->getPreset()->_pause);
+      startDelayed();
     }
-
-    if(_delay){
-
-      //if(!_ovr){ //todo: handle overflow
-        if(millis() <= _delayTime)
-          return;
-
-        _delay = false;
-
-      if(_iterCount == 0 || _val == 0){
-        _run = false;
-        _val = 0;
-        pMgr->update();
-        Serial.println(F("Finished"));
-      }else
-        startMotor();
+    if(_relay.getState() == DelayRun::STATE_INITED && !_relayCycle){
+      _relay.startDelayed();
+      _relayCycle = true;
     }
   }
 }
 
-void paramRun::startMotor(){
+bool paramRun::startMotor(Task *t){
   presetManager *presetMgr = presetManager::get();
 
   if(_iterCount >= 0)
     --_iterCount;
 
+  _relayCycle = false;
   long steps = presetMgr->getPreset()->_steps * presetMgr->getPreset()->_dir; //TODO: refactor getters (via local vars)
   Serial.println((String)F("Accel") + presetMgr->getPreset()->_acc);
   Serial.println((String)F("Steps") + steps);
@@ -80,6 +72,8 @@ void paramRun::startMotor(){
   }else
     stepper.moveTo(LONG_MAX * presetMgr->getPreset()->_dir);
   stepper.setMaxSpeed(presetMgr->getPreset()->_speed);
+
+  return false;
 }
 
 void paramRun::edit() {
@@ -89,7 +83,7 @@ void paramRun::edit() {
   _val = 1;
   _run = true;
   _iterCount = presetManager::get()->getPreset()->_iter;
-  startMotor();
+  startMotor(NULL);
 
   presetManager::get()->update();
 }

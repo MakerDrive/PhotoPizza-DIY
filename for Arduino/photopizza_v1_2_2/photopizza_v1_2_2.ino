@@ -12,6 +12,8 @@
 #include <Arduino.h>
 #include "presetManager.h"
 #include "lcdIrController.h"
+
+#include <SoftTimer.h>
 ////////////
 
 using namespace PhotoPizza;
@@ -35,5 +37,6 @@ void yield() {
 void loop() {
   presetMgr->loop();
   controller.loop();
+  SoftTimer.run();
 }
 

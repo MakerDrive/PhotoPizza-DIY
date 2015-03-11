@@ -44,7 +44,7 @@ void paramRun::loop(){
       setPeriodMs(pMgr->getPreset()->_pause);
       startDelayed();
     }
-    if(_relay.getState() == DelayRun::STATE_INITED && !_relayCycle){
+    if(_relay.getState() == DelayRun::STATE_INITED && !_relayCycle && _val){
       _relay.startDelayed();
       _relayCycle = true;
     }

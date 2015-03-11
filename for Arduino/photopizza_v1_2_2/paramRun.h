@@ -37,7 +37,7 @@ class paramRun : public EnumedParam, public DelayRun{
 public:
 
   paramRun() : paramRun(0){}
-  paramRun(long val): DelayRun(0, NULL), _relay(100){//_iterRepeatTask(0, /*boolean (*)(Task*))*/NULL) {
+  paramRun(long val): DelayRun(0, NULL), _relay(RELAY_HOLD_TIMEOUT){
     static enumParamMapItem map[] = {
         {0, F("")},
         {1, F(">>>")}

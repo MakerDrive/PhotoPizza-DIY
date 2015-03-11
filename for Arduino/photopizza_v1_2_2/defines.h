@@ -23,6 +23,8 @@
 #endif
 
 
+#define RELAY_HOLD_TIMEOUT 100
+
 //// Modes
 #define MENU_MODE 1
 #define EDIT_MODE 2

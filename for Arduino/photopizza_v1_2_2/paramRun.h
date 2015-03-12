@@ -53,8 +53,8 @@ public:
 
   virtual boolean operator()();
 
-  virtual void up(){}
-  virtual void down(){}
+  virtual void up();
+  virtual void down();
 
   virtual void edit();
 

@@ -37,6 +37,19 @@ void paramRun::stopPreset(){
   return;
 }
 
+
+
+void paramRun::up(){
+  paramSpeed *sp = &presetManager::get()->getPreset()->_speed;
+  sp->up();
+  stepper.setMaxSpeed((long)*sp);
+}
+void paramRun::down(){
+  paramSpeed *sp = &presetManager::get()->getPreset()->_speed;
+  sp->down();
+  stepper.setMaxSpeed((long)*sp);
+}
+
 void paramRun::loop(){
   presetManager *pMgr = presetManager::get();
   if(!stepper.run() && _run){

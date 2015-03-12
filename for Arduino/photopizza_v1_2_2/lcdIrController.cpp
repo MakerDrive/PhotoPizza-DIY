@@ -11,7 +11,7 @@
 #include "IRReciever.h"
 #include "keyboard.h"
 
-#define VER "V. 1.5.0"
+#define VER "V. 1.5.1"
 
 namespace PhotoPizza {
 

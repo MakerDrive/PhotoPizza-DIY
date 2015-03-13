@@ -50,16 +50,9 @@
  convert this to an array containing binary values
  */
 
-static bool prvPulseToBits(volatile int pulse[], char bits[]);
-
-/*
- convert an array of binary values to a single base-10 integer
- */
-
-static int prvBitsToInt(char bits[]);
+static bool prvPulseToKey(volatile int pulse[], int *bits);
 
 static volatile int pulses[IR_BIT_LENGTH];
-static char bits[IR_BIT_LENGTH];  //TODO: optimize! (bitmask)
 static volatile char arrPos = 0;
 static volatile unsigned long lastPulseTime = 0;
 static volatile bool ready = false;
@@ -78,9 +71,7 @@ int IrGetKey() {
   int key = 0;
   if (ready) {
     //Serial.println("RDY");
-    if (prvPulseToBits(pulses, bits)) {
-      //prvDump();
-      key = prvBitsToInt(bits);
+    if (prvPulseToKey(pulses, &key)) {
       Serial.println((String) F("IR ReadCode: ") + key);
     } else
       Serial.println(F("IR ReadCode: Parsing error"));
@@ -161,35 +152,32 @@ static void prvIRQ() {
   lastPulseTime = pulseTime;
 }
 
-static bool prvPulseToBits(volatile int pulse[], char bits[]) {
-
+static bool prvPulseToKey(volatile int pulse[], int *bits) {
+  int result = 0;
+  int seed = 1;
+  bool bit = false;
   for (int i = 0; i < IR_BIT_LENGTH; i++) {
 
     if (pulse[i] > BIT_1) //is it a 1?
     {
-      bits[i] = 1;
+      bit = true;
     } else if (pulse[i] > BIT_0) //is it a 0?
     {
-      bits[i] = 0;
+      bit = false;
     } else //data is invalid...
     {
       return false;
     }
-  }
-  return true;
-}
 
-static int prvBitsToInt(char bits[]) {
-  int result = 0;
-  int seed = 1;
-
-  //Convert bits to integer
-  for (int i = (IR_BIT_LENGTH - FirstLastBit); i < IR_BIT_LENGTH; i++) {
-    if (bits[i] == 1) {
-      result += seed;
+    if( i >= (IR_BIT_LENGTH - FirstLastBit)) {
+      if (bit) {
+        result += seed;
+      }
+      seed *= 2;
     }
-    seed *= 2;
+
   }
-  return result;
+  *bits = result;
+  return true;
 }
 

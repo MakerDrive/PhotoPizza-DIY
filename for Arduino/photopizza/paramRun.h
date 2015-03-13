@@ -12,7 +12,6 @@
 #include <Timer.h>
 #include "defines.h"
 #include "param.h"
-#include "param.h"
 
 
 namespace PhotoPizza {

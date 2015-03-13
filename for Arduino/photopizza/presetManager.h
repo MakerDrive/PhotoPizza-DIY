@@ -15,20 +15,6 @@
 
 namespace PhotoPizza {
 
-typedef enum {
-  FIRST_PARAM = 0,
-  RUN = FIRST_PARAM,  // command-parameter
-  STEPS,
-  SPEED,
-  ITER_COUNT,
-  PAUSE,
-  ACC,
-  DIR,
-  PARAM_COUNT,
-
-  SAVED_PARAM,       //parameter where we save value before editing
-} paramType;
-
 struct presetStorageData {
   long _steps;  // rotaion
   long _accel;    // acceleration
@@ -54,6 +40,20 @@ public:
   paramPause     _pause;
 
   static paramRun _run;
+
+  typedef enum {
+    FIRST_PARAM = 0,
+    RUN = FIRST_PARAM,  // command-parameter
+    STEPS,
+    SPEED,
+    ITER_COUNT,
+    PAUSE,
+    ACC,
+    DIR,
+    PARAM_COUNT,
+
+    SAVED_PARAM,       //parameter where we save value before editing
+  } paramType;
 
   IParam& operator[] (const int nIndex){
     switch (nIndex) {
@@ -140,12 +140,12 @@ public:
 
   IParam* getParam();
 
-  paramType getParamNumber(){
+  preset::paramType getParamNumber(){
     return _curParam;
   }
 
   void firstParam(){
-     _curParam = FIRST_PARAM;
+     _curParam = preset::FIRST_PARAM;
   }
 
   void edit();
@@ -154,25 +154,11 @@ public:
 
   void loop();
 
-  long getValue(){
-    return getValue(_curParam);
-  }
-  long getValue(paramType pos);
+  long getValue();
+  void setValue(long val);
 
-  void setValue(paramType pos, long val);
-  void setValue(long val){
-    setValue(_curParam, val);
-  }
-
-  void valueUp(paramType pos);
-  void valueUp(){
-    valueUp(_curParam);
-  }
-
-  void valueDown(paramType pos);
-  void valueDown(){
-    valueDown(_curParam);
-  }
+  void valueUp();
+  void valueDown();
 
   void changeDirection();
   void run();
@@ -200,7 +186,7 @@ private:
   presetManager();
   int _curPreset; // current preset
   preset _preset;
-  paramType _curParam;
+  preset::paramType _curParam;
   bool _edit;
   bool _update;
 };

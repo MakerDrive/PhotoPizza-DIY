@@ -1,8 +1,27 @@
-/*
- * paramDir.h
+/**
+ * File: paramDir.h
+ * Created on: 26 feb 2015 г.
+ * Description:
+ * PhotoPizza DIY is an open source project of 360° product photography turntable.
  *
- *  Created on: 26 февр. 2015 г.
- *      Author: romeo
+ * Author: Roman Savrulin <romeo.deepmind@gmail.com>
+ * Copyright: 2015 MakerDrive
+ * Copying permission statement:
+ *  This file is part of PhotoPizza DIY.
+ *
+ *  PhotoPizza DIY is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 #ifndef PHOTOPIZZA_V1_2_2_PARAMDIR_H_
@@ -30,6 +49,17 @@ public:
 
   virtual String getName(bool shorten = false){
     return F("dir");
+  }
+
+  virtual String ToString(bool shorten = false){
+    if(!shorten)
+      return EnumedParam::ToString(true);
+    else{
+      if (get() == CW)
+        return (String) F(">");
+      else
+        return (String) F("<");
+    }
   }
 };
 }

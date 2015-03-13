@@ -22,7 +22,7 @@ const PROGMEM presetStorageData psData[NUM_PROGRAMS] = {
 presetManager::presetManager() {
 
   _curPreset = 0;
-  _curParam = FIRST_PARAM;
+  _curParam = preset::FIRST_PARAM;
   _edit = false;
   _update = false;
 
@@ -93,11 +93,11 @@ void presetManager::save(bool force) { // read mem -> check for changes -> write
 }
 
 void presetManager::nextParam(){
-  _curParam = (paramType) ((_curParam + 1) % PARAM_COUNT);
+  _curParam = (preset::paramType) ((_curParam + 1) % preset::PARAM_COUNT);
 }
 
 void presetManager::prevParam(){
-  _curParam = (paramType) ((_curParam + PARAM_COUNT - 1) % PARAM_COUNT);
+  _curParam = (preset::paramType) ((_curParam + preset::PARAM_COUNT - 1) % preset::PARAM_COUNT);
 }
 
 IParam* presetManager::getParam(){
@@ -106,7 +106,7 @@ IParam* presetManager::getParam(){
 
 void presetManager::edit(){
   LimitedParam *src = static_cast<LimitedParam *>(getParam());
-  LimitedParam *dst = static_cast<LimitedParam *>(&(*getPreset())[SAVED_PARAM]);
+  LimitedParam *dst = static_cast<LimitedParam *>(&(*getPreset())[preset::SAVED_PARAM]);
   *dst = *src; //save param we are changing*/
   getParam()->edit();
   _edit = true;
@@ -119,7 +119,7 @@ bool presetManager::isEdit(){
 void presetManager::discard(){
   getParam()->discard();
   LimitedParam *dst = static_cast<LimitedParam *>(getParam());
-  LimitedParam *src = static_cast<LimitedParam *>(&(*getPreset())[SAVED_PARAM]);
+  LimitedParam *src = static_cast<LimitedParam *>(&(*getPreset())[preset::SAVED_PARAM]);
   *dst = *src; //load saved param from default value*/
   _edit = false;
 }
@@ -144,20 +144,20 @@ preset* presetManager::getPreset() {
   return &_preset;
 }
 
-long presetManager::getValue(paramType pos) {
-  return _preset[pos];
+long presetManager::getValue() {
+  return _preset[_curParam];
 }
 
-void presetManager::setValue(paramType pos, long val) {
-  _preset[pos] = val;
+void presetManager::setValue(long val) {
+  _preset[_curParam] = val;
 }
 
-void presetManager::valueUp(paramType pos) {
-  _preset[pos].up();
+void presetManager::valueUp() {
+  _preset[_curParam].up();
 }
 
-void presetManager::valueDown(paramType pos) {
-  _preset[pos].down();
+void presetManager::valueDown() {
+  _preset[_curParam].down();
 }
 
 void presetManager::changeDirection() {

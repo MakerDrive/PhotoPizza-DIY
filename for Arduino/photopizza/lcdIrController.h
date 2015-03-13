@@ -12,24 +12,24 @@
 
 namespace PhotoPizza {
 
-class lcdIrController{
+class lcdIrController {
 
 public:
-void loop();
-void init();
+  void loop();
+  void init();
 
 private:
-void showProgram();
+  void showProgram();
 
-void editMode();
-void menuMode();
+  void editMode();
+  void menuMode();
 
-void sayHello();
-void printProgNum();
-void printDir(int dir);
+  void sayHello();
+  void printProgNum();
+  void printDir(int dir);
 
 private:
-static presetManager *_presetMgr;
+  static presetManager *_presetMgr;
 };
 
 }

@@ -66,20 +66,11 @@ void lcdIrController::printProgNum() {
   lcd.print((_presetMgr->getPresetNumber() + 1));
 }
 
-void lcdIrController::printDir(int dir) {
-  lcd.setCursor(10, 0);
-  if (dir == CW) {
-    lcd.print(F(">"));
-  } else {
-    lcd.print(F("<"));
-  }
-}
-
 void lcdIrController::showProgram() {
   lcd.clear();
   printProgNum();
-  printDir(_presetMgr->getValue(DIR));
-
+  lcd.setCursor(10, 0);
+  lcd.print(_presetMgr->getPreset()->_dir.ToString(true));
 
   IParam *ptr = _presetMgr->getParam();
 

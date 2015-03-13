@@ -155,24 +155,14 @@ static void prvIRQ() {
 static bool prvPulseToKey(volatile int pulse[], int *bits) {
   int result = 0;
   int seed = 1;
-  bool bit = false;
   for (int i = 0; i < IR_BIT_LENGTH; i++) {
 
-    if (pulse[i] > BIT_1) //is it a 1?
-    {
-      bit = true;
-    } else if (pulse[i] > BIT_0) //is it a 0?
-    {
-      bit = false;
-    } else //data is invalid...
-    {
+    if(pulse[i] <= BIT_0)
       return false;
-    }
 
-    if( i >= (IR_BIT_LENGTH - FirstLastBit)) {
-      if (bit) {
+    if (i >= (IR_BIT_LENGTH - FirstLastBit)) {
+      if (pulse[i] > BIT_1) //is it a 1?
         result += seed;
-      }
       seed *= 2;
     }
 

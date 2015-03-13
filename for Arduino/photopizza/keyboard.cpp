@@ -74,7 +74,7 @@ static int read_LCD_buttons() { // read the buttons
 
 kbKeys kbGetKey(){
 
-  int key = IrGetKey();
+  int key = IrGetCode();
 
   switch(key){
   case BTN_POWER: return kbPwr;

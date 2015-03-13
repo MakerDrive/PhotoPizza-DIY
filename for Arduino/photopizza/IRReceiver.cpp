@@ -33,7 +33,7 @@
 
 //TODO: convert to class
 
-///////////  IR
+///////////  IR Consts
 #define IR_BIT_LENGTH 32    // number of bits sent by IR remote
 #define FirstLastBit 15     // divide 32 bits into two 15 bit chunks for integer variables. Ignore center two bits. they are all the same.
 #define BIT_1 1500          // Binary 1 threshold (Microseconds)
@@ -44,42 +44,29 @@
 
 #define IR_TIMEO 100000L    //
 
-/*
- IR pulses encode binary "0" as a short pulse, and binary "1"
- as a long pulse.  Given an array containing pulse lengths,
- convert this to an array containing binary values
+/**
+ * IR pulses encode binary "0" as a short pulse, and binary "1"
+ * as a long pulse.  Given an array containing pulse lengths,
+ * convert this to an array containing binary values
  */
 
-static bool prvPulseToKey(volatile int pulse[], int *bits);
-
-static volatile int pulses[IR_BIT_LENGTH];
-static volatile char arrPos = 0;
+static volatile char pulseNum = 0;
 static volatile unsigned long lastPulseTime = 0;
 static volatile bool ready = false;
 static volatile bool reading = false;
+static volatile int code;
+static volatile int seed;
 
 static void prvIRQ();
 
-///////////  IR RECEIVER
-static void prvDump() {
-  for (char i = 0; i < IR_BIT_LENGTH; i++) {
-    Serial.println((String) (int) i + F(": ") + pulses[i]);
-  }
-}
-
-int IrGetKey() {
-  int key = 0;
+int IrGetCode() {
   if (ready) {
-    //Serial.println("RDY");
-    if (prvPulseToKey(pulses, &key)) {
-      Serial.println((String) F("IR ReadCode: ") + key);
-    } else
-      Serial.println(F("IR ReadCode: Parsing error"));
-    arrPos = 0;
+    Serial.println((String) F("IR ReadCode: ") + code);
+    pulseNum = 0;
     ready = false;
-  }
-
-  return key;
+    return code;
+  }else
+    return 0;
 }
 
 void IrInit() {
@@ -91,14 +78,16 @@ void IrInit() {
 static void prvIRQ() {
   if (ready) { //skip all frames if current key is not read yet
     //TODO: inc stat. frame overrun
-    //Serial.println("BSY (IRQ)");
+    //Serial.println(F("BSY (IRQ)"));
     return;
   }
   unsigned long pulseTime = micros();
+  unsigned long pulseLength = 0;
+
   int state = digitalRead(IR_PIN);
 
   if (!reading) { //receiving new packet
-    if (arrPos == 0 && state) {
+    if (pulseNum == 0 && state) {
       //Serial.println("FE");
       //TODO: inc Sat frame start error;
       lastPulseTime = pulseTime;
@@ -112,22 +101,22 @@ static void prvIRQ() {
   if (lastPulseTime > pulseTime) {
     //Serial.println("OVR (IRQ)");
     //TODO: inc stat. TimeOverflow, reset frame or calc correct value
-    arrPos = 0;
+    pulseNum = 0;
     lastPulseTime = pulseTime;
     return;
   }
 
   unsigned long timeo = pulseTime - lastPulseTime;
   if (reading && (timeo > IR_TIMEO)) {
-    //Serial.println((String) "Timeo: " + timeo);
+    //Serial.println((String) F("Timeo: ") + timeo);
     //TODO: stat timeo increase
     reading = false;
-    arrPos = 0;
+    pulseNum = 0;
     lastPulseTime = pulseTime;
     return;
   }
 
-  if (arrPos == 0 && state) { //skip start bit
+  if (pulseNum == 0 && state) { //skip start bit
     lastPulseTime = pulseTime;
     return;
   }
@@ -137,37 +126,36 @@ static void prvIRQ() {
     return;
   }
 
-  pulses[arrPos] = pulseTime - lastPulseTime;
+  pulseLength = pulseTime - lastPulseTime;
 
-  if (pulses[arrPos] < BIT_START) //skip long impulses
-    ++arrPos;
+  if (pulseLength < BIT_START){ //skip long impulses
 
-  if (arrPos >= IR_BIT_LENGTH) {
-    //Serial.println("LEN");
+    if(pulseNum < (IR_BIT_LENGTH - FirstLastBit)){
+      seed = 1;
+      code = 0;
+    }else{
+
+      if(pulseLength <= BIT_0){
+        reading = false;
+        pulseNum = 0;
+        lastPulseTime = pulseTime;
+        //Serial.println(F("PT Small"));
+      }
+
+      if (pulseLength > BIT_1) //is it a 1?
+        code += seed;
+      seed *= 2;
+    }
+    ++pulseNum;
+  }
+
+  if (pulseNum >= IR_BIT_LENGTH) {
+    //Serial.println(F("LEN"));
     ready = true;
     reading = false;
     //TODO: inc stat frames recieved, process data
-    arrPos = 0;
+    pulseNum = 0;
   }
   lastPulseTime = pulseTime;
-}
-
-static bool prvPulseToKey(volatile int pulse[], int *bits) {
-  int result = 0;
-  int seed = 1;
-  for (int i = 0; i < IR_BIT_LENGTH; i++) {
-
-    if(pulse[i] <= BIT_0)
-      return false;
-
-    if (i >= (IR_BIT_LENGTH - FirstLastBit)) {
-      if (pulse[i] > BIT_1) //is it a 1?
-        result += seed;
-      seed *= 2;
-    }
-
-  }
-  *bits = result;
-  return true;
 }
 

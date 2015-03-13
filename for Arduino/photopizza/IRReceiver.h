@@ -30,7 +30,7 @@
 #ifndef PHOTOPIZZA_V1_2_2_IRRECIEVER_H_
 #define PHOTOPIZZA_V1_2_2_IRRECIEVER_H_
 
-int IrGetKey();
+int IrGetCode();
 void IrInit();
 
 #endif /* PHOTOPIZZA_V1_2_2_IRRECIEVER_H_ */

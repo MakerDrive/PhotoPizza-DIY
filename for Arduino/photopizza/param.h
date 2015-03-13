@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef PHOTOPIZZA_V1_2_2_PARAM_CPP_
-#define PHOTOPIZZA_V1_2_2_PARAM_CPP_
+#ifndef PHOTOPIZZA_V1_2_2_PARAM_H_
+#define PHOTOPIZZA_V1_2_2_PARAM_H_
 
 #include <WString.h>
 #include <Arduino.h>

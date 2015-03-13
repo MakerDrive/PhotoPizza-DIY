@@ -28,13 +28,17 @@
  */
 
 #include "presetManager.h"
+#include "eepromAnything.h"
 #include <avr/pgmspace.h>
 
 using namespace PhotoPizza;
 
-/* static */ LimitedParam preset::_default;
-/* static */ paramRun preset::_run;
-/* static */ presetManager *presetManager::_presetMgr = NULL;
+struct presetStorage {
+  byte flag;
+  int  version;
+
+  presetStorageData data;
+};
 
 static presetStorage ps;
 
@@ -208,11 +212,7 @@ void presetManager::stop(){
 }
 
 presetManager * presetManager::get(){
-  if(_presetMgr == NULL){
-    static presetManager presetMgr;
-    _presetMgr = &presetMgr;
-  }
-
-  return _presetMgr;
+  static presetManager _presetMgr;
+  return &_presetMgr;
 }
 

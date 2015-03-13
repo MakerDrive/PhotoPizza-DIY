@@ -91,26 +91,26 @@ void paramRun::loop(){
 }
 
 bool paramRun::startMotor(Task *t){
-  presetManager *presetMgr = presetManager::get();
+  preset *preset = presetManager::get()->getPreset();
 
   if(_iterCount >= 0)
     --_iterCount;
 
   _relayCycle = false;
-  long steps = presetMgr->getPreset()->_steps * presetMgr->getPreset()->_dir; //TODO: refactor getters (via local vars)
-  Serial.println((String)F("Accel") + presetMgr->getPreset()->_acc);
+  long steps = preset->_steps * preset->_dir; //TODO: refactor getters (via local vars)
+  Serial.println((String)F("Accel") + preset->_acc);
   Serial.println((String)F("Steps") + steps);
-  Serial.println((String)F("Speed") + presetMgr->getPreset()->_speed);
+  Serial.println((String)F("Speed") + preset->_speed);
   stepper.setCurrentPosition(0L);
-  if(presetMgr->getPreset()->_acc == 0){
+  if(preset->_acc == 0){
     stepper.setAcceleration(10000000); //no acc.
   }else
-    stepper.setAcceleration(presetMgr->getPreset()->_acc);
+    stepper.setAcceleration(preset->_acc);
   if(steps != 0){
     stepper.moveTo(steps);
   }else
-    stepper.moveTo(LONG_MAX * presetMgr->getPreset()->_dir);
-  stepper.setMaxSpeed(presetMgr->getPreset()->_speed);
+    stepper.moveTo(LONG_MAX * preset->_dir);
+  stepper.setMaxSpeed(preset->_speed);
 
   return false;
 }

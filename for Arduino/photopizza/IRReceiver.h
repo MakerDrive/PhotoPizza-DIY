@@ -1,6 +1,6 @@
 /**
- * File: utils.cpp
- * Created on: 10 mar 2015 г.
+ * File: IRReceiver.cpp
+ * Created on: 26 feb 2015 г.
  * Description:
  * PhotoPizza DIY is an open source project of 360° product photography turntable.
  *
@@ -27,14 +27,10 @@
  *
  */
 
-#include <Arduino.h>
+#ifndef PHOTOPIZZA_V1_2_2_IRRECIEVER_H_
+#define PHOTOPIZZA_V1_2_2_IRRECIEVER_H_
 
-#include "utils.h"
+int IrGetKey();
+void IrInit();
 
-int freeRam (){
-  extern int __heap_start, *__brkval;
-  int v;
-  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
-}
-
-
+#endif /* PHOTOPIZZA_V1_2_2_IRRECIEVER_H_ */

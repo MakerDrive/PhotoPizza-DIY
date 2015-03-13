@@ -19,7 +19,7 @@
 using namespace PhotoPizza;
 static presetManager *presetMgr = NULL;
 static lcdIrController controller;
-#include "IRReciever.h"
+#include "IRReceiver.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
 

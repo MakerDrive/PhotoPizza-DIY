@@ -1,8 +1,30 @@
-/*
- * paramRun.h
+/**
+ * File: paramRun.h
+ * Created on: 09 mar 2015 г.
+ * Description:
+ * PhotoPizza DIY is an open source project of 360° product photography turntable.
  *
- *  Created on: 09 марта 2015 г.
- *      Author: romeo
+ * Author: Roman Savrulin <romeo.deepmind@gmail.com>
+ * Project Author:
+ * Project Site: PhotoPizza.org
+ *
+ * Copyright: 2015 MakerDrive
+ * Copying permission statement:
+ *  This file is part of PhotoPizza DIY.
+ *
+ *  PhotoPizza DIY is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 #ifndef PHOTOPIZZA_V1_2_2_PARAMRUN_H_
@@ -13,7 +35,6 @@
 #include "defines.h"
 #include "param.h"
 
-
 namespace PhotoPizza {
 
 class relayPause: public Timer{
@@ -22,7 +43,7 @@ public:
     pinMode(RELAY_PIN, OUTPUT);
   };
   ~relayPause(){};
-  void startDelayed(){
+  void start(){
     digitalWrite(RELAY_PIN, HIGH);
     Timer::start();
   };

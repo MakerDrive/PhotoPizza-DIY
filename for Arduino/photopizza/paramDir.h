@@ -5,6 +5,9 @@
  * PhotoPizza DIY is an open source project of 360° product photography turntable.
  *
  * Author: Roman Savrulin <romeo.deepmind@gmail.com>
+ * Project Author:
+ * Project Site: PhotoPizza.org
+ *
  * Copyright: 2015 MakerDrive
  * Copying permission statement:
  *  This file is part of PhotoPizza DIY.
@@ -28,7 +31,6 @@
 #define PHOTOPIZZA_V1_2_2_PARAMDIR_H_
 
 #include "defines.h"
-#include "param.h"
 #include "param.h"
 
 namespace PhotoPizza {

@@ -9,23 +9,23 @@
 #define PHOTOPIZZA_V1_2_2_PARAMRUN_H_
 
 
+#include <Timer.h>
 #include "defines.h"
 #include "param.h"
 #include "param.h"
 
-#include <DelayRun.h>
 
 namespace PhotoPizza {
 
-class relayPause: public DelayRun{
+class relayPause: public Timer{
 public:
-  relayPause(unsigned long delayMs): DelayRun(delayMs, NULL){
+  relayPause(unsigned long delayMs): Timer(delayMs, NULL){
     pinMode(RELAY_PIN, OUTPUT);
   };
   ~relayPause(){};
   void startDelayed(){
     digitalWrite(RELAY_PIN, HIGH);
-    DelayRun::startDelayed();
+    Timer::start();
   };
   virtual boolean operator()(){
     digitalWrite(RELAY_PIN, LOW);
@@ -33,11 +33,11 @@ public:
   }
 };
 
-class paramRun : public EnumedParam, public DelayRun{
+class paramRun : public EnumedParam, public Timer{
 public:
 
   paramRun() : paramRun(0){}
-  paramRun(long val): DelayRun(0, NULL), _relay(RELAY_HOLD_TIMEOUT){
+  paramRun(long val): Timer(0, NULL), _relay(RELAY_HOLD_TIMEOUT){
     static enumParamMapItem map[] = {
         {0, F("")},
         {1, F(">>>")}

@@ -53,13 +53,17 @@ void paramRun::down(){
 void paramRun::loop(){
   presetManager *pMgr = presetManager::get();
   if(!stepper.run() && _run){
-    if(getState() == DelayRun::STATE_INITED){
+    if(!Timer::isRunning()){
       setPeriodMs(pMgr->getPreset()->_pause);
-      startDelayed();
+      start();
     }
-    if(_relay.getState() == DelayRun::STATE_INITED && !_relayCycle && _val){
+    if(!_relay.isRunning() && !_relayCycle && _val){
       _relay.startDelayed();
       _relayCycle = true;
+    }
+    if(!_val){
+      Timer::stop(true);
+      _relay.stop(true);
     }
   }
 }

@@ -37,6 +37,6 @@ void yield() {
 void loop() {
   presetMgr->loop();
   controller.loop();
-  SoftTimer.run();
+  SoftTimer.loop();
 }
 

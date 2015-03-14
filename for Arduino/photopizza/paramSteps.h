@@ -38,14 +38,22 @@ class paramSteps : public LimitedParam {
 public:
   paramSteps() : paramSteps(3200){}
   paramSteps(long val){
-    _valStep = ROT_STEP;
-    _valLoLimit = ROT_MIN;
-    _valHiLimit = ROT_MAX;
+    _valStep = STEPS_STEP;
+    _valLoLimit = STEPS_MIN;
+    _valHiLimit = STEPS_MAX;
     this->set(val);
   }
 
   virtual String getName(bool shorten = false){
     return F("steps");
+  }
+
+  virtual bool set(long val){
+    if(!_edit){
+      if(val > 0 && val < FRAME_COUNT_MAX)
+        val = FRAME_COUNT_MAX;
+    }
+    LimitedParam::set(val);
   }
 
   virtual String toString(bool shorten = false){

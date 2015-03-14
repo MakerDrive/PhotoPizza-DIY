@@ -45,10 +45,10 @@ struct presetStorage {
 static presetStorage ps;
 
 #define EEPROM_FLAG 204
-#define EEPROM_VER 5
+#define EEPROM_VER 6
 
 const PROGMEM presetStorageData psData[NUM_PROGRAMS] = {
-    {-3100, 5000, 100,  0, 1000},
+    {-3100, 5000, 100,  5, 1000},
     { 3200, 5000, 200, 10, 2000},
     {-3300, 5000, 300, 20, 3000},
     {-3400, 5000, 400, 30, 4300},

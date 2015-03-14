@@ -37,8 +37,8 @@
 #include "paramSteps.h"
 #include "paramSpeed.h"
 #include "paramDir.h"
+#include "paramFrameCount.h"
 #include "paramRun.h"
-#include "paramIterCount.h"
 #include "paramPause.h"
 
 namespace PhotoPizza {
@@ -47,7 +47,7 @@ struct presetStorageData {
   long _steps;  // rotaion
   long _accel;    // acceleration
   long _pause;
-  int   _iter;
+  int   _frames;
   short _speed; // speed
 };
 
@@ -57,7 +57,7 @@ public:
   paramSteps     _steps; // rotaion
   paramAcc       _acc; // acceleration
   paramDir       _dir; // -1 - clockwise , 1 - counterclockwise
-  paramIterCount _iter;
+  paramFrameCount _frames;
   paramPause     _pause;
 
   static paramRun _run;
@@ -83,7 +83,7 @@ public:
     case SPEED:
       return _speed;
     case ITER_COUNT:
-      return _iter;
+      return _frames;
     case PAUSE:
         return _pause;
     case STEPS:
@@ -106,31 +106,31 @@ public:
        return true;
     if(_pause != val._pause)
       return true;
-    if(_iter != val._iter)
+    if(_frames != val._frames)
         return true;
 
     return false;
   }
 
   operator presetStorageData() {
-    //Serial.println("op = cast to psd");
+    DBG("op = cast to psd");
     presetStorageData tmp;
     tmp._accel = _acc;
     tmp._speed = _speed;
     tmp._steps = _steps * _dir;
-    tmp._iter = _iter;
+    tmp._frames = _frames;
     tmp._pause = _pause;
     return tmp;
   }
 
   preset& operator=(presetStorageData val) {
-//    Serial.println(F("op = psd"));
-//    Serial.println((String)F("Sp: ") + val._speed);
-//    Serial.println((String)F("acc: ") + val._acc);
-//    Serial.println((String)F("steps: ") + val._steps);
+    DBG(F("op = psd"));
+    DBG(F("Sp: ") + val._speed);
+    DBG(F("acc: ") + val._acc);
+    DBG(F("steps: ") + val._steps);
     _speed = val._speed;
     _acc = val._accel;
-    _iter = val._iter;
+    _frames = val._frames;
     _pause = val._pause;
 
     if(val._steps < 0)

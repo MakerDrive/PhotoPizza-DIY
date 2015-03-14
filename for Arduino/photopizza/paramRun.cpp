@@ -42,7 +42,7 @@ boolean paramRun::operator()(){
     _run = false;
     _val = 0;
     presetManager::get()->update();
-    Serial.println(F("Finished"));
+    DBG(F("Finished"));
   }else
     startMotor(NULL);
   return true;
@@ -53,7 +53,7 @@ void paramRun::stopPreset(){
       return;
   _val = 0;
   _delayTime = 0;
-  Serial.println(F("stopping"));
+  DBG(F("stopping"));
   stepper.stop();
   presetManager::get()->update();
   return;
@@ -96,10 +96,10 @@ bool paramRun::startMotor(Task *t){
     --_iterCount;
 
   _relayCycle = false;
-  long steps = preset->_steps * preset->_dir; // / preset->_iter; //TODO: refactor getters (via local vars)
-  Serial.println((String)F("Accel") + preset->_acc);
-  Serial.println((String)F("Steps") + steps);
-  Serial.println((String)F("Speed") + preset->_speed);
+  long steps = preset->_steps * preset->_dir / preset->_frames;
+  DBG(F("Accel") + preset->_acc);
+  DBG(F("Steps") + steps);
+  DBG(F("Speed") + preset->_speed);
   stepper.setCurrentPosition(0L);
   if(preset->_acc == 0){
     stepper.setAcceleration(10000000); //no acc.
@@ -117,10 +117,10 @@ bool paramRun::startMotor(Task *t){
 void paramRun::edit() {
   if(_run)
     return;
-  Serial.println(F("Run"));
+  DBG(F("Run"));
   _val = 1;
   _run = true;
-  _iterCount = presetManager::get()->getPreset()->_iter;
+  _iterCount = presetManager::get()->getPreset()->_frames;
   startMotor(NULL);
 
   presetManager::get()->update();

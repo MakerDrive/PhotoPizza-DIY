@@ -66,17 +66,17 @@
 #define SPEED_MAX 4300
 #define SPEED_STEP 50
 
-#define ROT_MIN 0
-#define ROT_MAX 200000000  
-#define ROT_STEP 1000
+#define STEPS_MIN 0
+#define STEPS_MAX 200000000  
+#define STEPS_STEP 1000
 
 #define ACC_MIN 0
-#define ACC_MAX 5000
+#define ACC_MAX 50000
 #define ACC_STEP 100
 
-#define ITER_COUNT_MIN 0
-#define ITER_COUNT_MAX 500
-#define ITER_COUNT_STEP 1
+#define FRAME_COUNT_MIN 1
+#define FRAME_COUNT_MAX 100
+#define FRAME_COUNT_STEP 1
 
 #define PAUSE_MIN 0
 #define PAUSE_MAX 50000

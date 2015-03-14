@@ -34,26 +34,24 @@
 #include "param.h"
 
 namespace PhotoPizza {
-class paramIterCount : public LimitedParam {
+class paramFrameCount : public LimitedParam {
 public:
-  paramIterCount() : paramIterCount(0){}
-  paramIterCount(long val){
-    _valStep = ITER_COUNT_STEP;
-    _valLoLimit = ITER_COUNT_MIN;
-    _valHiLimit = ITER_COUNT_MAX;
+  paramFrameCount() : paramFrameCount(0){}
+  paramFrameCount(long val){
+    _valStep = FRAME_COUNT_STEP;
+    _valLoLimit = FRAME_COUNT_MIN;
+    _valHiLimit = FRAME_COUNT_MAX;
     this->set(val);
   }
 
   virtual String getName(bool shorten = false){
-    return F("iter");
+    return F("frame");
   }
 
   virtual String toString(bool shorten = false){
     long val = get();
     if(val > 0)
       return (String)val;
-    else if(val == 0)
-      return F("inf");
     else
       return F("?");
   }

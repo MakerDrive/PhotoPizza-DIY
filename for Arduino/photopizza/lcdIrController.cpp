@@ -38,7 +38,7 @@
 
 #include "keyboard.h"
 
-#define VER "V. 1.5.1"
+#define VER "V. 1.6.0"
 
 namespace PhotoPizza {
 

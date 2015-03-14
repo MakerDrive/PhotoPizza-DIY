@@ -30,8 +30,14 @@
 #ifndef PHOTOPIZZA_V1_2_2_UTILS_H_
 #define PHOTOPIZZA_V1_2_2_UTILS_H_
 
+#include <Arduino.h>
+#include "defines.h"
 
 int freeRam ();
+
+#ifndef DBG(x)
+#define DBG(x)
+#endif
 
 
 #endif /* PHOTOPIZZA_V1_2_2_UTILS_H_ */

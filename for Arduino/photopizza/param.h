@@ -33,6 +33,8 @@
 #include <WString.h>
 #include <Arduino.h>
 
+#include "utils.h"
+
 namespace PhotoPizza {
 
 class IParam {
@@ -45,13 +47,11 @@ public:
   virtual bool save() = 0;
   virtual void discard() = 0;
   virtual String toString(bool shorten = false) = 0;
-  //virtual String toString(long val) = 0;
   virtual String getName(bool shorten = false) = 0;
   virtual bool set(long val) = 0;
   virtual long get() = 0;
   virtual operator long() = 0;
   virtual IParam& operator=(long val) = 0;
-  //virtual IParam& operator=(IParam& other) {};
 
   virtual bool isEdit() = 0;
 
@@ -93,13 +93,15 @@ public:
   }
 
   virtual void edit() {
-    _editVal = (int)(*this);
+    _editVal = get();
     _edit = true;
   }
 
   virtual bool save() {
-    _edit = false;
-    set(_editVal);
+    if(_edit){
+      _edit = false;
+      set(_editVal);
+    }
     return true;
   }
 
@@ -119,6 +121,7 @@ public:
   }
 
   virtual bool set(long val) {
+    DBG(F("LP ") + getName() + F(" set = ") + val);
     if(_edit){
       _editVal = val;
       return true;
@@ -130,18 +133,23 @@ public:
     _val = val;
     return true;
   }
+
   virtual long get() {
     if(_edit){
+      DBG(F("get LP ") + getName() + F(" _editVal: ") + _editVal);
       return _editVal;
     }
+    DBG(F("get LP ") + getName() + F(" _val: ") + _val);
     return _val;
   }
 
   virtual operator long() {
+    DBG(F("LP ") + getName() + F("(long)"));
     return get();
   }
 
   virtual IParam& operator=(long val) {
+    DBG(F("LP ") + getName() + F("op=(long)"));
     set(val);
     return *this;
   }
@@ -183,6 +191,8 @@ public:
   }
 
   virtual long get(){
+    if(_edit)
+      return _editVal;
     return _val;
   }
 
@@ -194,25 +204,29 @@ public:
   }
 
   virtual bool setByVal(long val){
-    //Serial.println((String)F("SetByVal: ") + val);
-    //Serial.println((String)F("_valHiLim: ") + _valHiLimit);
     if(!_map)
       return false;
     for(int i = 0; i<=_valHiLimit; i++){
-      //Serial.println((String)F("Checking: ") + _map[i].value);
       if(_map[i].value == val){
         _val = i;
-        //Serial.println(F("SetByVal: true"));
         return true;
       }
     }
-    //Serial.println(F("SetByVal: false"));
     return false;
   }
 
-  virtual String toString(long val){
+  virtual String toString(bool shorten = false){
+    int val = _val;
+    if(_edit)
+      val = _editVal;
+
+    if (val < 0)
+      val = 0;
+    if (val > _valHiLimit)
+      val = _valHiLimit;
+
     if(_map != NULL)
-      return _map[val].label;
+        return _map[val].label;
 
     return (String) val;
   }

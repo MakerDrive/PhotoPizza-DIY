@@ -31,6 +31,8 @@
 #include "eepromAnything.h"
 #include <avr/pgmspace.h>
 
+#include "utils.h"
+
 using namespace PhotoPizza;
 
 struct presetStorage {
@@ -84,9 +86,9 @@ bool presetManager::loadPreset(unsigned short num, bool set){
     memcpy_PF((void *)&ps.data, (uint_farptr_t)&(psData[num]), sizeof(presetStorageData));
   }
 
-//  Serial.println((String)F("Sp: ") + ps.data._speed);
-//  Serial.println((String)F("acc: ") + ps.data._acc);
-//  Serial.println((String)F("steps: ") + ps.data._steps);
+  DBG(F("Sp: ") + ps.data._speed);
+  DBG(F("acc: ") + ps.data._accel);
+  DBG(F("steps: ") + ps.data._steps);
 
   if(set)
     _preset = ps.data;
@@ -100,9 +102,9 @@ bool presetManager::savePreset(unsigned short num){
   ps.flag = EEPROM_FLAG;
   ps.version = EEPROM_VER;
   ps.data = _preset;
-//  Serial.println((String)F("Sp: ") + ps.data._speed);
-//  Serial.println((String)F("acc: ") + ps.data._acc);
-//  Serial.println((String)F("steps: ") + ps.data._steps);
+  DBG(F("Sp: ") + ps.data._speed);
+  DBG(F("acc: ") + ps.data._accel);
+  DBG(F("steps: ") + ps.data._steps);
   EEPROM_writeAnything(sizeof(presetStorage) * num, ps);
 
   return true;
@@ -112,7 +114,7 @@ void presetManager::loop(){
   _preset._run.loop();
 }
 
-void presetManager::save(bool force) { // read mem -> check for changes -> write if changed => EEPROM live longer =)
+void presetManager::save(bool force) {
 
   getParam()->save();
 
@@ -136,9 +138,6 @@ IParam* presetManager::getParam(){
 }
 
 void presetManager::edit(){
-  /*LimitedParam *src = static_cast<LimitedParam *>(getParam());
-  LimitedParam *dst = static_cast<LimitedParam *>(&(*getPreset())[preset::SAVED_PARAM]);
-  *dst = *src; //save param we are changing*/
   getParam()->edit();
 }
 
@@ -148,10 +147,6 @@ bool presetManager::isEdit(){
 
 void presetManager::discard(){
   getParam()->discard();
-  /*LimitedParam *dst = static_cast<LimitedParam *>(getParam());
-  LimitedParam *src = static_cast<LimitedParam *>(&(*getPreset())[preset::SAVED_PARAM]);
-  *dst = *src; //load saved param from default value*/
-  //getParam()->set(  Value);
 }
 
 void presetManager::nextPreset() {
@@ -175,7 +170,7 @@ preset* presetManager::getPreset() {
 }
 
 long presetManager::getValue() {
-  return _preset[_curParam];
+  return _preset[_curParam].get();
 }
 
 String presetManager::getStrValue(){

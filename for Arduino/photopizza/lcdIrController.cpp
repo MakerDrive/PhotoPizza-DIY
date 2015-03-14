@@ -112,10 +112,7 @@ void lcdIrController::showProgram() {
   lcd.setCursor(1, 1);
   lcd.print(ptr->getName());
   lcd.setCursor(7, 1);
-  if(!_presetMgr->isEdit())
-    lcd.print(ptr->toString());
-  else
-    lcd.print(_presetMgr->getValue());
+  lcd.print(ptr->toString());
 }
 
 ///////////////////////////////////////

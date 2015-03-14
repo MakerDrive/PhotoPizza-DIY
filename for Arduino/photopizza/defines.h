@@ -30,10 +30,12 @@
 #ifndef defines_h
 #define defines_h
 
+//#define DBG(x) Serial.println((String)x);
+
 #define BOARD_TYPE_NANO 0
 #define BOARD_TYPE_UNO 1
 
-#define BOARD_TYPE BOARD_TYPE_NANO
+//#define BOARD_TYPE BOARD_TYPE_NANO
 
 #ifndef BOARD_TYPE
 #define BOARD_TYPE BOARD_TYPE_UNO

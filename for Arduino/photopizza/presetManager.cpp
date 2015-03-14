@@ -116,6 +116,7 @@ void presetManager::loop(){
 void presetManager::save(bool force) { // read mem -> check for changes -> write if changed => EEPROM live longer =)
 
   _edit = false;
+  getParam()->set(_editValue);
   getParam()->save();
 
   loadPreset(_curPreset, false);
@@ -138,9 +139,10 @@ IParam* presetManager::getParam(){
 }
 
 void presetManager::edit(){
-  LimitedParam *src = static_cast<LimitedParam *>(getParam());
+  /*LimitedParam *src = static_cast<LimitedParam *>(getParam());
   LimitedParam *dst = static_cast<LimitedParam *>(&(*getPreset())[preset::SAVED_PARAM]);
   *dst = *src; //save param we are changing*/
+  _editValue = getParam()->get();
   getParam()->edit();
   _edit = true;
 }
@@ -151,9 +153,10 @@ bool presetManager::isEdit(){
 
 void presetManager::discard(){
   getParam()->discard();
-  LimitedParam *dst = static_cast<LimitedParam *>(getParam());
+  /*LimitedParam *dst = static_cast<LimitedParam *>(getParam());
   LimitedParam *src = static_cast<LimitedParam *>(&(*getPreset())[preset::SAVED_PARAM]);
   *dst = *src; //load saved param from default value*/
+  //getParam()->set(_editValue);
   _edit = false;
 }
 
@@ -178,10 +181,25 @@ preset* presetManager::getPreset() {
 }
 
 long presetManager::getValue() {
+  if(_edit)
+    return _editValue;
+
   return _preset[_curParam];
 }
 
+String presetManager::getStrValue(){
+  if(_edit)
+    return _preset[_curParam].toString(_editValue);
+  else
+    return _preset[_curParam].toString();
+}
+
 void presetManager::setValue(long val) {
+  if(_edit){
+    _editValue = val;
+    return;
+  }
+
   _preset[_curParam] = val;
 }
 

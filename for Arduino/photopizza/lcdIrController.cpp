@@ -97,7 +97,7 @@ void lcdIrController::showProgram() {
   lcd.clear();
   printProgNum();
   lcd.setCursor(10, 0);
-  lcd.print(_presetMgr->getPreset()->_dir.ToString(true));
+  lcd.print(_presetMgr->getPreset()->_dir.toString(true));
 
   IParam *ptr = _presetMgr->getParam();
 
@@ -112,7 +112,10 @@ void lcdIrController::showProgram() {
   lcd.setCursor(1, 1);
   lcd.print(ptr->getName());
   lcd.setCursor(7, 1);
-  lcd.print(ptr->ToString());
+  if(!_presetMgr->isEdit())
+    lcd.print(ptr->toString());
+  else
+    lcd.print(_presetMgr->getValue());
 }
 
 ///////////////////////////////////////

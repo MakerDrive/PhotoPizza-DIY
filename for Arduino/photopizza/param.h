@@ -44,7 +44,8 @@ public:
   virtual void edit() = 0;
   virtual bool save() = 0;
   virtual void discard() = 0;
-  virtual String ToString(bool shorten = false) = 0;
+  virtual String toString(bool shorten = false) = 0;
+  virtual String toString(long val) = 0;
   virtual String getName(bool shorten = false) = 0;
   virtual bool set(long val) = 0;
   virtual long get() = 0;
@@ -95,9 +96,14 @@ public:
   virtual void discard() {
   }
 
-  virtual String ToString(bool shorten = false) {
-    return (String) _val;
+  virtual String toString(bool shorten = false) {
+    return toString(_val);
   }
+
+  virtual String toString(long val){
+    return (String) val;
+  }
+
   virtual String getName(bool shorten = false) {
     return F("param");
   }
@@ -164,6 +170,10 @@ public:
   }
 
   virtual long get(){
+    return _val;
+  }
+
+  virtual operator long() {
     if(_map != NULL)
       return _map[_val].value;
 
@@ -187,11 +197,11 @@ public:
     return false;
   }
 
-  virtual String ToString(bool shorten = false){
+  virtual String toString(long val){
     if(_map != NULL)
-      return _map[_val].label;
+      return _map[val].label;
 
-    return (String) _val;
+    return (String) val;
   }
 
 protected:

@@ -97,7 +97,7 @@ bool paramRun::startMotor(Task *t){
     --_iterCount;
 
   _relayCycle = false;
-  long steps = preset->_steps * preset->_dir; //TODO: refactor getters (via local vars)
+  long steps = preset->_steps * preset->_dir; // / preset->_iter; //TODO: refactor getters (via local vars)
   Serial.println((String)F("Accel") + preset->_acc);
   Serial.println((String)F("Steps") + steps);
   Serial.println((String)F("Speed") + preset->_speed);

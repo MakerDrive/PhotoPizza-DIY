@@ -49,7 +49,7 @@ public:
     return F("pause");
   }
 
-  virtual String ToString(bool shorten = false){
+  virtual String toString(bool shorten = false){
     long val = get();
     if(val > 0)
       return (String)val;

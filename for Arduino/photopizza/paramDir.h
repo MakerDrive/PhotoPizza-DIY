@@ -53,9 +53,9 @@ public:
     return F("dir");
   }
 
-  virtual String ToString(bool shorten = false){
+  virtual String toString(bool shorten = false){
     if(!shorten)
-      return EnumedParam::ToString(true);
+      return EnumedParam::toString(true);
     else{
       if (get() == CW)
         return (String) F(">");

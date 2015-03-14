@@ -65,6 +65,7 @@ public:
   void loop();
 
   long getValue();
+  String getStrValue();
   void setValue(long val);
 
   void valueUp();
@@ -98,6 +99,7 @@ private:
   preset::paramType _curParam;
   bool _edit;
   bool _update;
+  long _editValue;
 };
 
 }

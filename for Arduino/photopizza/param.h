@@ -45,7 +45,7 @@ public:
   virtual bool save() = 0;
   virtual void discard() = 0;
   virtual String toString(bool shorten = false) = 0;
-  virtual String toString(long val) = 0;
+  //virtual String toString(long val) = 0;
   virtual String getName(bool shorten = false) = 0;
   virtual bool set(long val) = 0;
   virtual long get() = 0;
@@ -68,10 +68,14 @@ public:
     _val = 0;
     _valHiLimit = 100;
     _valLoLimit = 0;
+    _editVal = 0;
+    _edit = false;
   }
 
   virtual void up() {
     long tmp = _val; //TODO: fix! works incorrect with enumed settings
+    if(_edit)
+      tmp = _editVal;
     tmp = tmp - tmp % _valStep + _valStep;
     if (tmp > _valHiLimit)
       tmp = _valLoLimit;
@@ -80,6 +84,8 @@ public:
 
   virtual void down() {
     long tmp = _val;
+    if(_edit)
+        tmp = _editVal;
     tmp = tmp - tmp % _valStep - _valStep;
     if (tmp < _valLoLimit)
       tmp = _valHiLimit;
@@ -87,21 +93,25 @@ public:
   }
 
   virtual void edit() {
+    _editVal = (int)(*this);
+    _edit = true;
   }
 
   virtual bool save() {
+    _edit = false;
+    set(_editVal);
     return true;
   }
 
   virtual void discard() {
+    _edit = false;
   }
 
   virtual String toString(bool shorten = false) {
-    return toString(_val);
-  }
-
-  virtual String toString(long val){
-    return (String) val;
+    if(_edit)
+      return (String) _editVal;
+    else
+      return (String) _val;
   }
 
   virtual String getName(bool shorten = false) {
@@ -109,6 +119,10 @@ public:
   }
 
   virtual bool set(long val) {
+    if(_edit){
+      _editVal = val;
+      return true;
+    }
     if (val < _valLoLimit)
       val = _valLoLimit;
     if (val > _valHiLimit)
@@ -117,7 +131,10 @@ public:
     return true;
   }
   virtual long get() {
-      return _val;
+    if(_edit){
+      return _editVal;
+    }
+    return _val;
   }
 
   virtual operator long() {
@@ -129,24 +146,20 @@ public:
     return *this;
   }
 
-  /*virtual IParam& operator=(IParam& other){
-    //LimitedParam *p = other;
-    return other;
-  }*/
-
   virtual bool isEdit() {
-    return false;
+    return _edit;
   }
 
-  virtual ~LimitedParam() {
-  }
-  ;
+  virtual ~LimitedParam() {};
 
 protected:
   long _valHiLimit;
   long _valLoLimit;
   short _valStep;
   long _val;
+
+  static long _editVal;
+  static bool _edit;
 };
 
 class enumParamMapItem{
@@ -161,7 +174,7 @@ public:
 
 class EnumedParam : public LimitedParam {
 public:
-  EnumedParam() : EnumedParam(CW){}
+  EnumedParam() : EnumedParam(0){}
   EnumedParam(long val): _map(NULL){
     _valStep = 1;
     _valLoLimit = 0;

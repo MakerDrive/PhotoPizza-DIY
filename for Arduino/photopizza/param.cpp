@@ -1,6 +1,6 @@
 /**
- * File: paramDir.h
- * Created on: 26 feb 2015 г.
+ * File: param.cpp
+ * Created on: 14 mar 2015 г.
  * Description:
  * PhotoPizza DIY is an open source project of 360° product photography turntable.
  *
@@ -27,45 +27,9 @@
  *
  */
 
-#ifndef PHOTOPIZZA_V1_2_2_PARAMDIR_H_
-#define PHOTOPIZZA_V1_2_2_PARAMDIR_H_
-
-#include "defines.h"
 #include "param.h"
 
-namespace PhotoPizza {
+using namespace PhotoPizza;
 
-class paramDir : public EnumedParam {
-public:
-  paramDir() : paramDir(0){}
-  paramDir(long val) {
-    static enumParamMapItem dirMap[] = {
-        {CW, F("CW")},
-        {CCW, F("CCW")}
-    };
-    _valHiLimit = MAP_SIZE(dirMap) - 1;
-    //Serial.println((String)F("_valHiLim ctor: ") + _valHiLimit);
-    _map = dirMap;
-    set(val);
-  }
-
-  virtual String getName(bool shorten = false){
-    return F("dir");
-  }
-
-  virtual String toString(bool shorten = false){
-    if(!shorten)
-      return EnumedParam::toString(shorten);
-    else{
-      if ((long)*this == CW)
-        return (String) F(">");
-      else
-        return (String) F("<");
-    }
-  }
-};
-}
-
-
-
-#endif /* PHOTOPIZZA_V1_2_2_PARAMDIR_H_ */
+/* static */ long LimitedParam::_editVal;
+/* static */ bool LimitedParam::_edit;

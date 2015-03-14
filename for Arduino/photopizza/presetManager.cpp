@@ -56,7 +56,6 @@ presetManager::presetManager() {
 
   _curPreset = 0;
   _curParam = preset::FIRST_PARAM;
-  _edit = false;
   _update = false;
 
   Serial.println(F("Validating presets..."));
@@ -115,8 +114,6 @@ void presetManager::loop(){
 
 void presetManager::save(bool force) { // read mem -> check for changes -> write if changed => EEPROM live longer =)
 
-  _edit = false;
-  getParam()->set(_editValue);
   getParam()->save();
 
   loadPreset(_curPreset, false);
@@ -142,13 +139,11 @@ void presetManager::edit(){
   /*LimitedParam *src = static_cast<LimitedParam *>(getParam());
   LimitedParam *dst = static_cast<LimitedParam *>(&(*getPreset())[preset::SAVED_PARAM]);
   *dst = *src; //save param we are changing*/
-  _editValue = getParam()->get();
   getParam()->edit();
-  _edit = true;
 }
 
 bool presetManager::isEdit(){
-  return _edit;
+  return getParam()->isEdit();
 }
 
 void presetManager::discard(){
@@ -156,8 +151,7 @@ void presetManager::discard(){
   /*LimitedParam *dst = static_cast<LimitedParam *>(getParam());
   LimitedParam *src = static_cast<LimitedParam *>(&(*getPreset())[preset::SAVED_PARAM]);
   *dst = *src; //load saved param from default value*/
-  //getParam()->set(_editValue);
-  _edit = false;
+  //getParam()->set(  Value);
 }
 
 void presetManager::nextPreset() {
@@ -181,25 +175,14 @@ preset* presetManager::getPreset() {
 }
 
 long presetManager::getValue() {
-  if(_edit)
-    return _editValue;
-
   return _preset[_curParam];
 }
 
 String presetManager::getStrValue(){
-  if(_edit)
-    return _preset[_curParam].toString(_editValue);
-  else
-    return _preset[_curParam].toString();
+  return _preset[_curParam].toString();
 }
 
 void presetManager::setValue(long val) {
-  if(_edit){
-    _editValue = val;
-    return;
-  }
-
   _preset[_curParam] = val;
 }
 
@@ -218,13 +201,11 @@ void presetManager::changeDirection() {
 }
 
 void presetManager::run(){
-  _edit = true;
   firstParam();
   _preset._run.edit();
 }
 
 void presetManager::stop(){
-  _edit = false;
   firstParam();
   _preset._run.discard();
 }

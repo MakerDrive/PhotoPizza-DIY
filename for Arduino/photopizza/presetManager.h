@@ -78,7 +78,7 @@ public:
   void update(){
     _update = true;
     if(!_preset._run.isRunning())
-      _edit = false;
+      discard();
   }
   bool isUpdated(){
     if(_update){
@@ -97,9 +97,7 @@ private:
   int _curPreset; // current preset
   preset _preset;
   preset::paramType _curParam;
-  bool _edit;
   bool _update;
-  long _editValue;
 };
 
 }

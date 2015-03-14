@@ -5,7 +5,7 @@
  * PhotoPizza DIY is an open source project of 360° product photography turntable.
  *
  * Author: Roman Savrulin <romeo.deepmind@gmail.com>
- * Project Author:
+ * Project Author: Vladimir Matiyasevith <vladimir.m@makerdrive.com>
  * Project Site: PhotoPizza.org
  *
  * Copyright: 2015 MakerDrive
@@ -38,8 +38,6 @@
 
 #include "keyboard.h"
 
-#define VER "V. 1.6.0"
-
 namespace PhotoPizza {
 
 #if (BOARD_TYPE == BOARD_TYPE_NANO) //TODO: move lcd to class member???
@@ -69,9 +67,9 @@ void lcdIrController::sayHello() {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(F("PhotoPizza DIY"));
-  Serial.println(F("PhotoPizza DIY " VER));
+  Serial.println(F("PhotoPizza DIY " VERSION));
   lcd.setCursor(0, 1);
-  lcd.print(F(VER));
+  lcd.print(F(VERSION));
   delay(2000);
 }
 
@@ -207,7 +205,7 @@ void lcdIrController::editMode() {
     }
     break;
   }
-  if(key != kbNoKey)
+  if(key != kbNoKey && key != kbDown && key != kbUp)
     showProgram();
 }
 

@@ -5,7 +5,7 @@
  * PhotoPizza DIY is an open source project of 360° product photography turntable.
  *
  * Author: Roman Savrulin <romeo.deepmind@gmail.com>
- * Project Author:
+ * Project Author: Vladimir Matiyasevith <vladimir.m@makerdrive.com>
  * Project Site: PhotoPizza.org
  *
  * Copyright: 2015 MakerDrive
@@ -77,8 +77,6 @@ public:
 
   void update(){
     _update = true;
-    if(!_preset._run.isRunning())
-      discard();
   }
   bool isUpdated(){
     if(_update){

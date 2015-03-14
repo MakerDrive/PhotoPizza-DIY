@@ -174,6 +174,7 @@ void lcdIrController::editMode() {
 
   switch (key) {
   case kbPwr:
+    _presetMgr->save();
     _presetMgr->stop();
     _presetMgr->run();
     break;

@@ -41,16 +41,35 @@ class relayPause: public Timer{
 public:
   relayPause(unsigned long delayMs): Timer(delayMs, NULL){
     pinMode(RELAY_PIN, OUTPUT);
+    _frameCount = 0;
   };
   ~relayPause(){};
-  void start(){
+
+  inline void on(){
+    if(_frameCount >= 0)
+      --_frameCount;
     digitalWrite(RELAY_PIN, HIGH);
+  }
+
+  inline void off(){
+    digitalWrite(RELAY_PIN, LOW);
+  }
+
+  void start(){
+    on();
     Timer::start();
   };
+
   virtual boolean operator()(){
-    digitalWrite(RELAY_PIN, LOW);
+    off();
     return true;
   }
+
+  bool framesLeft(){
+    return _frameCount != 0;
+  }
+
+  short _frameCount;
 };
 
 class paramRun : public EnumedParam, public Timer{
@@ -65,8 +84,9 @@ public:
     _valHiLimit = MAP_SIZE(map) - 1;
     _map = map;
     _run = false;
-    _iterCount = 0;
     _delayTime = 0;
+    _chunkSize = 0;
+    _lastChunk = 0;
     _relayCycle = false;
     set(val);
   }
@@ -109,7 +129,8 @@ private:
   void stopPreset();
   bool startMotor(Task *t);
   relayPause _relay;
-  short _iterCount;
+  long _chunkSize;
+  long _lastChunk;
 private:
 };
 }

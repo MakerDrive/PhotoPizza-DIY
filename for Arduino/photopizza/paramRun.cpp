@@ -38,7 +38,7 @@ namespace PhotoPizza{
 AccelStepper stepper(AccelStepper::DRIVER, MOTOR_STP_PIN, MOTOR_DIR_PIN);
 
 boolean paramRun::operator()(){
-  if(_iterCount == 0 || _val == 0){
+  if(!_relay.framesLeft() || _val == 0){
     _run = false;
     _val = 0;
     presetManager::get()->discard();
@@ -74,18 +74,28 @@ void paramRun::down(){
 
 void paramRun::loop(){
   presetManager *pMgr = presetManager::get();
-  if(!stepper.run() && _run){
-    if(!Timer::isRunning()){
-      setPeriodMs(pMgr->getPreset()->_pause);
-      start();
+  if(!stepper.run()){
+    if(_run){
+      if(!_relay.isRunning() && !_relayCycle && _val){
+        _relay.start();
+        _relayCycle = true;
+      }
+      if(!Timer::isRunning()){
+        setPeriodMs(pMgr->getPreset()->_pause);
+        start();
+      }
+      if(!_val){
+        Timer::stop(true);
+        _relay.stop(true);
+      }
     }
-    if(!_relay.isRunning() && !_relayCycle && _val){
-      _relay.start();
-      _relayCycle = true;
-    }
-    if(!_val){
-      Timer::stop(true);
-      _relay.stop(true);
+  }else{
+    if(_chunkSize){
+      long chunk = stepper.currentPosition()/_chunkSize;
+      if(chunk != _lastChunk){
+        _relay.start();
+        _lastChunk = stepper.currentPosition()/_chunkSize;
+      }
     }
   }
 }
@@ -93,14 +103,25 @@ void paramRun::loop(){
 bool paramRun::startMotor(Task *t){
   preset *preset = presetManager::get()->getPreset();
 
-  if(_iterCount >= 0)
-    --_iterCount;
+  DBG(F("Steps") + preset->_steps);
+  DBG(F("Speed") + preset->_speed);
+  DBG(F("Accel") + preset->_acc);
+  DBG(F("Dir") + preset->_dir);
+  DBG(F("Frames") + preset->_frames);
+  DBG(F("Pause") + preset->_pause);
 
   _relayCycle = false;
-  long steps = preset->_steps * preset->_dir / preset->_frames;
-  DBG(F("Accel") + preset->_acc);
-  DBG(F("Steps") + steps);
-  DBG(F("Speed") + preset->_speed);
+  long steps = preset->_steps * preset->_dir;
+  _chunkSize = steps/preset->_frames;
+  _lastChunk = 0;
+
+  if(preset->_pause > PAUSE_NONE){
+    steps /= preset->_frames;
+    DBG(F("Splitting ") + preset->_steps + F(" in ") + preset->_pause + F("chunks."));
+    DBG(F("Chunk size: ") + steps);
+    _chunkSize = 0; //disable relay triggering for pause: none mode
+  }
+
   stepper.setCurrentPosition(0L);
   if(preset->_acc == 0){
     stepper.setAcceleration(10000000); //no acc.
@@ -121,7 +142,7 @@ void paramRun::edit() {
   DBG(F("Run"));
   _val = 1;
   _run = true;
-  _iterCount = presetManager::get()->getPreset()->_frames;
+  _relay._frameCount = presetManager::get()->getPreset()->_frames;
   startMotor(NULL);
 
   presetManager::get()->update();

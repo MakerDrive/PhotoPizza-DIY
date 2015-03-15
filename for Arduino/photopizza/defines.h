@@ -59,7 +59,7 @@
 #define RELAY_HOLD_TIMEOUT 100
 
 ////  PARAMS
-#define SPEED_MIN 100
+#define SPEED_MIN 1
 #define SPEED_MAX 4300
 #define SPEED_STEP 50
 
@@ -78,6 +78,9 @@
 #define PAUSE_MIN 0
 #define PAUSE_MAX 50000
 #define PAUSE_STEP 100
+#define PAUSE_NONE   0
+#define PAUSE_BURST -1
+
 
 #define NUM_PROGRAMS 4
 

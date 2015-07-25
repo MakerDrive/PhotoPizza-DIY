@@ -30,7 +30,7 @@
 #ifndef defines_h
 #define defines_h
 
-#define VERSION "V. 2.0.0"
+#define VERSION "V. 2.1.0"
 
 //#define DBG(x) Serial.println((String)x);
 

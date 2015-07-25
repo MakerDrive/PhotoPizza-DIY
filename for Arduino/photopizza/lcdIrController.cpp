@@ -41,18 +41,18 @@
 namespace PhotoPizza {
 
 #if (BOARD_TYPE == BOARD_TYPE_NANO) //TODO: move lcd to class member???
-static LiquidCrystal_I2C lcd(0x27,16,2); // select the pins used on the LCD panel
+static LiquidCrystal_I2C lcd(0x27, 16, 2); // select the pins used on the LCD panel
 #elif (BOARD_TYPE == BOARD_TYPE_UNO)
-static LiquidCrystal lcd(8, 9, 4, 5, 6, 7); // select the pins used on the LCD panel
+    static LiquidCrystal lcd(8, 9, 4, 5, 6, 7); // select the pins used on the LCD panel
 #endif
 
 ///////////  Presets
-/* static */ presetManager *lcdIrController::_presetMgr;
+/* static */presetManager *lcdIrController::_presetMgr;
 
-void lcdIrController::init(){
+void lcdIrController::init() {
 #if (BOARD_TYPE == BOARD_TYPE_NANO)
   Wire.begin();
-  lcd.init();                      // initialize the lcd
+  lcd.init(); // initialize the lcd
   lcd.backlight();
 #endif
   lcd.home();
@@ -73,15 +73,20 @@ void lcdIrController::sayHello() {
   delay(2000);
 }
 
-void lcdIrController::loop(){
-
+void lcdIrController::processKey(kbKeys key) {
   if (_presetMgr->isEdit())
-    editMode();
+    editMode(key);
   else
-    menuMode();
+    menuMode(key);
 
-  if(_presetMgr->isUpdated())
+  if (_presetMgr->isUpdated())
     showProgram();
+}
+
+void lcdIrController::loop() {
+
+  kbKeys key = kbGetKey();
+  processKey(key);
 }
 
 void lcdIrController::printProgNum() {
@@ -115,8 +120,7 @@ void lcdIrController::showProgram() {
 
 ///////////////////////////////////////
 
-void lcdIrController::menuMode() {
-  int key = kbGetKey();
+void lcdIrController::menuMode(kbKeys key) {
   long val;
 
   switch (key) {
@@ -154,23 +158,22 @@ void lcdIrController::menuMode() {
     break;
 
   default:
-    key = kbGetNumericKey(key);
-    if(key >= 0){
+    int keyV = kbGetNumericKey(key);
+    if (keyV >= 0) {
       _presetMgr->edit();
       _presetMgr->setValue(0);
-      val = _presetMgr->getValue() * 10 + key;
+      val = _presetMgr->getValue() * 10 + keyV;
       _presetMgr->setValue(val);
     }
     break;
   }
 
-  if(key != kbNoKey && key != kbPwr)
+  if (key != kbNoKey && key != kbPwr)
     showProgram();
 }
 
-void lcdIrController::editMode() {
+void lcdIrController::editMode(kbKeys key) {
   long val;
-  int key = kbGetKey();
 
   switch (key) {
   case kbPwr:
@@ -199,16 +202,36 @@ void lcdIrController::editMode() {
     break;
 
   default:
-    key = kbGetNumericKey(key);
-    if(key >= 0){
-        val = _presetMgr->getValue() * 10 + key;
-        _presetMgr->setValue(val);
+    int keyV = kbGetNumericKey(key);
+    if (keyV >= 0) {
+      val = _presetMgr->getValue() * 10 + keyV;
+      _presetMgr->setValue(val);
     }
     break;
   }
-  if(key != kbNoKey && key != kbDown && key != kbUp)
+  if (key != kbNoKey && key != kbDown && key != kbUp)
     showProgram();
 }
 
+String lcdIrController::emulateBtn(String cmd) {
+
+  String OK = F("OK");
+  String ERR = F("ERR");
+  String BtnCmd = F("BTN ");
+
+  if (cmd.startsWith(BtnCmd)) {
+
+    cmd.remove(0, BtnCmd.length());
+
+    int key = cmd.toInt();
+
+    if(!(key > kbNoKey && key < kbBtnCount))
+      return ERR;
+
+    processKey((kbKeys)key);
+    return OK;
+  } else
+    return ERR;
 }
 
+}

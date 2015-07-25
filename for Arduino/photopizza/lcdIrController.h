@@ -31,6 +31,7 @@
 #define PHOTOPIZZA_V1_2_2_LCDIRCONTROLLER_H_
 
 #include "presetManager.h"
+#include "keyboard.h"
 
 namespace PhotoPizza {
 
@@ -39,12 +40,14 @@ class lcdIrController {
 public:
   void loop();
   void init();
+  String emulateBtn(String cmd);
 
 private:
   void showProgram();
 
-  void editMode();
-  void menuMode();
+  void processKey(kbKeys key);
+  void editMode(kbKeys key);
+  void menuMode(kbKeys key);
 
   void sayHello();
   void printProgNum();

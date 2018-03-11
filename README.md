@@ -9,8 +9,7 @@ using the detailed instructions, and you do not need deep knowledge in electroni
 
 # How to build
 
-* Use SmartGit to checkout with submodules with one step
-* If using console git do `git clone https://github.com/romansavrulin/PhotoPizza-DIY.git && git submodule init && git submodule update`
+* Do `git clone https://github.com/romansavrulin/PhotoPizza-DIY.git && git submodule init && git submodule update` or use SmartGit to checkout repo
 * Go to Arduino->settings
 * Point worspace dir to workspace dir in checked out directory
 * Select `Arduino Uno` or `Arduino Nano` board

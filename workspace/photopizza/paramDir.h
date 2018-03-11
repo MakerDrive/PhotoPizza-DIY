@@ -40,8 +40,8 @@ public:
   paramDir() : paramDir(0){}
   paramDir(long val) {
     static enumParamMapItem dirMap[] = {
-        {CW, F("CW")},
-        {CCW, F("CCW")}
+        {CW, F(">")},
+        {CCW, F("<")}
     };
     _valHiLimit = MAP_SIZE(dirMap) - 1;
     //Serial.println((String)F("_valHiLim ctor: ") + _valHiLimit);
@@ -49,19 +49,12 @@ public:
     set(val);
   }
 
-  virtual String getName(bool shorten = false){
+  virtual String getName(){
     return F("dir");
   }
 
-  virtual String toString(bool shorten = false){
-    if(!shorten)
-      return EnumedParam::toString(shorten);
-    else{
-      if ((long)*this == CW)
-        return (String) F(">");
-      else
-        return (String) F("<");
-    }
+  virtual String toString(){
+      return EnumedParam::toString();
   }
 };
 }

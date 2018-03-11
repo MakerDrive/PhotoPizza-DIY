@@ -115,9 +115,9 @@ public:
     return _run;
   }
 
-  virtual bool set(long int val){ return true;}
+  virtual bool set(long int val){ (void)val; return true;}
 
-  virtual String getName(bool shorten = false){
+  virtual String getName(){
     return F("Run");
   }
   void loop();

@@ -44,7 +44,7 @@ public:
     this->set(val);
   }
 
-  virtual String getName(bool shorten = false){
+  virtual String getName(){
     return F("speed");
   }
 };

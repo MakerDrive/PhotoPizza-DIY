@@ -101,6 +101,7 @@ void paramRun::loop(){
 }
 
 bool paramRun::startMotor(Task *t){
+  (void)t;
   preset *preset = presetManager::get()->getPreset();
 
   DBG(F("Steps") + preset->_steps);

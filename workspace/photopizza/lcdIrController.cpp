@@ -102,7 +102,7 @@ void lcdIrController::showProgram() {
   lcd.clear();
   printProgNum();
   lcd.setCursor(10, 0);
-  lcd.print(_presetMgr->getPreset()->_dir.toString(true));
+  lcd.print(_presetMgr->getPreset()->_dir.toString());
 
   IParam *ptr = _presetMgr->getParam();
 

@@ -45,11 +45,11 @@ public:
     this->set(val);
   }
 
-  virtual String getName(bool shorten = false){
+  virtual String getName(){
     return F("pause");
   }
 
-  virtual String toString(bool shorten = false){
+  virtual String toString(){
     long val = get();
     if(val > 0)
       return (String)val;

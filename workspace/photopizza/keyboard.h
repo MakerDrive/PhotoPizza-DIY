@@ -31,7 +31,7 @@
 #define PHOTOPIZZA_V1_2_2_KEYBOARD_H_
 
 namespace PhotoPizza{
-typedef enum kbKeys{
+typedef enum {
 
   kbNoKey = -1,  //!!! DO NOT SET NUMBERS OR CHANGE ORDER!
 
@@ -63,7 +63,7 @@ typedef enum kbKeys{
 
 
   kbBtnCount //!!! DO NOT SET NUMBERS OR CHANGE ORDER!
-};
+}kbKeys;
 
 kbKeys kbGetKey();
 int kbGetNumericKey(int key);

@@ -35,7 +35,7 @@
 
 int freeRam ();
 
-#ifndef DBG(x)
+#ifndef DBG
 #define DBG(x)
 #endif
 

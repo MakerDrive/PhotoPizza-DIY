@@ -7,6 +7,15 @@ The control unit platform is based on the Arduino.
 You can self-assemble the device from the available components,
 using the detailed instructions, and you do not need deep knowledge in electronics.
 
+# How to build
+
+* Use SmartGit to checkout with submodules with one step
+* If using console git do `git clone https://github.com/romansavrulin/PhotoPizza-DIY.git && git submodule init && git submodule update`
+* Go to Arduino->settings
+* Point worspace dir to workspace dir in checked out directory
+* Select Arduino or Arduino Mini board
+* Build and burn firmware
+
 http://PhotoPizza.org - ENG
 
 http://PhotoPizza.ru - RUS

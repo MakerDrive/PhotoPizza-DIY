@@ -1,0 +1,3 @@
+[submodule "for Arduino/libraries/SoftTimer"]
+	path = for Arduino/libraries/SoftTimer
+	url = https://romansavrulin@github.com/romansavrulin/SoftTimer.git

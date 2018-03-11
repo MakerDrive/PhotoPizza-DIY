@@ -7,9 +7,8 @@ The control unit platform is based on the Arduino.
 You can self-assemble the device from the available components,
 using the detailed instructions, and you do not need deep knowledge in electronics.
 
-http://makerdrive.org/project/item/photopizza - RUS
+http://PhotoPizza.org - ENG
 
-http://makerdrive.com/project/item/photopizza - ENG
-
+http://PhotoPizza.ru - RUS
 
 photopizza@makerdrive.com

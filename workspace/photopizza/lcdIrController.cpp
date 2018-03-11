@@ -35,23 +35,25 @@
 #include <AccelStepper.h>
 #include "IRReceiver.h"
 #include "presetManager.h"
+#include "defines.h"
 
 #include "keyboard.h"
 
 namespace PhotoPizza {
 
-#if (BOARD_TYPE == BOARD_TYPE_NANO) //TODO: move lcd to class member???
-static LiquidCrystal_I2C lcd(0x27, 16, 2); // select the pins used on the LCD panel
-#elif (BOARD_TYPE == BOARD_TYPE_UNO)
-    static LiquidCrystal lcd(8, 9, 4, 5, 6, 7); // select the pins used on the LCD panel
+#if defined (ARDUINO_AVR_NANO) //TODO: move lcd to class member???
+  static LiquidCrystal_I2C lcd(I2C_LCD_ADDRESS, 16, 2); // select the pins used on the LCD panel
+#elif defined (ARDUINO_AVR_UNO)
+  static LiquidCrystal lcd(8, 9, 4, 5, 6, 7); // select the pins used on the LCD panel
+#else
+  #error "Board Not Supported"
 #endif
 
 ///////////  Presets
 /* static */presetManager *lcdIrController::_presetMgr;
 
 void lcdIrController::init() {
-#if (BOARD_TYPE == BOARD_TYPE_NANO)
-  Wire.begin();
+#if defined (ARDUINO_AVR_NANO)
   lcd.init(); // initialize the lcd
   lcd.backlight();
 #endif

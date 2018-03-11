@@ -13,7 +13,8 @@ using the detailed instructions, and you do not need deep knowledge in electroni
 * If using console git do `git clone https://github.com/romansavrulin/PhotoPizza-DIY.git && git submodule init && git submodule update`
 * Go to Arduino->settings
 * Point worspace dir to workspace dir in checked out directory
-* Select Arduino or Arduino Mini board
+* Select `Arduino Uno` or `Arduino Nano` board
+* Select COM port used for that board
 * Build and burn firmware
 
 http://PhotoPizza.org - ENG

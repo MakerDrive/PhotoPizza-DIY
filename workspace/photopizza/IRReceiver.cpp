@@ -30,6 +30,7 @@
 #include "IRReceiver.h"
 #include <Arduino.h>
 #include "defines.h"
+#include "defines.h"
 
 //TODO: convert to class
 
@@ -39,8 +40,6 @@
 #define BIT_1 1500          // Binary 1 threshold (Microseconds)
 #define BIT_0 450           // Binary 0 threshold (Microseconds)
 #define BIT_START 4000      // Start bit threshold (Microseconds)
-
-#define IR_PIN 2            // IR Sensor pin
 
 #define IR_TIMEO 100000L    //
 

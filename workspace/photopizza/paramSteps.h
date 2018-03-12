@@ -44,7 +44,7 @@ public:
     this->set(val);
   }
 
-  virtual String getName(bool shorten = false){
+  virtual String getName(){
     return F("steps");
   }
 
@@ -54,9 +54,10 @@ public:
         val = FRAME_COUNT_MAX;
     }
     LimitedParam::set(val);
+    return true;
   }
 
-  virtual String toString(bool shorten = false){
+  virtual String toString(){
     long val = get();
     if(val == 0)
       return F("inf");

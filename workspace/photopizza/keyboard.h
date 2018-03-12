@@ -1,6 +1,6 @@
 /**
- * File: utils.h
- * Created on: 10 mar 2015 г.
+ * File: keyboard.h
+ * Created on: 26 feb 2015 г.
  * Description:
  * PhotoPizza DIY is an open source project of 360° product photography turntable.
  *
@@ -27,17 +27,48 @@
  *
  */
 
-#ifndef PHOTOPIZZA_V1_2_2_UTILS_H_
-#define PHOTOPIZZA_V1_2_2_UTILS_H_
+#ifndef PHOTOPIZZA_V1_2_2_KEYBOARD_H_
+#define PHOTOPIZZA_V1_2_2_KEYBOARD_H_
 
-#include <Arduino.h>
-#include "defines.h"
+namespace PhotoPizza{
+typedef enum {
 
-int freeRam ();
+  kbNoKey = -1,  //!!! DO NOT SET NUMBERS OR CHANGE ORDER!
 
-#ifndef DBG(x)
-#define DBG(x)
-#endif
+  kbBtn0 = 0, //numeric
+  kbBtn1,
+  kbBtn2,
+  kbBtn3,
+  kbBtn4,
+  kbBtn5,
+  kbBtn6,
+  kbBtn7,
+  kbBtn8,
+  kbBtn9,
+
+  kbPwr,
+  kbMenu,
+
+  kbBksp,
+  kbClear,
+  kbTest,
+
+  kbOk,
+
+  kbUp,
+  kbDown,
+  kbLeft,
+  kbRight,
 
 
-#endif /* PHOTOPIZZA_V1_2_2_UTILS_H_ */
+
+  kbBtnCount //!!! DO NOT SET NUMBERS OR CHANGE ORDER!
+}kbKeys;
+
+kbKeys kbGetKey();
+int kbGetNumericKey(int key);
+
+}
+
+
+#endif /* PHOTOPIZZA_V1_2_2_KEYBOARD_H_ */

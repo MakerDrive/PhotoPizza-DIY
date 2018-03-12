@@ -1,6 +1,6 @@
 /**
- * File: paramAcc.h
- * Created on: 26 feb 2015 г.
+ * File: paramIterCount.h
+ * Created on: 10 mar 2015 г.
  * Description:
  * PhotoPizza DIY is an open source project of 360° product photography turntable.
  *
@@ -27,39 +27,35 @@
  *
  */
 
-#ifndef PHOTOPIZZA_V1_2_2_PARAMACC_H_
-#define PHOTOPIZZA_V1_2_2_PARAMACC_H_
+#ifndef PHOTOPIZZA_V1_2_2_PARAMITERCOUNT_H_
+#define PHOTOPIZZA_V1_2_2_PARAMITERCOUNT_H_
 
 #include "defines.h"
 #include "param.h"
 
 namespace PhotoPizza {
-class paramAcc : public LimitedParam {
+class paramFrameCount : public LimitedParam {
 public:
-  paramAcc() : paramAcc(5000){}
-  paramAcc(long val){
-    _valStep = ACC_STEP;
-    _valLoLimit = ACC_MIN;
-    _valHiLimit = ACC_MAX;
+  paramFrameCount() : paramFrameCount(0){}
+  paramFrameCount(long val){
+    _valStep = FRAME_COUNT_STEP;
+    _valLoLimit = FRAME_COUNT_MIN;
+    _valHiLimit = FRAME_COUNT_MAX;
     this->set(val);
   }
 
-  virtual String getName(bool shorten = false){
-    return F("accel");
+  virtual String getName(){
+    return F("frame");
   }
 
-  virtual String toString(bool shorten = false){
+  virtual String toString(){
     long val = get();
     if(val > 0)
       return (String)val;
-    else if(val == 0)
-      return F("inf");
     else
       return F("?");
   }
 };
 }
 
-
-
-#endif /* PHOTOPIZZA_V1_2_2_PARAMACC_H_ */
+#endif /* PHOTOPIZZA_V1_2_2_PARAMITERCOUNT_H_ */

@@ -30,30 +30,28 @@
 #ifndef defines_h
 #define defines_h
 
-#define VERSION "V. 2.1.0"
+#define VERSION "V. 2.1.1"
 
 //#define DBG(x) Serial.println((String)x);
 
-#define BOARD_TYPE_NANO 0
-#define BOARD_TYPE_UNO 1
-
-//#define BOARD_TYPE BOARD_TYPE_NANO
-
-#ifndef BOARD_TYPE
-#define BOARD_TYPE BOARD_TYPE_UNO
-#endif
-
-#if (BOARD_TYPE == BOARD_TYPE_NANO)
+#if defined (ARDUINO_AVR_NANO)
 #define MOTOR_STP_PIN 6
 #define MOTOR_DIR_PIN 3
 #define RELAY_PIN     13
-#elif (BOARD_TYPE == BOARD_TYPE_UNO)
+#elif defined (ARDUINO_AVR_UNO)
 #define MOTOR_STP_PIN 12
 #define MOTOR_DIR_PIN 13
 #define RELAY_PIN     11
 #else
 #error "Board Not Supported!"
 #endif
+
+#define IR_PIN 2            // IR Sensor pin
+
+#define I2C_LCD_ADDRESS 0x27
+
+//#define I2C_LCD_SDA //default wire pins
+//#define I2C_LCD_SCL 
 
 
 #define RELAY_HOLD_TIMEOUT 100

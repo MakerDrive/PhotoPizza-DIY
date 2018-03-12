@@ -46,8 +46,8 @@ public:
   virtual void edit() = 0;
   virtual bool save() = 0;
   virtual void discard() = 0;
-  virtual String toString(bool shorten = false) = 0;
-  virtual String getName(bool shorten = false) = 0;
+  virtual String toString() = 0;
+  virtual String getName() = 0;
   virtual bool set(long val) = 0;
   virtual long get() = 0;
   virtual operator long() = 0;
@@ -117,14 +117,14 @@ public:
     _edit = false;
   }
 
-  virtual String toString(bool shorten = false) {
+  virtual String toString() {
     if(_edit)
       return (String) _editVal;
     else
       return (String) _val;
   }
 
-  virtual String getName(bool shorten = false) {
+  virtual String getName() {
     return F("param");
   }
 
@@ -184,7 +184,7 @@ public:
   const __FlashStringHelper* label;
 };
 
-#ifndef MAP_SIZE(x)
+#ifndef MAP_SIZE
 #define MAP_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #endif
 
@@ -223,7 +223,7 @@ public:
     return false;
   }
 
-  virtual String toString(bool shorten = false){
+  virtual String toString(){
     int val = _val;
     if(_edit)
       val = _editVal;

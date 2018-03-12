@@ -1,5 +1,5 @@
 /**
- * File: paramSpeed.h
+ * File: paramDir.h
  * Created on: 26 feb 2015 г.
  * Description:
  * PhotoPizza DIY is an open source project of 360° product photography turntable.
@@ -27,29 +27,38 @@
  *
  */
 
-#ifndef PHOTOPIZZA_V1_2_2_PARAMSPEED_H_
-#define PHOTOPIZZA_V1_2_2_PARAMSPEED_H_
+#ifndef PHOTOPIZZA_V1_2_2_PARAMDIR_H_
+#define PHOTOPIZZA_V1_2_2_PARAMDIR_H_
 
 #include "defines.h"
 #include "param.h"
 
 namespace PhotoPizza {
-class paramSpeed : public LimitedParam {
+
+class paramDir : public EnumedParam {
 public:
-  paramSpeed() : paramSpeed(1000){}
-  paramSpeed(long val){
-    _valStep = SPEED_STEP;
-    _valLoLimit = SPEED_MIN;
-    _valHiLimit = SPEED_MAX;
-    this->set(val);
+  paramDir() : paramDir(0){}
+  paramDir(long val) {
+    static enumParamMapItem dirMap[] = {
+        {CW, F(">")},
+        {CCW, F("<")}
+    };
+    _valHiLimit = MAP_SIZE(dirMap) - 1;
+    //Serial.println((String)F("_valHiLim ctor: ") + _valHiLimit);
+    _map = dirMap;
+    set(val);
   }
 
-  virtual String getName(bool shorten = false){
-    return F("speed");
+  virtual String getName(){
+    return F("dir");
+  }
+
+  virtual String toString(){
+      return EnumedParam::toString();
   }
 };
 }
 
 
 
-#endif /* PHOTOPIZZA_V1_2_2_PARAMSPEED_H_ */
+#endif /* PHOTOPIZZA_V1_2_2_PARAMDIR_H_ */

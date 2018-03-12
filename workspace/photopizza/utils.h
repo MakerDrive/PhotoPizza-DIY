@@ -1,5 +1,5 @@
 /**
- * File: paramPause.h
+ * File: utils.h
  * Created on: 10 mar 2015 г.
  * Description:
  * PhotoPizza DIY is an open source project of 360° product photography turntable.
@@ -27,39 +27,17 @@
  *
  */
 
-#ifndef PHOTOPIZZA_V1_2_2_PARAMPAUSE_H_
-#define PHOTOPIZZA_V1_2_2_PARAMPAUSE_H_
+#ifndef PHOTOPIZZA_V1_2_2_UTILS_H_
+#define PHOTOPIZZA_V1_2_2_UTILS_H_
 
-
+#include <Arduino.h>
 #include "defines.h"
-#include "param.h"
 
-namespace PhotoPizza {
-class paramPause : public LimitedParam {
-public:
-  paramPause() : paramPause(0){}
-  paramPause(long val){
-    _valStep = PAUSE_STEP;
-    _valLoLimit = PAUSE_MIN;
-    _valHiLimit = PAUSE_MAX;
-    this->set(val);
-  }
+int freeRam ();
 
-  virtual String getName(bool shorten = false){
-    return F("pause");
-  }
-
-  virtual String toString(bool shorten = false){
-    long val = get();
-    if(val > 0)
-      return (String)val;
-    else if(val == 0)
-      return F("none");
-    else
-      return F("?");
-  }
-};
-}
+#ifndef DBG
+#define DBG(x)
+#endif
 
 
-#endif /* PHOTOPIZZA_V1_2_2_PARAMPAUSE_H_ */
+#endif /* PHOTOPIZZA_V1_2_2_UTILS_H_ */

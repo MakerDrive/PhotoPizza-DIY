@@ -1,5 +1,5 @@
 /**
- * File: paramDir.h
+ * File: paramAcc.h
  * Created on: 26 feb 2015 г.
  * Description:
  * PhotoPizza DIY is an open source project of 360° product photography turntable.
@@ -27,45 +27,39 @@
  *
  */
 
-#ifndef PHOTOPIZZA_V1_2_2_PARAMDIR_H_
-#define PHOTOPIZZA_V1_2_2_PARAMDIR_H_
+#ifndef PHOTOPIZZA_V1_2_2_PARAMACC_H_
+#define PHOTOPIZZA_V1_2_2_PARAMACC_H_
 
 #include "defines.h"
 #include "param.h"
 
 namespace PhotoPizza {
-
-class paramDir : public EnumedParam {
+class paramAcc : public LimitedParam {
 public:
-  paramDir() : paramDir(0){}
-  paramDir(long val) {
-    static enumParamMapItem dirMap[] = {
-        {CW, F("CW")},
-        {CCW, F("CCW")}
-    };
-    _valHiLimit = MAP_SIZE(dirMap) - 1;
-    //Serial.println((String)F("_valHiLim ctor: ") + _valHiLimit);
-    _map = dirMap;
-    set(val);
+  paramAcc() : paramAcc(5000){}
+  paramAcc(long val){
+    _valStep = ACC_STEP;
+    _valLoLimit = ACC_MIN;
+    _valHiLimit = ACC_MAX;
+    this->set(val);
   }
 
-  virtual String getName(bool shorten = false){
-    return F("dir");
+  virtual String getName(){
+    return F("accel");
   }
 
-  virtual String toString(bool shorten = false){
-    if(!shorten)
-      return EnumedParam::toString(shorten);
-    else{
-      if ((long)*this == CW)
-        return (String) F(">");
-      else
-        return (String) F("<");
-    }
+  virtual String toString(){
+    long val = get();
+    if(val > 0)
+      return (String)val;
+    else if(val == 0)
+      return F("inf");
+    else
+      return F("?");
   }
 };
 }
 
 
 
-#endif /* PHOTOPIZZA_V1_2_2_PARAMDIR_H_ */
+#endif /* PHOTOPIZZA_V1_2_2_PARAMACC_H_ */

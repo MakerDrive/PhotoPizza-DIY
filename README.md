@@ -15,9 +15,3 @@ using the detailed instructions, and you do not need deep knowledge in electroni
 * Select `Arduino Uno` or `Arduino Nano` board
 * Select COM port used for that board
 * Build and burn firmware
-
-http://PhotoPizza.org - ENG
-
-http://PhotoPizza.ru - RUS
-
-photopizza@makerdrive.com
